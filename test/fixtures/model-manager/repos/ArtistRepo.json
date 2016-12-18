@@ -1,0 +1,22 @@
+{
+  "name": "artist",
+  "dataSource": "db",
+  "entityConstructor": "Artist",
+  "embeddedConstructors": {
+    "bestSellingAlbums.*": "Album"
+  },
+  "relations": {
+    "albums": {
+      "type": "hasMany",
+      "repo": "album",
+      "key": "artistId",
+      "populate": true
+    },
+    "recordCompany": {
+      "type": "belongsToOne",
+      "repo": "recordCompany",
+      "key": "recordCompanyId",
+      "populate": true
+    }
+  }
+}
