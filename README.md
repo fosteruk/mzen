@@ -40,7 +40,6 @@ mZen is a small NodeJS module that provides functionality for implementing an ap
       - An empty value is any falsey value
   - Specify default values 
     - Default value is used when an attempting to insert an document with an undefined field which has a default value
-  
   - Type-casting 
     - When field type is configured, value is cast to the required type on insert or update
     - Cast failure produces a validation error
