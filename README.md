@@ -1,6 +1,8 @@
 # mZen
+## Domain modeling with NodeJS and MongoDB 
 
-Domain modeling NodeJS module 
+mZen is a small NodeJS module that provides functionality for implementing an application domain model using MongoDB for persistance. It allows you to organise the different elements of your model into sperate components and provides a mechanism for those components to interact. 
+
 - Domain elements are separated into Entities, Services and Repositories
   - Entities are objects that represent your data. 
     - Elements of the model that have an identity. Your documents (users, products, orders, posts)
@@ -16,7 +18,6 @@ Domain modeling NodeJS module
   - Populate document relations
 - Uses ES6 promises
 
-
 - MongoDB persistence
 - Document relation population
   - Common relations supported
@@ -24,24 +25,19 @@ Domain modeling NodeJS module
     - hasMany
     - belongsToOne
     - belongsToMany (many-to-many using an embedded reference array)
-  
   - Optimised to minimise queries. One query per relation. Even when populating a collection
-  
   - Relations may be configured to auto-populate allowing a complex reference tree to be loaded with minimum code
     - Population of individual relations may be disabled in query options 
-  
   - Relations may be auto-populated from initial query or manually populated onto an existing result set
 
 - Data validation and type-casting 
   - Define document structure as a set of fields and embedded documents 
-
   - Built-in validators
     - required 
       - field must be present (null is accepted)
     - notNull
     - notEmpty 
       - An empty value is any falsey value
-  
   - Specify default values 
     - Default value is used when an attempting to insert an document with an undefined field which has a default value
   
@@ -54,4 +50,3 @@ Domain modeling NodeJS module
       - boolean
       - Date
       - ObjectID
-# mZen
