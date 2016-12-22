@@ -18,9 +18,7 @@ mZen can be used in any type application server-side, client-app or as a REST AP
 - Object Document Mapping (ODM)
   - Populate documents into constructor instances (e.g instance of an ES6 class)
   - Populate document relations
-- Uses ES6 promises
 
-- MongoDB persistence
 - Document relation population
   - Common relations supported
     - hasOne 
@@ -36,10 +34,9 @@ mZen can be used in any type application server-side, client-app or as a REST AP
   - Define document structure as a set of fields and embedded documents 
   - Built-in validators
     - required 
-      - field must be present (null is accepted)
+      - field must be present 
     - notNull
     - notEmpty 
-      - An empty value is any falsey value
   - Specify default values 
     - Default value is used when an attempting to insert an document with an undefined field which has a default value
   - Type-casting 
