@@ -426,8 +426,6 @@ describe('Repo', function () {
       .then(function(docs){
         should(docs[0].timezone.getName).be.type('function');
         should(docs[0].timezone.getName()).eql('Europe/London Timezone');
-        //should(docs[0].timezone.country.getName).be.type('function');
-        //should(docs[0].timezone.country.getName()).eql('United Kingdom Country');
         done();
       }).catch(function(err){
         done(err);
@@ -799,6 +797,110 @@ describe('Repo', function () {
       userRepo.find({}, {populate: {'userTimezone.country': false}}).then(function(docs){
         should(docs[0].userTimezone.name).eql('Europe/London');
         should(docs[0].userTimezone.country).be.type('undefined');
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
+    it('should not recurse relations by default', function (done){
+      var data = {
+        mother: [
+          {_id: '1', name: 'Alison'}
+        ],
+        child: [
+          {_id: '1', motherId: '1', name: 'Kevin'}
+        ]
+      };
+      var dataSource = new MockDataSource(data);
+      
+      var motherRepo = new Repo({
+        name: 'mother',
+        relations: {
+          children: {
+            type: 'hasMany',
+            repo: 'child',
+            key: 'motherId',
+            alias: 'children',
+            populate: true
+          }
+        }
+      });
+      motherRepo.dataSource = dataSource;
+
+      var childRepo = new Repo({
+        name: 'child',
+        relations: {
+          mother: {
+            type: 'belongsToOne',
+            repo: 'mother',
+            key: 'motherId',
+            alias: 'mother',
+            populate: true
+          }
+        }
+      });
+      childRepo.dataSource = dataSource;
+      childRepo.repos['mother'] = motherRepo;
+      motherRepo.repos['child'] = childRepo;
+      
+      motherRepo.find({}).then(function(docs){
+        should(docs[0].name).eql('Alison');
+        should(docs[0].children[0].name).eql('Kevin');
+        should(docs[0].children[0].mother.name).eql('Alison');
+        should(docs[0].children[0].mother.children).be.type('undefined');
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
+    it('should recurse relation upto recursion config value 1', function (done){
+      var data = {
+        mother: [
+          {_id: '1', name: 'Alison'}
+        ],
+        child: [
+          {_id: '1', motherId: '1', name: 'Kevin'}
+        ]
+      };
+      var dataSource = new MockDataSource(data);
+      
+      var motherRepo = new Repo({
+        name: 'mother',
+        relations: {
+          children: {
+            type: 'hasMany',
+            repo: 'child',
+            key: 'motherId',
+            alias: 'children',
+            populate: true,
+            recursion: 1
+          }
+        }
+      });
+      motherRepo.dataSource = dataSource;
+
+      var childRepo = new Repo({
+        name: 'child',
+        relations: {
+          mother: {
+            type: 'belongsToOne',
+            repo: 'mother',
+            key: 'motherId',
+            alias: 'mother',
+            populate: true
+          }
+        }
+      });
+      childRepo.dataSource = dataSource;
+      childRepo.repos['mother'] = motherRepo;
+      motherRepo.repos['child'] = childRepo;
+      
+      motherRepo.find({}).then(function(docs){
+        should(docs[0].name).eql('Alison');
+        should(docs[0].children[0].name).eql('Kevin');
+        should(docs[0].children[0].mother.name).eql('Alison');
+        should(docs[0].children[0].mother.children[0].name).eql('Kevin');
+        should(docs[0].children[0].mother.children[0].mother).be.type('undefined');
         done();
       }).catch(function(err){
         done(err);
