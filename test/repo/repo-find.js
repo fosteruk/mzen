@@ -409,8 +409,8 @@ describe('Repo', function () {
       timezoneRepo.dataSource = dataSource;
       userRepo.repos['timezone'] = timezoneRepo;
       
-      var Country = {
-        getName: function(){
+      var Country = class {
+        getName(){
           return this.name + ' Country';
         }
       };
@@ -420,6 +420,7 @@ describe('Repo', function () {
       });
       countryRepo.dataSource = dataSource;
       timezoneRepo.repos['country'] = countryRepo;
+      userRepo.repos['country'] = countryRepo;
 
       userRepo.find({})
       .then(function(docs){
