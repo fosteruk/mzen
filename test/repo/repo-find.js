@@ -853,7 +853,7 @@ describe('Repo', function () {
         done(err);
       });
     });
-    it('should recurse relation upto recursion config value 1', function (done){
+    it('should recurse relation up to recursion config value 1', function (done){
       var data = {
         mother: [
           {_id: '1', name: 'Alison'}
@@ -906,7 +906,7 @@ describe('Repo', function () {
         done(err);
       });
     });
-    it('should load relation by perform one query per document if limit option was specified', function (done){
+    it('should load relation by performing one query per document if limit option was specified', function (done){
       var data = {
         mother: [
           {_id: '1', name: 'Alison'},

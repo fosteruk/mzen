@@ -616,5 +616,168 @@ describe('Repo', function () {
         done(err);
       });
     });
+    it('should not recurse relations by default', function (done){
+      var data = {
+        mother: [
+          {_id: '1', name: 'Alison'}
+        ],
+        child: [
+          {_id: '1', motherId: '1', name: 'Kevin'}
+        ]
+      };
+      var dataSource = new MockDataSource(data);
+      
+      var motherRepo = new Repo({
+        name: 'mother',
+        relations: {
+          children: {
+            type: 'hasMany',
+            repo: 'child',
+            key: 'motherId',
+            alias: 'children',
+            populate: true
+          }
+        }
+      });
+      motherRepo.dataSource = dataSource;
+
+      var childRepo = new Repo({
+        name: 'child',
+        relations: {
+          mother: {
+            type: 'belongsToOne',
+            repo: 'mother',
+            key: 'motherId',
+            alias: 'mother',
+            populate: true
+          }
+        }
+      });
+      childRepo.dataSource = dataSource;
+      childRepo.repos['mother'] = motherRepo;
+      motherRepo.repos['child'] = childRepo;
+      
+      motherRepo.findOne({}).then(function(doc){
+        should(doc.name).eql('Alison');
+        should(doc.children[0].name).eql('Kevin');
+        should(doc.children[0].mother.name).eql('Alison');
+        should(doc.children[0].mother.children).be.type('undefined');
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
+    it('should recurse relation up to recursion config value 1', function (done){
+      var data = {
+        mother: [
+          {_id: '1', name: 'Alison'}
+        ],
+        child: [
+          {_id: '1', motherId: '1', name: 'Kevin'}
+        ]
+      };
+      var dataSource = new MockDataSource(data);
+      
+      var motherRepo = new Repo({
+        name: 'mother',
+        relations: {
+          children: {
+            type: 'hasMany',
+            repo: 'child',
+            key: 'motherId',
+            alias: 'children',
+            populate: true,
+            recursion: 1
+          }
+        }
+      });
+      motherRepo.dataSource = dataSource;
+
+      var childRepo = new Repo({
+        name: 'child',
+        relations: {
+          mother: {
+            type: 'belongsToOne',
+            repo: 'mother',
+            key: 'motherId',
+            alias: 'mother',
+            populate: true
+          }
+        }
+      });
+      childRepo.dataSource = dataSource;
+      childRepo.repos['mother'] = motherRepo;
+      motherRepo.repos['child'] = childRepo;
+      
+      motherRepo.findOne({}).then(function(doc){
+        should(doc.name).eql('Alison');
+        should(doc.children[0].name).eql('Kevin');
+        should(doc.children[0].mother.name).eql('Alison');
+        should(doc.children[0].mother.children[0].name).eql('Kevin');
+        should(doc.children[0].mother.children[0].mother).be.type('undefined');
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
+    it('should load relation by performing one query per document if limit option was specified', function (done){
+      var data = {
+        mother: [
+          {_id: '1', name: 'Alison'},
+          {_id: '1', name: 'Gina'},
+        ],
+        child: [
+          {_id: '1', motherId: '1', name: 'Kevin'},
+          {_id: '2', motherId: '1', name: 'Lisa'},
+          {_id: '3', motherId: '1', name: 'Claire'},
+          {_id: '4', motherId: '2', name: 'Ian'},
+          {_id: '5', motherId: '2', name: 'Brenda'},
+          {_id: '6', motherId: '2', name: 'Alison'},
+        ],
+      };
+      var dataSource = new MockDataSource(data);
+      
+      var motherRepo = new Repo({
+        name: 'mother',
+        relations: {
+          children: {
+            type: 'hasMany',
+            repo: 'child',
+            key: 'motherId',
+            alias: 'children',
+            limit: 1,
+            populate: true
+          }
+        }
+      });
+      motherRepo.dataSource = dataSource;
+
+      var childRepo = new Repo({
+        name: 'child',
+        relations: {
+          mother: {
+            type: 'belongsToOne',
+            repo: 'mother',
+            key: 'motherId',
+            alias: 'mother',
+            populate: false
+          }
+        }
+      });
+      childRepo.dataSource = dataSource;
+      childRepo.repos['mother'] = motherRepo;
+      motherRepo.repos['child'] = childRepo;
+      
+      motherRepo.findOne({}).then(function(doc){
+        // Query count should be 2
+        // - 1 for the initial find query and then 1 for populating relation
+        should(dataSource.queryCount).eql(2);
+        should(doc.children.length).eql(1);
+        should(doc.children.length).eql(1);
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
   });
 });
