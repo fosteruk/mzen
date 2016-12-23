@@ -1,6 +1,6 @@
 {
   "name": "mzen",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "mZen",
   "main": "/lib/model-manager",
   "scripts": {
@@ -9,9 +9,9 @@
   "author": "Kevin Foster <kevin.foster.uk@gmail.com>",
   "license": "BSD-3-Clause",
   "homepage": "https://github.com/kevin-foster/mZen",
-  "repository" : { 
-    "type" : "git", 
-    "url" : "https://github.com/kevin-foster/mZen.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kevin-foster/mZen.git"
   },
   "dependencies": {
     "clone": "^1.0.2",
