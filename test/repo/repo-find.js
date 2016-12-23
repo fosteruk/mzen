@@ -36,6 +36,7 @@ describe('Repo', function () {
           {_id: '1', name: 'Kevin Foster'}
         ]
       };
+      var dataSource = new MockDataSource(data);
 
       var user = new Repo({
         name: 'user',
@@ -49,12 +50,12 @@ describe('Repo', function () {
           }
         }
       });
-      user.dataSource = new MockDataSource(data);
+      user.dataSource = dataSource;
 
       var userTimezone = new Repo({
         name: 'userTimezone'
       });
-      userTimezone.dataSource = new MockDataSource(data);
+      userTimezone.dataSource = dataSource;
       user.repos['userTimezone'] = userTimezone;
 
       user.find({})
@@ -75,7 +76,8 @@ describe('Repo', function () {
           {_id: '1', name: 'Kevin Foster', userTimezoneId: '1'}
         ]
       };
-
+      var dataSource = new MockDataSource(data);
+      
       var user = new Repo({
         name: 'user',
         relations: {
@@ -87,12 +89,12 @@ describe('Repo', function () {
           }
         }
       });
-      user.dataSource = new MockDataSource(data);
+      user.dataSource = dataSource;
 
       var userTimezone = new Repo({
         name: 'userTimezone'
       });
-      userTimezone.dataSource = new MockDataSource(data);
+      userTimezone.dataSource = dataSource;
       user.repos['userTimezone'] = userTimezone;
 
       user.find({})
@@ -116,7 +118,8 @@ describe('Repo', function () {
           {_id: '4', name: 'Kid A', artistId: '1'}
         ]
       };
-
+      var dataSource = new MockDataSource(data);
+      
       var artist = new Repo({
         name: 'artist',
         relations: {
@@ -128,12 +131,12 @@ describe('Repo', function () {
           }
         }
       });
-      artist.dataSource = new MockDataSource(data);
+      artist.dataSource = dataSource;
 
       var album = new Repo({
         name: 'album'
       });
-      album.dataSource = new MockDataSource(data);
+      album.dataSource = dataSource;
       artist.repos['album'] = album;
 
       artist.find({})
@@ -157,7 +160,8 @@ describe('Repo', function () {
           {_id: '1', name: 'Kevin Foster'}
         ]
       };
-
+      var dataSource = new MockDataSource(data);
+      
       var userRepo = new Repo({
         name: 'user',
         relations: {
@@ -171,12 +175,12 @@ describe('Repo', function () {
           }
         }
       });
-      userRepo.dataSource = new MockDataSource(data);
+      userRepo.dataSource = dataSource;
 
       var userTimezoneRepo = new Repo({
         name: 'userTimezone'
       });
-      userTimezoneRepo.dataSource = new MockDataSource(data);
+      userTimezoneRepo.dataSource = dataSource;
       userRepo.repos['userTimezone'] = userTimezoneRepo;
 
       userRepo.find({})
@@ -201,6 +205,7 @@ describe('Repo', function () {
           {_id: '4', name: 'Kid A', artistId: '1', deleted: 0}
         ]
       };
+      var dataSource = new MockDataSource(data);
 
       var artist = new Repo({
         name: 'artist',
@@ -214,12 +219,12 @@ describe('Repo', function () {
           }
         }
       });
-      artist.dataSource = new MockDataSource(data);
+      artist.dataSource = dataSource;
 
       var album = new Repo({
         name: 'album'
       });
-      album.dataSource = new MockDataSource(data);
+      album.dataSource = dataSource;
       artist.repos['album'] = album;
 
       artist.find({})
@@ -317,6 +322,8 @@ describe('Repo', function () {
           {_id: '1', name: 'Kevin Foster', timeZoneId: '1'}
         ]
       };
+      var dataSource = new MockDataSource(data);
+      
       var userRepo = new Repo({
         name: 'user',
         relations: {
@@ -329,7 +336,7 @@ describe('Repo', function () {
           }
         }
       });
-      userRepo.dataSource = new MockDataSource(data);
+      userRepo.dataSource = dataSource;
 
       var timezone = class {
         getName(){
@@ -341,7 +348,7 @@ describe('Repo', function () {
         name: 'userTimezone',
         entityConstructor: timezone
       });
-      userTimezoneRepo.dataSource = new MockDataSource(data);
+      userTimezoneRepo.dataSource = dataSource;
       userRepo.repos['userTimezone'] = userTimezoneRepo;
 
       userRepo.find({})
@@ -365,6 +372,8 @@ describe('Repo', function () {
           {_id: '1', name: 'Kevin Foster', timeZoneId: '1'}
         ]
       };
+      var dataSource = new MockDataSource(data);
+      
       var userRepo = new Repo({
       name: 'user',
         relations: {
@@ -377,7 +386,7 @@ describe('Repo', function () {
         }
       }
       });
-      userRepo.dataSource = new MockDataSource(data);
+      userRepo.dataSource = dataSource;
 
       var Timezone = class {
         getName(){
@@ -397,7 +406,7 @@ describe('Repo', function () {
           }
         }
       });
-      timezoneRepo.dataSource = new MockDataSource(data);
+      timezoneRepo.dataSource = dataSource;
       userRepo.repos['timezone'] = timezoneRepo;
       
       var Country = {
@@ -409,7 +418,7 @@ describe('Repo', function () {
         name: 'country',
         entityConstructor: Country
       });
-      countryRepo.dataSource = new MockDataSource(data);
+      countryRepo.dataSource = dataSource;
       timezoneRepo.repos['country'] = countryRepo;
 
       userRepo.find({})
@@ -563,6 +572,8 @@ describe('Repo', function () {
           {_id: '1', name: 'Kevin Foster'}
         ]
       };
+      var dataSource = new MockDataSource(data);
+      
       var userRepo = new Repo({
         name: 'user',
         relations: {
@@ -575,7 +586,7 @@ describe('Repo', function () {
           }
         }
       });
-      userRepo.dataSource = new MockDataSource(data);
+      userRepo.dataSource = dataSource;
 
       var Timezone = class {
         getName(){
@@ -587,7 +598,7 @@ describe('Repo', function () {
         name: 'userTimezone',
         entityConstructor: Timezone
       });
-      userTimezoneRepo.dataSource = new MockDataSource(data);
+      userTimezoneRepo.dataSource = dataSource;
       userRepo.repos['userTimezone'] = userTimezoneRepo;
 
       userRepo.find({}, {entityConstructor: false}).then(function(docs){
@@ -607,6 +618,8 @@ describe('Repo', function () {
           {_id: '1', timezoneId: '1', name: 'Kevin Foster'}
         ]
       };
+      var dataSource = new MockDataSource(data);
+      
       var userRepo = new Repo({
         name: 'user',
         relations: {
@@ -619,12 +632,12 @@ describe('Repo', function () {
           }
         }
       });
-      userRepo.dataSource = new MockDataSource(data);
+      userRepo.dataSource = dataSource;
 
       var userTimezoneRepo = new Repo({
         name: 'userTimezone'
       });
-      userTimezoneRepo.dataSource = new MockDataSource(data);
+      userTimezoneRepo.dataSource = dataSource;
       userRepo.repos['userTimezone'] = userTimezoneRepo;
 
       userRepo.find({}, {populate: {userTimezone: true}}).then(function(docs){
@@ -643,6 +656,8 @@ describe('Repo', function () {
           {_id: '1', timezoneId: '1', name: 'Kevin Foster'}
         ]
       };
+      var dataSource = new MockDataSource(data);
+      
       var userRepo = new Repo({
         name: 'user',
         relations: {
@@ -655,12 +670,12 @@ describe('Repo', function () {
           }
         }
       });
-      userRepo.dataSource = new MockDataSource(data);
+      userRepo.dataSource = dataSource;
 
       var userTimezoneRepo = new Repo({
         name: 'userTimezone'
       });
-      userTimezoneRepo.dataSource = new MockDataSource(data);
+      userTimezoneRepo.dataSource = dataSource;
       userRepo.repos['userTimezone'] = userTimezoneRepo;
 
       userRepo.find({}, {populate: {userTimezone: false}}).then(function(docs){
@@ -682,6 +697,7 @@ describe('Repo', function () {
           {_id: '1', userTimezoneId: '1', name: 'Kevin Foster'}
         ]
       };
+      var dataSource = new MockDataSource(data);
       
       var userRepo = new Repo({
         name: 'user',
@@ -695,7 +711,7 @@ describe('Repo', function () {
           }
         }
       });
-      userRepo.dataSource = new MockDataSource(data);
+      userRepo.dataSource = dataSource;
 
       var userTimezoneRepo = new Repo({
         name: 'userTimezone',
@@ -710,13 +726,13 @@ describe('Repo', function () {
           }
         }
       });
-      userTimezoneRepo.dataSource = new MockDataSource(data);
+      userTimezoneRepo.dataSource = dataSource;
       userRepo.repos['userTimezone'] = userTimezoneRepo;
       
       var countryRepo = new Repo({
         name: 'country'
       });
-      countryRepo.dataSource = new MockDataSource(data);
+      countryRepo.dataSource = dataSource;
       userTimezoneRepo.repos['country'] = countryRepo;
       userRepo.repos['country'] = countryRepo;
 
@@ -740,6 +756,7 @@ describe('Repo', function () {
           {_id: '1', userTimezoneId: '1', name: 'Kevin Foster'}
         ]
       };
+      var dataSource = new MockDataSource(data);
       
       var userRepo = new Repo({
         name: 'user',
@@ -753,7 +770,7 @@ describe('Repo', function () {
           }
         }
       });
-      userRepo.dataSource = new MockDataSource(data);
+      userRepo.dataSource = dataSource;
 
       var userTimezoneRepo = new Repo({
         name: 'userTimezone',
@@ -768,17 +785,15 @@ describe('Repo', function () {
           }
         }
       });
-      userTimezoneRepo.dataSource = new MockDataSource(data);
+      userTimezoneRepo.dataSource = dataSource;
       userRepo.repos['userTimezone'] = userTimezoneRepo;
       
       var countryRepo = new Repo({
         name: 'country'
       });
-      countryRepo.dataSource = new MockDataSource(data);
+      countryRepo.dataSource = dataSource;
       userTimezoneRepo.repos['country'] = countryRepo;
       userRepo.repos['country'] = countryRepo;
-      
-      //console.log(userTimezoneRepo.repos);
 
       userRepo.find({}, {populate: {'userTimezone.country': false}}).then(function(docs){
         should(docs[0].userTimezone.name).eql('Europe/London');
