@@ -906,5 +906,64 @@ describe('Repo', function () {
         done(err);
       });
     });
+    it('should load relation by perform one query per document if limit option was specified', function (done){
+      var data = {
+        mother: [
+          {_id: '1', name: 'Alison'},
+          {_id: '1', name: 'Gina'},
+        ],
+        child: [
+          {_id: '1', motherId: '1', name: 'Kevin'},
+          {_id: '2', motherId: '1', name: 'Lisa'},
+          {_id: '3', motherId: '1', name: 'Claire'},
+          {_id: '4', motherId: '2', name: 'Ian'},
+          {_id: '5', motherId: '2', name: 'Brenda'},
+          {_id: '6', motherId: '2', name: 'Alison'},
+        ],
+      };
+      var dataSource = new MockDataSource(data);
+      
+      var motherRepo = new Repo({
+        name: 'mother',
+        relations: {
+          children: {
+            type: 'hasMany',
+            repo: 'child',
+            key: 'motherId',
+            alias: 'children',
+            limit: 1,
+            populate: true
+          }
+        }
+      });
+      motherRepo.dataSource = dataSource;
+
+      var childRepo = new Repo({
+        name: 'child',
+        relations: {
+          mother: {
+            type: 'belongsToOne',
+            repo: 'mother',
+            key: 'motherId',
+            alias: 'mother',
+            populate: false
+          }
+        }
+      });
+      childRepo.dataSource = dataSource;
+      childRepo.repos['mother'] = motherRepo;
+      motherRepo.repos['child'] = childRepo;
+      
+      motherRepo.find({}).then(function(docs){
+        // Query count should be 3 
+        // - 1 for the initial find query and then 2 for populating relations
+        should(dataSource.queryCount).eql(3);
+        should(docs[0].children.length).eql(1);
+        should(docs[1].children.length).eql(1);
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
   });
 });
