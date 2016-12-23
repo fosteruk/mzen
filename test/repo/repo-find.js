@@ -598,5 +598,78 @@ describe('Repo', function () {
         done(err);
       });
     });
+    it('should allow relation to be enabled via populate option', function (done) {
+      var data = {
+        userTimezone: [
+          {_id: '1', userId: '1', name: 'Europe/London'}
+        ],
+        user: [
+          {_id: '1', name: 'Kevin Foster'}
+        ]
+      };
+      var userRepo = new Repo({
+        name: 'user',
+        relations: {
+          userTimezone: {
+            type: 'hasOne',
+            repo: 'userTimezone',
+            key: 'userId',
+            alias: 'userTimezone',
+            populate: false // important - initialy the relation is configured not to populate
+          }
+        }
+      });
+      userRepo.dataSource = new MockDataSource(data);
+
+      var userTimezoneRepo = new Repo({
+        name: 'userTimezone'
+      });
+      userTimezoneRepo.dataSource = new MockDataSource(data);
+      userRepo.repos['userTimezone'] = userTimezoneRepo;
+
+      userRepo.find({}, {populate: {userTimezone: true}}).then(function(docs){
+        should(docs[0].userTimezone.getName).be.type('undefined');
+        should(docs[0].userTimezone.name).eql('Europe/London');
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
+    it('should allow relation to be disabled via populate option', function (done) {
+      var data = {
+        userTimezone: [
+          {_id: '1', userId: '1', name: 'Europe/London'}
+        ],
+        user: [
+          {_id: '1', name: 'Kevin Foster'}
+        ]
+      };
+      var userRepo = new Repo({
+        name: 'user',
+        relations: {
+          userTimezone: {
+            type: 'hasOne',
+            repo: 'userTimezone',
+            key: 'userId',
+            alias: 'userTimezone',
+            populate: true
+          }
+        }
+      });
+      userRepo.dataSource = new MockDataSource(data);
+
+      var userTimezoneRepo = new Repo({
+        name: 'userTimezone'
+      });
+      userTimezoneRepo.dataSource = new MockDataSource(data);
+      userRepo.repos['userTimezone'] = userTimezoneRepo;
+
+      userRepo.find({}, {populate: {userTimezone: false}}).then(function(docs){
+        should(docs[0].userTimezone).be.type('undefined');
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
   });
 });

@@ -416,5 +416,41 @@ describe('Repo', function () {
         done(err);
       });
     });
+    it('should allow relation to to be disabled via populate option', function (done) {
+      var data = {
+        userTimezone: [
+          {_id: '1', userId: '1', name: 'Europe/London'}
+        ],
+        user: [
+          {_id: '1', name: 'Kevin Foster'}
+        ]
+      };
+      var userRepo = new Repo({
+        name: 'user',
+        relations: {
+          userTimezone: {
+            type: 'hasOne',
+            repo: 'userTimezone',
+            key: 'userId',
+            alias: 'userTimezone',
+            populate: true
+          }
+        }
+      });
+      userRepo.dataSource = new MockDataSource(data);
+
+      var userTimezoneRepo = new Repo({
+        name: 'userTimezone'
+      });
+      userTimezoneRepo.dataSource = new MockDataSource(data);
+      userRepo.repos['userTimezone'] = userTimezoneRepo;
+
+      userRepo.findOne({}, {populate: {userTimezone: false}}).then(function(doc){
+        should(doc.userTimezone).be.type('undefined');
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
   });
 });
