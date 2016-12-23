@@ -416,22 +416,58 @@ describe('Repo', function () {
         done(err);
       });
     });
-    it('should allow relation to to be disabled via populate option', function (done) {
+    it('should allow relation to to be enabled via populate option', function (done){
       var data = {
         userTimezone: [
-          {_id: '1', userId: '1', name: 'Europe/London'}
+          {_id: '1', name: 'Europe/London'}
         ],
         user: [
-          {_id: '1', name: 'Kevin Foster'}
+          {_id: '1', timezoneId: '1', name: 'Kevin Foster'}
         ]
       };
       var userRepo = new Repo({
         name: 'user',
         relations: {
           userTimezone: {
-            type: 'hasOne',
+            type: 'belongsToOne',
             repo: 'userTimezone',
-            key: 'userId',
+            key: 'timezoneId',
+            alias: 'userTimezone',
+            populate: false
+          }
+        }
+      });
+      userRepo.dataSource = new MockDataSource(data);
+
+      var userTimezoneRepo = new Repo({
+        name: 'userTimezone'
+      });
+      userTimezoneRepo.dataSource = new MockDataSource(data);
+      userRepo.repos['userTimezone'] = userTimezoneRepo;
+
+      userRepo.findOne({}, {populate: {userTimezone: true}}).then(function(doc){
+        should(doc.userTimezone.name).eql('Europe/London');
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
+    it('should allow relation to to be disabled via populate option', function (done){
+      var data = {
+        userTimezone: [
+          {_id: '1', name: 'Europe/London'}
+        ],
+        user: [
+          {_id: '1', timezoneId: '1', name: 'Kevin Foster'}
+        ]
+      };
+      var userRepo = new Repo({
+        name: 'user',
+        relations: {
+          userTimezone: {
+            type: 'belongsToOne',
+            repo: 'userTimezone',
+            key: 'timezoneId',
             alias: 'userTimezone',
             populate: true
           }
@@ -447,6 +483,121 @@ describe('Repo', function () {
 
       userRepo.findOne({}, {populate: {userTimezone: false}}).then(function(doc){
         should(doc.userTimezone).be.type('undefined');
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
+    it('should allow nested relation to be disabled via populate option', function (done){
+      var data = {
+        country: [
+          {_id: '1', name: 'UK'}
+        ],
+        userTimezone: [
+          {_id: '1', countryId: '1', name: 'Europe/London'}
+        ],
+        user: [
+          {_id: '1', userTimezoneId: '1', name: 'Kevin Foster'}
+        ]
+      };
+      
+      var userRepo = new Repo({
+        name: 'user',
+        relations: {
+          userTimezone: {
+            type: 'belongsToOne',
+            repo: 'userTimezone',
+            key: 'userTimezoneId',
+            alias: 'userTimezone',
+            populate: true
+          }
+        }
+      });
+      userRepo.dataSource = new MockDataSource(data);
+
+      var userTimezoneRepo = new Repo({
+        name: 'userTimezone',
+        relations: {
+          country: {
+            type: 'belongsToOne',
+            repo: 'country',
+            key: 'countryId',
+            alias: 'country',
+            recursion: 1,
+            populate: false // important - initialy the relation is configured not to populate
+          }
+        }
+      });
+      userTimezoneRepo.dataSource = new MockDataSource(data);
+      userRepo.repos['userTimezone'] = userTimezoneRepo;
+      
+      var countryRepo = new Repo({
+        name: 'country'
+      });
+      countryRepo.dataSource = new MockDataSource(data);
+      userTimezoneRepo.repos['country'] = countryRepo;
+      userRepo.repos['country'] = countryRepo;
+
+      userRepo.findOne({}, {populate: {'userTimezone.country': true}}).then(function(doc){
+        should(doc.userTimezone.country.name).eql('UK');
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
+    it('should allow nested relation to be disabled via populate option', function (done){
+      var data = {
+        country: [
+          {_id: '1', name: 'UK'}
+        ],
+        userTimezone: [
+          {_id: '1', countryId: '1', name: 'Europe/London'}
+        ],
+        user: [
+          {_id: '1', userTimezoneId: '1', name: 'Kevin Foster'}
+        ]
+      };
+      
+      var userRepo = new Repo({
+        name: 'user',
+        relations: {
+          userTimezone: {
+            type: 'belongsToOne',
+            repo: 'userTimezone',
+            key: 'userTimezoneId',
+            alias: 'userTimezone',
+            populate: true
+          }
+        }
+      });
+      userRepo.dataSource = new MockDataSource(data);
+
+      var userTimezoneRepo = new Repo({
+        name: 'userTimezone',
+        relations: {
+          country: {
+            type: 'belongsToOne',
+            repo: 'country',
+            key: 'countryId',
+            alias: 'country',
+            recursion: 1,
+            populate: true // important - initialy the relation is configured not to populate
+          }
+        }
+      });
+      userTimezoneRepo.dataSource = new MockDataSource(data);
+      userRepo.repos['userTimezone'] = userTimezoneRepo;
+      
+      var countryRepo = new Repo({
+        name: 'country'
+      });
+      countryRepo.dataSource = new MockDataSource(data);
+      userTimezoneRepo.repos['country'] = countryRepo;
+      userRepo.repos['country'] = countryRepo;
+
+      userRepo.findOne({}, {populate: {'userTimezone.country': false}}).then(function(doc){
+        should(doc.userTimezone.name).eql('Europe/London');
+        should(doc.userTimezone.country).be.type('undefined');
         done();
       }).catch(function(err){
         done(err);
