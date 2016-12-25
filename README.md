@@ -5,12 +5,12 @@ mZen is a small NodeJS module that provides functionality for implementing an ap
 
 mZen can be used in any type application server-side, client-app or as a REST API. [mZen-Server](https://github.com/kevin-foster/mZen-Server) is a separate NodeJS module that exposes an mZen model as a REST API server.
 
-- Domain elements are separated into Entities, Services and Repositories
-  - Entities are objects that represent your data. 
+- Model elements are separated into Entities, Services and Repositories
+  - Entities are objects that represent your data.
     - Elements of the model that have an identity. Your documents (users, products, orders, posts)
   - Services handle interaction between entities (checkout, authenticator, report-generator, email)
     - Entities operate only on their own data. If a entity needs to interact with another it does so via a service
-  - Repositories are responsible for persisting entities. 
+  - Repositories are responsible for persisting entities
     - Services use repositories to save and load entities
 - Schema
   - Validation
@@ -27,9 +27,10 @@ mZen can be used in any type application server-side, client-app or as a REST AP
     - belongsToOne
     - belongsToMany (many-to-many using an embedded reference array)
   - Optimised to minimise queries. One query per relation. Even when populating a collection
+    - When the populate query uses the limit option, population is performed with one query per document to ensure results are as expected 
   - Relations may be configured to auto-populate allowing a complex reference tree to be loaded with minimum code
-    - Population of individual relations may be disabled in query options 
-  - Relations may be auto-populated from initial query or manually populated onto an existing result set
+    - Population of relations (and nested relations) may be enabled/disabled in query options 
+  - Relations may be auto-populated from initial query or manually populated on to an existing result set
 
 - Data validation and type-casting 
   - Define document structure as a set of fields and embedded documents 
