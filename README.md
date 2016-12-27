@@ -40,10 +40,11 @@ mZen can be used in any type application server-side, client-app or as a REST AP
     - notNull
     - notEmpty 
   - Specify default values 
-    - Default value is used when an attempting to insert an document with an undefined field which has a default value
+    - Default value is used when validating, inserting or updating a field with an undefined or null value
   - Type-casting 
-    - When field type is configured, value is cast to the required type on insert or update
-    - Cast failure produces a validation error
+    - When field type is configured, value is cast to the required type on validation, insert or update
+    - Cast failure produces a validation error 
+      - For example: casting the string 'three' to type number would produce NaN resulting in a validation error
     - Supported types
       - string
       - number
