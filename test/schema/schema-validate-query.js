@@ -119,8 +119,8 @@ describe('Schema', function () {
           },
           {
             '$and': [
-              {name: {$eq: 456}},
-              {age: {$eq: '37'}}
+              {name: {$in: [456]}},
+              {age: {$nin: ['37']}}
             ]
           },
         ]
@@ -137,10 +137,10 @@ describe('Schema', function () {
       should(data.$or[0].$and[0].name.$eq.constructor).eql(String);
       should(data.$or[0].$and[1].age.$eq).eql(35);
       should(data.$or[0].$and[1].age.$eq.constructor).eql(Number);
-      should(data.$or[1].$and[0].name.$eq).eql('456');
-      should(data.$or[1].$and[0].name.$eq.constructor).eql(String);
-      should(data.$or[1].$and[1].age.$eq).eql(37);
-      should(data.$or[1].$and[1].age.$eq.constructor).eql(Number);
+      should(data.$or[1].$and[0].name.$in[0]).eql('456');
+      should(data.$or[1].$and[0].name.$in[0].constructor).eql(String);
+      should(data.$or[1].$and[1].age.$nin[0]).eql(37);
+      should(data.$or[1].$and[1].age.$nin[0].constructor).eql(Number);
     });
   });
 });
