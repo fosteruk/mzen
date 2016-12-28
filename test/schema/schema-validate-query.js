@@ -14,8 +14,8 @@ describe('Schema', function () {
       var schema = new Schema({
         name: String,
         age: Number,
-        cityId: [Number],
-        countryId: [String]
+        cityId: Number,
+        countryId: String
       });
 
       schema.validateQuery(data);
@@ -58,7 +58,7 @@ describe('Schema', function () {
       };
 
       var schema = new Schema({
-        name: [String]
+        name: String
       });
 
       schema.validateQuery(data);
@@ -76,7 +76,7 @@ describe('Schema', function () {
       };
 
       var schema = new Schema({
-        name: [String]
+        name: String
       });
 
       schema.validateQuery(data);
