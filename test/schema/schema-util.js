@@ -1,8 +1,8 @@
 'use strict'
 var should = require('should');
-var Schema = require('../lib/schema');
+var SchemaUtil = require('../../lib/schema/util');
 
-describe('Schema', function () {
+describe('SchemaUtil', function () {
   describe('getSpec()', function () {
     it('should return spec', function () {
       var spec = {
@@ -14,9 +14,7 @@ describe('Schema', function () {
         }
       };
       
-      var schema = new Schema(spec);
-      
-      var result = schema.getSpec();
+      var result = SchemaUtil.getSpec('', spec);
       should(result).eql(spec);
     });
     it('should return fields config for path field', function () {
@@ -29,9 +27,7 @@ describe('Schema', function () {
         }
       };
 
-      var schema = new Schema(spec);
-
-      var result = schema.getSpec('house');
+      var result = SchemaUtil.getSpec('house', spec);
       should(result).eql(spec.house);
     });
     it('should return fields config for path deep field', function () {
@@ -44,9 +40,7 @@ describe('Schema', function () {
         }
       };
 
-      var schema = new Schema(spec);
-
-      var result = schema.getSpec('house.rooms');
+      var result = SchemaUtil.getSpec('house.rooms', spec);
       should(result).eql(spec.house.rooms);
     });
     it('should return fields config for path deep array', function () {
@@ -59,9 +53,7 @@ describe('Schema', function () {
         }
       };
 
-      var schema = new Schema(spec);
-
-      var result = schema.getSpec('house.rooms.*.*');
+      var result = SchemaUtil.getSpec('house.rooms.*.*', spec);
       should(result).eql(spec.house.rooms[0][0]);
     });
     it('should return fields config for path deep array using array index path', function () {
@@ -74,9 +66,7 @@ describe('Schema', function () {
         }
       };
 
-      var schema = new Schema(spec);
-
-      var result = schema.getSpec('house.rooms.0.1');
+      var result = SchemaUtil.getSpec('house.rooms.0.1', spec);
       should(result).eql(spec.house.rooms[0][0]);
     });
     it('should return fields config for path deep array using array index path for array defined with object descriptor', function () {
@@ -90,9 +80,7 @@ describe('Schema', function () {
         }
       };
 
-      var schema = new Schema(spec);
-
-      var result = schema.getSpec('house.rooms.0');
+      var result = SchemaUtil.getSpec('house.rooms.0', spec);
       should(result).eql(spec.house.rooms.$spec);
     });
     it('should return fields config for path deep array field', function () {
@@ -105,9 +93,7 @@ describe('Schema', function () {
         }
       };
 
-      var schema = new Schema(spec);
-
-      var result = schema.getSpec('house.rooms.*.*.name');
+      var result = SchemaUtil.getSpec('house.rooms.*.*.name', spec);
       should(result).eql(spec.house.rooms[0][0].name);
     });
   });
