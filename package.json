@@ -1,6 +1,6 @@
 {
   "name": "mzen",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "mZen",
   "main": "/lib/model-manager",
   "scripts": {
