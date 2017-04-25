@@ -3,7 +3,7 @@
 
 mZen is a small NodeJS module that provides functionality for implementing an application domain model using MongoDB for persistence. It allows you to organise the different elements of your model into separate components and provides a mechanism for those components to interact. 
 
-mZen can be used in any type application server-side, client-app or as a REST API. [mZen-Server](https://github.com/kevin-foster/mZen-Server) is a separate NodeJS module that exposes an mZen model as a REST API server.
+mZen can be used in any type application, server-side, client-app or as a REST API. [mZen-Server](https://github.com/kevin-foster/mZen-Server) is a separate NodeJS module that exposes an mZen model as a REST API server.
 
 - Model elements are separated into Entities, Services and Repositories
   - Entities are objects that represent your data.
@@ -39,6 +39,11 @@ mZen can be used in any type application server-side, client-app or as a REST AP
       - field must be present 
     - notNull
     - notEmpty 
+    - length (min/max)
+    - regex
+    - equality (must be equal to another field in the same object)
+    - email
+  - Supports custom validators
   - Specify default values 
     - Default value is used when validating, inserting or updating a field with an undefined or null value
   - Type-casting 
@@ -50,4 +55,4 @@ mZen can be used in any type application server-side, client-app or as a REST AP
       - number
       - boolean
       - Date
-      - ObjectID
+      - ObjectID (BSON/MongoDB)
