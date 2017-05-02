@@ -1,0 +1,113 @@
+'use strict'
+var should = require('should');
+var Repo = require('../../lib/repo');
+var MockDataSource = require('../../lib/data-source/mock');
+
+describe('Repo', function () {
+  describe('updateMany()', function () {
+    it('should return type casted documents', function (done) {
+      var updateData = {
+        $set: {
+          number: '123',
+          string: '543'
+        }
+      };
+
+      var user = new Repo({
+        name: 'user',
+        schema: {
+          number: {$type: Number},
+          string: {$type: String},
+        }
+      });
+      user.dataSource = new MockDataSource({});
+
+      user.updateMany({}, updateData, {stripPrivate: true})
+      .then(function(result){
+        should(user.dataSource.dataUpdate[0]['$set'].number).eql(123);
+        should(user.dataSource.dataUpdate[0]['$set'].string).eql('543');
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
+    it('should strip private fields', function (done) {
+      var updateData = {
+        $set: {
+          name: 'Kevin',
+          cannotInsertThisValue: '123'
+        }
+      };
+
+      var user = new Repo({
+        name: 'user',
+        schema: {
+          name: String,
+          cannotInsertThisValue: {$type: String, $filter: {private: true}}
+        }
+      });
+      user.dataSource = new MockDataSource({});
+
+      user.updateMany({}, updateData, {stripPrivate: true})
+      .then(function(result){
+        should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
+        should(user.dataSource.dataUpdate[0]['$set'].cannotInsertThisValue).eql(undefined);
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
+    it('should strip private "write" fields', function (done) {
+      var updateData = {
+        $set: {
+          name: 'Kevin',
+          cannotInsertThisValue: '123'
+        }
+      };
+
+      var user = new Repo({
+        name: 'user',
+        schema: {
+          name: String,
+          cannotInsertThisValue: {$type: String, $filter: {private: 'write'}}
+        }
+      });
+      user.dataSource = new MockDataSource({});
+
+      user.updateMany({}, updateData, {stripPrivate: true})
+      .then(function(result){
+        should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
+        should(user.dataSource.dataUpdate[0]['$set'].cannotInsertThisValue).eql(undefined);
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
+    it('should not strip private "read" fields', function (done) {
+      var updateData = {
+        $set: {
+          name: 'Kevin',
+          canInsertThisValue: '123'
+        }
+      };
+
+      var user = new Repo({
+        name: 'user',
+        schema: {
+          name: String,
+          canInsertThisValue: {$type: String, $filter: {private: 'read'}}
+        }
+      });
+      user.dataSource = new MockDataSource({});
+
+      user.updateMany({}, updateData, {stripPrivate: true})
+      .then(function(result){
+        should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
+        should(user.dataSource.dataUpdate[0]['$set'].canInsertThisValue).eql('123');
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
+  });
+});

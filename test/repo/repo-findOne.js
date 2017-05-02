@@ -799,7 +799,7 @@ describe('Repo', function () {
       });
       repo.dataSource = dataSource;
       
-      repo.findOne({}, {stripPrivateFields: true}).then(function(doc){
+      repo.findOne({}, {stripPrivate: true}).then(function(doc){
         should(doc.name).eql('Alison');
         should(doc.password).eql(undefined);
         done();

@@ -970,7 +970,7 @@ describe('Repo', function () {
       });
       repo.dataSource = dataSource;
       
-      repo.find({}, {stripPrivateFields: true}).then(function(docs){
+      repo.find({}, {stripPrivate: true}).then(function(docs){
         should(docs[0].name).eql('Alison');
         should(docs[0].password).eql(undefined);
         should(docs[1].name).eql('Gina');
