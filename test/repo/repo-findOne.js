@@ -724,7 +724,7 @@ describe('Repo', function () {
       var data = {
         mother: [
           {_id: '1', name: 'Alison'},
-          {_id: '1', name: 'Gina'},
+          {_id: '2', name: 'Gina'},
         ],
         child: [
           {_id: '1', motherId: '1', name: 'Kevin'},
@@ -774,6 +774,34 @@ describe('Repo', function () {
         should(dataSource.queryCount).eql(2);
         should(doc.children.length).eql(1);
         should(doc.children.length).eql(1);
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
+    it('should strip private fields via stripPrivateFields option', function (done){
+      var data = {
+        user: [
+          {_id: '1', name: 'Alison', password: 'Abc'},
+          {_id: '2', name: 'Gina', password: '123'},
+        ]
+      };
+      var dataSource = new MockDataSource(data);
+      
+      var repo = new Repo({
+        name: 'user',
+        schema: {
+          password: {
+            $type: String, 
+            $filter: {private: true}
+          }
+        }
+      });
+      repo.dataSource = dataSource;
+      
+      repo.findOne({}, {stripPrivateFields: true}).then(function(doc){
+        should(doc.name).eql('Alison');
+        should(doc.password).eql(undefined);
         done();
       }).catch(function(err){
         done(err);

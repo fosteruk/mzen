@@ -909,16 +909,16 @@ describe('Repo', function () {
     it('should load relation by performing one query per document if limit option was specified', function (done){
       var data = {
         mother: [
-          {_id: '1', name: 'Alison'},
-          {_id: '1', name: 'Gina'},
+          {_id: '5', name: 'Alison'},
+          {_id: '6', name: 'Gina'}
         ],
         child: [
-          {_id: '1', motherId: '1', name: 'Kevin'},
-          {_id: '2', motherId: '1', name: 'Lisa'},
-          {_id: '3', motherId: '1', name: 'Claire'},
-          {_id: '4', motherId: '2', name: 'Ian'},
-          {_id: '5', motherId: '2', name: 'Brenda'},
-          {_id: '6', motherId: '2', name: 'Alison'},
+          {_id: '1', motherId: '5', name: 'Kevin'},
+          {_id: '2', motherId: '5', name: 'Lisa'},
+          {_id: '3', motherId: '5', name: 'Claire'},
+          {_id: '4', motherId: '6', name: 'Ian'},
+          {_id: '5', motherId: '6', name: 'Brenda'},
+          {_id: '6', motherId: '6', name: 'Alison'},
         ],
       };
       var dataSource = new MockDataSource(data);
@@ -939,19 +939,9 @@ describe('Repo', function () {
       motherRepo.dataSource = dataSource;
 
       var childRepo = new Repo({
-        name: 'child',
-        relations: {
-          mother: {
-            type: 'belongsToOne',
-            repo: 'mother',
-            key: 'motherId',
-            alias: 'mother',
-            populate: false
-          }
-        }
+        name: 'child'
       });
       childRepo.dataSource = dataSource;
-      childRepo.repos['mother'] = motherRepo;
       motherRepo.repos['child'] = childRepo;
       
       motherRepo.find({}).then(function(docs){
@@ -960,6 +950,31 @@ describe('Repo', function () {
         should(dataSource.queryCount).eql(3);
         should(docs[0].children.length).eql(1);
         should(docs[1].children.length).eql(1);
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
+    it('should strip field fields via stripPrivateFields option', function (done){
+      var data = {
+        user: [
+          {_id: '1', name: 'Alison', password: 'Abc'},
+          {_id: '2', name: 'Gina', password: '123'},
+        ]
+      };
+      var dataSource = new MockDataSource(data);
+      
+      var repo = new Repo({
+        name: 'user',
+        schema: {password: {$type: String, $filter: {private: true}}}
+      });
+      repo.dataSource = dataSource;
+      
+      repo.find({}, {stripPrivateFields: true}).then(function(docs){
+        should(docs[0].name).eql('Alison');
+        should(docs[0].password).eql(undefined);
+        should(docs[1].name).eql('Gina');
+        should(docs[1].password).eql(undefined);
         done();
       }).catch(function(err){
         done(err);
