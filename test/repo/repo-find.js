@@ -955,7 +955,7 @@ describe('Repo', function () {
         done(err);
       });
     });
-    it('should strip field fields via stripPrivateFields option', function (done){
+    it('should filter field fields via filterPrivateFields option', function (done){
       var data = {
         user: [
           {_id: '1', name: 'Alison', password: 'Abc'},
@@ -970,7 +970,7 @@ describe('Repo', function () {
       });
       repo.dataSource = dataSource;
       
-      repo.find({}, {stripPrivate: true}).then(function(docs){
+      repo.find({}, {filterPrivate: true}).then(function(docs){
         should(docs[0].name).eql('Alison');
         should(docs[0].password).eql(undefined);
         should(docs[1].name).eql('Gina');
@@ -980,7 +980,7 @@ describe('Repo', function () {
         done(err);
       });
     });
-    it('should not strip fields byt default', function (done){
+    it('should not filter fields byt default', function (done){
       var data = {
         user: [
           {_id: '1', name: 'Alison', password: 'Abc'}

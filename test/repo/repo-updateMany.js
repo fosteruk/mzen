@@ -22,7 +22,7 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource({});
 
-      user.updateMany({}, updateData, {stripPrivate: true})
+      user.updateMany({}, updateData, {filterPrivate: true})
       .then(function(result){
         should(user.dataSource.dataUpdate[0]['$set'].number).eql(123);
         should(user.dataSource.dataUpdate[0]['$set'].string).eql('543');
@@ -31,7 +31,7 @@ describe('Repo', function () {
         done(err);
       });
     });
-    it('should strip private fields', function (done) {
+    it('should filter private fields', function (done) {
       var updateData = {
         $set: {
           name: 'Kevin',
@@ -48,7 +48,7 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource({});
 
-      user.updateMany({}, updateData, {stripPrivate: true})
+      user.updateMany({}, updateData, {filterPrivate: true})
       .then(function(result){
         should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
         should(user.dataSource.dataUpdate[0]['$set'].cannotInsertThisValue).eql(undefined);
@@ -57,7 +57,7 @@ describe('Repo', function () {
         done(err);
       });
     });
-    it('should strip private "write" fields', function (done) {
+    it('should filter private "write" fields', function (done) {
       var updateData = {
         $set: {
           name: 'Kevin',
@@ -74,7 +74,7 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource({});
 
-      user.updateMany({}, updateData, {stripPrivate: true})
+      user.updateMany({}, updateData, {filterPrivate: true})
       .then(function(result){
         should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
         should(user.dataSource.dataUpdate[0]['$set'].cannotInsertThisValue).eql(undefined);
@@ -83,7 +83,7 @@ describe('Repo', function () {
         done(err);
       });
     });
-    it('should not strip private "read" fields', function (done) {
+    it('should not filter private "read" fields', function (done) {
       var updateData = {
         $set: {
           name: 'Kevin',
@@ -100,7 +100,7 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource({});
 
-      user.updateMany({}, updateData, {stripPrivate: true})
+      user.updateMany({}, updateData, {filterPrivate: true})
       .then(function(result){
         should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
         should(user.dataSource.dataUpdate[0]['$set'].canUpdateThisValue).eql('123');
@@ -109,7 +109,7 @@ describe('Repo', function () {
         done(err);
       });
     });
-    it('should not strip private fields by default', function (done) {
+    it('should not filter private fields by default', function (done) {
       var updateData = {
         $set: {
           name: 'Kevin',
