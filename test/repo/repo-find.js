@@ -980,5 +980,27 @@ describe('Repo', function () {
         done(err);
       });
     });
+    it('should not strip fields byt default', function (done){
+      var data = {
+        user: [
+          {_id: '1', name: 'Alison', password: 'Abc'}
+        ]
+      };
+      var dataSource = new MockDataSource(data);
+      
+      var repo = new Repo({
+        name: 'user',
+        schema: {password: {$type: String, $filter: {private: true}}}
+      });
+      repo.dataSource = dataSource;
+      
+      repo.find({}).then(function(docs){
+        should(docs[0].name).eql('Alison');
+        should(docs[0].password).eql('Abc');
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
   });
 });

@@ -87,7 +87,7 @@ describe('Repo', function () {
       var updateData = {
         $set: {
           name: 'Kevin',
-          canInsertThisValue: '123'
+          canUpdateThisValue: '123'
         }
       };
 
@@ -95,7 +95,7 @@ describe('Repo', function () {
         name: 'user',
         schema: {
           name: String,
-          canInsertThisValue: {$type: String, $filter: {private: 'read'}}
+          canUpdateThisValue: {$type: String, $filter: {private: 'read'}}
         }
       });
       user.dataSource = new MockDataSource({});
@@ -103,7 +103,33 @@ describe('Repo', function () {
       user.updateOne({}, updateData, {stripPrivate: true})
       .then(function(result){
         should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
-        should(user.dataSource.dataUpdate[0]['$set'].canInsertThisValue).eql('123');
+        should(user.dataSource.dataUpdate[0]['$set'].canUpdateThisValue).eql('123');
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
+    it('should not not strip private fields by default', function (done) {
+      var updateData = {
+        $set: {
+          name: 'Kevin',
+          canUpdateThisValue: '123'
+        }
+      };
+
+      var user = new Repo({
+        name: 'user',
+        schema: {
+          name: String,
+          canUpdateThisValue: {$type: String, $filter: {private: true}}
+        }
+      });
+      user.dataSource = new MockDataSource({});
+
+      user.updateOne({}, updateData)
+      .then(function(result){
+        should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
+        should(user.dataSource.dataUpdate[0]['$set'].canUpdateThisValue).eql('123');
         done();
       }).catch(function(err){
         done(err);

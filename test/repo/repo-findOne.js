@@ -779,7 +779,7 @@ describe('Repo', function () {
         done(err);
       });
     });
-    it('should strip private fields via stripPrivateFields option', function (done){
+    it('should strip private fields via stripPrivate option', function (done){
       var data = {
         user: [
           {_id: '1', name: 'Alison', password: 'Abc'},
@@ -802,6 +802,33 @@ describe('Repo', function () {
       repo.findOne({}, {stripPrivate: true}).then(function(doc){
         should(doc.name).eql('Alison');
         should(doc.password).eql(undefined);
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
+    it('should not strip private fields byt default', function (done){
+      var data = {
+        user: [
+          {_id: '1', name: 'Alison', password: 'Abc'}
+        ]
+      };
+      var dataSource = new MockDataSource(data);
+      
+      var repo = new Repo({
+        name: 'user',
+        schema: {
+          password: {
+            $type: String, 
+            $filter: {private: true}
+          }
+        }
+      });
+      repo.dataSource = dataSource;
+      
+      repo.findOne({}).then(function(doc){
+        should(doc.name).eql('Alison');
+        should(doc.password).eql('Abc');
         done();
       }).catch(function(err){
         done(err);

@@ -106,5 +106,30 @@ describe('Repo', function () {
         done(err);
       });
     });
+    it('should not strip private fields by default', function (done) {
+      var data = {
+        user: [
+          {_id: '1', name: 'Kevin', canInsertThisValue: 'test'}
+        ]
+      };
+
+      var user = new Repo({
+        name: 'user',
+        schema: {
+          name: String,
+          canInsertThisValue: {$type: String, $filter: {private: true}}
+        }
+      });
+      user.dataSource = new MockDataSource(data);
+
+      user.insertOne(data.user[0])
+      .then(function(result){
+        should(user.dataSource.dataInsert[0].name).eql('Kevin');
+        should(user.dataSource.dataInsert[0].canInsertThisValue).eql('test');
+        done();
+      }).catch(function(err){
+        done(err);
+      });
+    });
   });
 });
