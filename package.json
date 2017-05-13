@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "clone": "^1.0.2",
-    "mongodb": "^2.1.20",
+    "mongodb": "^2.2.26",
     "mzen-schema": "0.0.14"
   }
 }

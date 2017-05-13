@@ -5,7 +5,7 @@ var MockDataSource = require('../../lib/data-source/mock');
 
 describe('Repo', function () {
   describe('insertOne()', function () {
-    it('should returns type casted documents', function (done) {
+    it('should type cast documents', function (done) {
       var data = {
         user: [
           {_id: '1', name: 'Kevin', number: '123', string: 543}
