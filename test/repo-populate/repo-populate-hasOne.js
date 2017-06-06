@@ -8,10 +8,10 @@ describe('RepoPopulate.hasOne', function () {
     it('should populate', function (done) {
       var data = {
         userTimezone: [
-          {_id: '1', userId: '1', name: 'Europe/London'}
+          {_id: '1', userId: '9', name: 'Europe/London'}
         ],
         user: [
-          {_id: '1', name: 'Kevin Foster'}
+          {_id: '9', name: 'Kevin Foster'}
         ]
       };
 
