@@ -34,8 +34,8 @@ describe('RepoPopulate.embeddedBelongsToOne', function () {
 
       // See RepoPopulate.normalizeOptions() comments for descrption of relation options
       repoPopulate.embeddedBelongsToOne(data.recordCompany, {
-        documentPath: 'artists.*',
-        documentPathRelated: 'albums',
+        docPath: 'artists.*',
+        docPathRelated: 'albums',
         key: 'topAlbumId',
         alias: 'topAlbum'
       }).then(function(docs){

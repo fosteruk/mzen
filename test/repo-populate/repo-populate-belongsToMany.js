@@ -58,7 +58,7 @@ describe('RepoPopulate.belongsToMany', function () {
       var repoPopulate = new RepoPopulate(color);
 
       repoPopulate.belongsToMany(data.person, {
-        documentPath: 'about.trivia',
+        docPath: 'about.trivia',
         key: 'favouriteColorIds',
         alias: 'favouriteColors'
       }).then(function(docs){
@@ -94,7 +94,7 @@ describe('RepoPopulate.belongsToMany', function () {
       var repoPopulate = new RepoPopulate(color);
 
       repoPopulate.belongsToMany(data.person, {
-        documentPath: 'about.trivia.*',
+        docPath: 'about.trivia.*',
         key: 'favouriteColorIds',
         alias: 'favouriteColors'
       }).then(function(docs){
@@ -129,7 +129,7 @@ describe('RepoPopulate.belongsToMany', function () {
       var repoPopulate = new RepoPopulate(color);
 
       repoPopulate.belongsToMany(data.person, {
-        documentPath: 'about.*.*.trivia',
+        docPath: 'about.*.*.trivia',
         key: 'favouriteColorIds',
         alias: 'favouriteColors'
       }).then(function(docs){

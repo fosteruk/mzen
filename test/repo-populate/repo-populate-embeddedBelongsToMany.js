@@ -34,8 +34,8 @@ describe('RepoPopulate.embeddedBelongsToMany', function () {
 
       // See RepoPopulate.normalizeOptions() comments for descrption of relation options
       repoPopulate.embeddedBelongsToMany(data.recordCompany, {
-        documentPath: 'artists.*',
-        documentPathRelated: 'albums',
+        docPath: 'artists.*',
+        docPathRelated: 'albums',
         key: 'albumIds',
         alias: 'albums'
       }).then(function(docs){

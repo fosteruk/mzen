@@ -27,8 +27,8 @@ describe('RepoPopulate.embeddedHasOne', function () {
 
       // See RepoPopulate.normalizeOptions() comments for descrption of relation options
       repoPopulate.embeddedHasOne(data.docs, {
-        documentPath: 'user.*',
-        documentPathRelated: 'userTimezone.*',
+        docPath: 'user.*',
+        docPathRelated: 'userTimezone.*',
         key: 'userId',
         alias: 'timezone'
       }).then(function(docs){

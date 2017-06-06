@@ -56,7 +56,7 @@ describe('RepoPopulate.belongsToOne', function () {
       var repoPopulate = new RepoPopulate(user);
 
       repoPopulate.belongsToOne(data.product, {
-        documentPath: 'detail.more',
+        docPath: 'detail.more',
         key: 'createdByUserId',
         alias: 'createdByUser'
       }).then(function(docs){
@@ -94,7 +94,7 @@ describe('RepoPopulate.belongsToOne', function () {
       var repoPopulate = new RepoPopulate(user);
 
       repoPopulate.belongsToOne(data.product, {
-        documentPath: 'detail.more.*',
+        docPath: 'detail.more.*',
         key: 'createdByUserId',
         alias: 'createdByUser'
       }).then(function(docs){
@@ -130,7 +130,7 @@ describe('RepoPopulate.belongsToOne', function () {
       var repoPopulate = new RepoPopulate(user);
 
       repoPopulate.belongsToOne(data.product, {
-        documentPath: '*.*.*.detail.more',
+        docPath: '*.*.*.detail.more',
         key: 'createdByUserId',
         alias: 'createdByUser'
       }).then(function(docs){

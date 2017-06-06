@@ -31,8 +31,8 @@ describe('RepoPopulate.embeddedHasMany', function () {
 
       // See RepoPopulate.normalizeOptions() comments for descrption of relation options
       repoPopulate.embeddedHasMany(data.recordCompany, {
-        documentPath: 'artists.*', 
-        documentPathRelated: 'albums.*', 
+        docPath: 'artists.*', 
+        docPathRelated: 'albums.*', 
         key: 'artistId',
         alias: 'albums' 
       }).then(function(docs){

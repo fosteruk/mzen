@@ -59,7 +59,7 @@ describe('RepoPopulate.hasMany', function () {
       var repoPopulate = new RepoPopulate(album);
 
       repoPopulate.hasMany(data.recordCompanies, {
-        documentPath: 'detail.topArtist',
+        docPath: 'detail.topArtist',
         key: 'artistId',
         alias: 'albums'
       }).then(function(docs){
@@ -100,7 +100,7 @@ describe('RepoPopulate.hasMany', function () {
       var repoPopulate = new RepoPopulate(album);
 
       repoPopulate.hasMany(data.recordCompanies,{
-        documentPath: 'detail.topArtists.*',
+        docPath: 'detail.topArtists.*',
         key: 'artistId',
         alias: 'albums'
       }).then(function(docs){
@@ -140,7 +140,7 @@ describe('RepoPopulate.hasMany', function () {
       var repoPopulate = new RepoPopulate(album);
 
       repoPopulate.hasMany(data.recordCompanies,{
-        documentPath: '*.*.*.detail.topArtist',
+        docPath: '*.*.*.detail.topArtist',
         key: 'artistId',
         alias: 'albums'
       }).then(function(docs){

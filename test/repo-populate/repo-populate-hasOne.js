@@ -50,7 +50,7 @@ describe('RepoPopulate.hasOne', function () {
       var repoPopulate = new RepoPopulate(userTimezone);
 
       repoPopulate.hasOne(data.forum, {
-        documentPath: 'detail.topPoster',
+        docPath: 'detail.topPoster',
         key: 'userId',
         alias: 'timezone'
       }).then(function(docs){
@@ -81,7 +81,7 @@ describe('RepoPopulate.hasOne', function () {
       var repoPopulate = new RepoPopulate(userTimezone);
 
       repoPopulate.hasOne(data.forum, {
-        documentPath: 'detail.topPosters.*',
+        docPath: 'detail.topPosters.*',
         key: 'userId',
         alias: 'timezone'
       }).then(function(docs){
@@ -111,7 +111,7 @@ describe('RepoPopulate.hasOne', function () {
       var repoPopulate = new RepoPopulate(userTimezone);
 
       repoPopulate.hasOne(data.forum, {
-        documentPath: '*.*.*.detail.topPoster',
+        docPath: '*.*.*.detail.topPoster',
         key: 'userId',
         alias: 'timezone'
       }).then(function(docs){
