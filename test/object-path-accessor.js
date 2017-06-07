@@ -2,6 +2,28 @@ var should = require('should');
 var ObjectPathAccessor = require('../lib/object-path-accessor');
 
 describe('ObjectPathAccessor', function () {
+  describe('pathsMatch()', function () {
+    it('should return true if two paths are exactly equal', function () {
+      should(ObjectPathAccessor.pathsMatch('planet', 'planet')).be.true();
+      should(ObjectPathAccessor.pathsMatch('planet.country', 'planet.country')).be.true();
+      should(ObjectPathAccessor.pathsMatch('planet.country.city', 'planet.country.city')).be.true();
+    });
+    it('should accept wildcard in first path argument', function () {
+      should(ObjectPathAccessor.pathsMatch('*', 'planet')).be.true();
+      should(ObjectPathAccessor.pathsMatch('planet.*', 'planet.country')).be.true();
+      should(ObjectPathAccessor.pathsMatch('planet.*.city', 'planet.country.city')).be.true();
+    });
+    it('should treat wildcard in second path argument as a literal', function () {
+      should(ObjectPathAccessor.pathsMatch('*', '*')).be.true();
+      should(ObjectPathAccessor.pathsMatch('planet.country', 'planet.*')).be.false();
+      should(ObjectPathAccessor.pathsMatch('planet.country.city', 'planet.country.*')).be.false();
+    });
+    it('should allow wildcard to be escaped with backslash', function () {
+      should(ObjectPathAccessor.pathsMatch('\*', '*')).be.true();
+      should(ObjectPathAccessor.pathsMatch('planet.\*', 'planet.*')).be.true();
+      should(ObjectPathAccessor.pathsMatch('planet.\*.city', 'planet.*.city')).be.true();
+    });
+  });
   describe('getPath()', function () {
     it('should return value at given path', function () {
       var data = {
