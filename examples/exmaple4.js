@@ -1,7 +1,7 @@
 'use strict'
 
 var MockDataSource = require('mzen/lib/data-source/mock');
-var Repo = require('mzen/lib/repo');
+var { ModelManager, Repo } = require('mzen');
 
 var data = {
   country: [
