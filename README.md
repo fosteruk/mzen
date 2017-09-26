@@ -1,7 +1,7 @@
 # mZen
 ## Domain modeling with NodeJS and MongoDB 
 
-mZen is a small NodeJS module that provides functionality for implementing an application domain model using MongoDB for persistence. It allows you to organise the different elements of your model into separate components and provides a mechanism for those components to interact. 
+mZen is a small NodeJS module that provides functionality for implementing an application model using MongoDB for persistence. 
 
 mZen can be used in any type application, server-side, client-app or as a REST API. [mZen-Server](https://github.com/kevin-foster/mZen-Server) is a separate NodeJS module that exposes an mZen model as a REST API server.
 
