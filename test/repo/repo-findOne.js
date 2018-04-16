@@ -35,7 +35,7 @@ describe('Repo', function () {
         ]
       };
       var dataSource = new MockDataSource(data);
-      
+
       var user = new Repo({
         name: 'user',
         relations: {
@@ -117,7 +117,7 @@ describe('Repo', function () {
         ]
       };
       var dataSource = new MockDataSource(data);
-      
+
       var artist = new Repo({
         name: 'artist',
         relations: {
@@ -183,7 +183,7 @@ describe('Repo', function () {
         done(err);
       });
     });
-    it('should return entity objects if entity constructor given in repo', function (done) {
+    it('should return entity objects if entity constructor specified in repo schema', function (done) {
       var data = {
         user: [
           {_id: '1', name_first: 'Kevin', name_last: 'Foster'}
@@ -198,7 +198,8 @@ describe('Repo', function () {
 
       var userRepo = new Repo({
         name: 'user',
-        entityConstructor: User
+        schema: {$construct: 'User'},
+        constructors: [User]
       });
       userRepo.dataSource = new MockDataSource(data);
 
@@ -210,7 +211,7 @@ describe('Repo', function () {
         done(err);
       });
     });
-    it('should return entity objects if entity constructor given in relation repo', function (done) {
+    it('should return entity objects if entity constructor specified in relation repo schema', function (done) {
       var data = {
         userTimezone: [
           {_id: '1', userId: '1', name: 'Europe/London'}
@@ -220,7 +221,7 @@ describe('Repo', function () {
         ]
       };
       var dataSource = new MockDataSource(data);
-      
+
       var userRepo = new Repo({
         name: 'user',
         relations: {
@@ -243,7 +244,8 @@ describe('Repo', function () {
 
       var userTimezoneRepo = new Repo({
         name: 'userTimezone',
-        entityConstructor: Timezone
+        schema: {$construct: 'Timezone'},
+        constructors: [Timezone]
       });
       userTimezoneRepo.dataSource = dataSource;
       userRepo.repos['userTimezone'] = userTimezoneRepo;
@@ -257,13 +259,13 @@ describe('Repo', function () {
         done(err);
       });
     });
-    
-    it('should return embedded entity with embedded constructor given in repo', function (done) {
+
+    it('should return embedded entity when embedded constructor specified in repo schema', function (done) {
       var data = {
         user: [
           {
-            _id: '1', 
-            name_first: 'Kevin', 
+            _id: '1',
+            name_first: 'Kevin',
             name_last: 'Foster',
             contact: {
               address: '123 Picton Road',
@@ -281,9 +283,10 @@ describe('Repo', function () {
 
       var user = new Repo({
         name: 'user',
-        embeddedConstructors: {
-          'contact': Contact
-        }
+        schema: {
+          contact: {$construct: 'Contact'}
+        },
+        constructors: [Contact]
       });
       user.dataSource = new MockDataSource(data);
 
@@ -296,7 +299,7 @@ describe('Repo', function () {
         done(err);
       });
     });
-    it('should return deep embedded entity with ebedded constructor given in repo', function (done) {
+    it('should return deep embedded entity when embedded constructor specified in repo schema', function (done) {
       var data = {
         website: [
           {
@@ -304,8 +307,8 @@ describe('Repo', function () {
             name: 'Google',
             users:  [
               {
-                _id: '1', 
-                name_first: 'Kevin', 
+                _id: '1',
+                name_first: 'Kevin',
                 name_last: 'Foster',
                 contact: {
                   address: '123 Picton Road',
@@ -313,8 +316,8 @@ describe('Repo', function () {
                 }
               },
               {
-                _id: '2', 
-                name_first: 'Tom', 
+                _id: '2',
+                name_first: 'Tom',
                 name_last: 'Murphy',
                 contact: {
                   address: '5 Marina Tower',
@@ -334,9 +337,12 @@ describe('Repo', function () {
 
       var website = new Repo({
         name: 'website',
-        embeddedConstructors: {
-          'users.*.contact': Contact
-        }
+        schema: {
+          users: [{
+            contact: {$construct: 'Contact'}
+          }]
+        },
+        constructors: [Contact]
       });
       website.dataSource = new MockDataSource(data);
 
@@ -386,8 +392,8 @@ describe('Repo', function () {
           {_id: '1', name: 'Kevin Foster'}
         ]
       };
-      var dataSource = new MockDataSource(data); 
-      
+      var dataSource = new MockDataSource(data);
+
       var userRepo = new Repo({
         name: 'user',
         relations: {
@@ -432,8 +438,8 @@ describe('Repo', function () {
           {_id: '1', timezoneId: '1', name: 'Kevin Foster'}
         ]
       };
-      var dataSource = new MockDataSource(data); 
-            
+      var dataSource = new MockDataSource(data);
+
       var userRepo = new Repo({
         name: 'user',
         relations: {
@@ -470,8 +476,8 @@ describe('Repo', function () {
           {_id: '1', timezoneId: '1', name: 'Kevin Foster'}
         ]
       };
-      var dataSource = new MockDataSource(data); 
-      
+      var dataSource = new MockDataSource(data);
+
       var userRepo = new Repo({
         name: 'user',
         relations: {
@@ -512,7 +518,7 @@ describe('Repo', function () {
         ]
       };
       var dataSource = new MockDataSource(data);
-      
+
       var userRepo = new Repo({
         name: 'user',
         relations: {
@@ -542,7 +548,7 @@ describe('Repo', function () {
       });
       userTimezoneRepo.dataSource = dataSource;
       userRepo.repos['userTimezone'] = userTimezoneRepo;
-      
+
       var countryRepo = new Repo({
         name: 'country'
       });
@@ -570,7 +576,7 @@ describe('Repo', function () {
         ]
       };
       var dataSource = new MockDataSource(data);
-      
+
       var userRepo = new Repo({
         name: 'user',
         relations: {
@@ -600,7 +606,7 @@ describe('Repo', function () {
       });
       userTimezoneRepo.dataSource = dataSource;
       userRepo.repos['userTimezone'] = userTimezoneRepo;
-      
+
       var countryRepo = new Repo({
         name: 'country'
       });
@@ -626,7 +632,7 @@ describe('Repo', function () {
         ]
       };
       var dataSource = new MockDataSource(data);
-      
+
       var motherRepo = new Repo({
         name: 'mother',
         relations: {
@@ -656,7 +662,7 @@ describe('Repo', function () {
       childRepo.dataSource = dataSource;
       childRepo.repos['mother'] = motherRepo;
       motherRepo.repos['child'] = childRepo;
-      
+
       motherRepo.findOne({}).then(function(doc){
         should(doc.name).eql('Alison');
         should(doc.children[0].name).eql('Kevin');
@@ -677,7 +683,7 @@ describe('Repo', function () {
         ]
       };
       var dataSource = new MockDataSource(data);
-      
+
       var motherRepo = new Repo({
         name: 'mother',
         relations: {
@@ -708,7 +714,7 @@ describe('Repo', function () {
       childRepo.dataSource = dataSource;
       childRepo.repos['mother'] = motherRepo;
       motherRepo.repos['child'] = childRepo;
-      
+
       motherRepo.findOne({}).then(function(doc){
         should(doc.name).eql('Alison');
         should(doc.children[0].name).eql('Kevin');
@@ -736,7 +742,7 @@ describe('Repo', function () {
         ],
       };
       var dataSource = new MockDataSource(data);
-      
+
       var motherRepo = new Repo({
         name: 'mother',
         relations: {
@@ -767,7 +773,7 @@ describe('Repo', function () {
       childRepo.dataSource = dataSource;
       childRepo.repos['mother'] = motherRepo;
       motherRepo.repos['child'] = childRepo;
-      
+
       motherRepo.findOne({}).then(function(doc){
         // Query count should be 2
         // - 1 for the initial find query and then 1 for populating relation
@@ -787,18 +793,18 @@ describe('Repo', function () {
         ]
       };
       var dataSource = new MockDataSource(data);
-      
+
       var repo = new Repo({
         name: 'user',
         schema: {
           password: {
-            $type: String, 
+            $type: String,
             $filter: {private: true}
           }
         }
       });
       repo.dataSource = dataSource;
-      
+
       repo.findOne({}, {filterPrivate: true}).then(function(doc){
         should(doc.name).eql('Alison');
         should(doc.password).eql(undefined);
@@ -814,18 +820,18 @@ describe('Repo', function () {
         ]
       };
       var dataSource = new MockDataSource(data);
-      
+
       var repo = new Repo({
         name: 'user',
         schema: {
           password: {
-            $type: String, 
+            $type: String,
             $filter: {private: true}
           }
         }
       });
       repo.dataSource = dataSource;
-      
+
       repo.findOne({}).then(function(doc){
         should(doc.name).eql('Alison');
         should(doc.password).eql('Abc');

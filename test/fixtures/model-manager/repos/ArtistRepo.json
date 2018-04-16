@@ -1,10 +1,6 @@
 {
   "name": "artist",
   "dataSource": "db",
-  "entityConstructor": "Artist",
-  "embeddedConstructors": {
-    "bestSellingAlbums.*": "Album"
-  },
   "relations": {
     "albums": {
       "type": "hasMany",

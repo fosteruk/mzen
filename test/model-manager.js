@@ -17,12 +17,12 @@ describe('ModelManager', function () {
           done(err);
         });
     });
-    it('should inject named constructors into repo config', function (done) {
+    it('should inject constructors into repo config', function (done) {
         var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
         should(modelManager.repos['artist']).be.Undefined();
         modelManager.loadResources().then(function(){
-            should(modelManager.repos['artist'].config.entityConstructor).be.a.Function();
-            should(modelManager.repos['artist'].config.embeddedConstructors['bestSellingAlbums.*']).be.a.Function();
+            console.log(modelManager.repos['artist'].config.constructors);
+            should(modelManager.repos['artist'].config.constructors.length).eql(2);
             done();
         }).catch(function(err){
           done(err);
