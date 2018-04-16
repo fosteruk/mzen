@@ -10,9 +10,9 @@ describe('ModelManager', function () {
         should(modelManager.entityConstructors['Artist']).be.Undefined();
         should(modelManager.entityConstructors['Album']).be.Undefined();
         modelManager.loadResources().then(function(){
-            should(modelManager.entityConstructors['Artist']).be.a.Function();
-            should(modelManager.entityConstructors['Album']).be.a.Function();
-            done();
+          should(modelManager.entityConstructors['Artist']).be.a.Function();
+          should(modelManager.entityConstructors['Album']).be.a.Function();
+          done();
         }).catch(function(err){
           done(err);
         });
@@ -21,9 +21,9 @@ describe('ModelManager', function () {
         var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
         should(modelManager.repos['artist']).be.Undefined();
         modelManager.loadResources().then(function(){
-            console.log(modelManager.repos['artist'].config.constructors);
-            should(modelManager.repos['artist'].config.constructors.length).eql(2);
-            done();
+          console.log(modelManager.repos['artist'].config.constructors);
+          should(modelManager.repos['artist'].config.constructors.length).eql(2);
+          done();
         }).catch(function(err){
           done(err);
         });
@@ -32,8 +32,8 @@ describe('ModelManager', function () {
         var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
         should(modelManager.repos['artist']).be.Undefined();
         modelManager.loadResources().then(function(){
-            should(modelManager.repos['artist']).be.a.Object();
-            done();
+          should(modelManager.repos['artist']).be.a.Object();
+          done();
         }).catch(function(err){
           done(err);
         });
