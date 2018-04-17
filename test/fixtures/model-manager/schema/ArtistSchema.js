@@ -8,7 +8,7 @@ class ArtistSchema extends Schema
     super(spec, options);
     this.setName('artist');
     this.setSpec({
-
+      firstAlbum: {$schema: 'album'}
     });
   }
 }
