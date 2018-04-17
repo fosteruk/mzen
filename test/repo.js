@@ -13,7 +13,7 @@ describe('Repo', function () {
       class UserRepo extends Repo {};
       var userRepo = new UserRepo();
       should(userRepo.getName()).eql('UserRepo');
-      
+
       class NewUserRepo extends UserRepo {};
       var newUserRepo = new NewUserRepo();
       should(newUserRepo.getName()).eql('NewUserRepo');
@@ -47,7 +47,7 @@ describe('Repo', function () {
         }
       });
       userRepo.dataSource = new MockDataSource(data);
-      
+
       userRepo.count({}).then(function(result){
         should(result).eql(3);
         done();
@@ -241,6 +241,9 @@ describe('Repo', function () {
     });
   });
   describe('insert()', function () {
+    // Since we seperated schema defination from Repos  the 'strict' option can no longer be passed in repo options
+    // - we need to add the ability to specify the $strict option within the schema spec itself
+    /*
     it('should fail validation in strict mode if contains unspecified properties', function (done) {
       var data = {
         user: [
@@ -271,6 +274,7 @@ describe('Repo', function () {
       userRepo.insertOne(data.user[0]).catch(function(err){
         should(err).be.undefined();
       });
+
       userRepoStrict.insertOne(data.user[0]).catch(function(err){
         should(err).be.type('object');
         done();
@@ -278,5 +282,6 @@ describe('Repo', function () {
         done(err);
       });
     });
+    */
   });
 });

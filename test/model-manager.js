@@ -7,22 +7,11 @@ describe('ModelManager', function () {
   describe('loadResources()', function () {
     it('should load named entity constructors from configured model directory', function (done) {
         var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-        should(modelManager.entityConstructors['Artist']).be.Undefined();
-        should(modelManager.entityConstructors['Album']).be.Undefined();
+        should(modelManager.constructors['Artist']).be.Undefined();
+        should(modelManager.constructors['Album']).be.Undefined();
         modelManager.loadResources().then(function(){
-          should(modelManager.entityConstructors['Artist']).be.a.Function();
-          should(modelManager.entityConstructors['Album']).be.a.Function();
-          done();
-        }).catch(function(err){
-          done(err);
-        });
-    });
-    it('should inject constructors into repo config', function (done) {
-        var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-        should(modelManager.repos['artist']).be.Undefined();
-        modelManager.loadResources().then(function(){
-          console.log(modelManager.repos['artist'].config.constructors);
-          should(modelManager.repos['artist'].config.constructors.length).eql(2);
+          should(modelManager.constructors['Artist']).be.a.Function();
+          should(modelManager.constructors['Album']).be.a.Function();
           done();
         }).catch(function(err){
           done(err);
@@ -50,6 +39,16 @@ describe('ModelManager', function () {
     });
   });
   describe('init()', function () {
+    it('should inject laoded constructors into repo', function (done) {
+        var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
+        should(modelManager.repos['artist']).be.Undefined();
+        modelManager.init().then(function(){
+          should(Object.keys(modelManager.repos['artist'].constructors).length).eql(2);
+          done();
+        }).catch(function(err){
+          done(err);
+        });
+    });
     it('should inject named datasource into each repo', function (done) {
       var person = new Repo({name: 'person', dataSource: 'db'});
       should(person.dataSource).be.null();
