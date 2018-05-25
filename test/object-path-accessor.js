@@ -29,9 +29,9 @@ describe('ObjectPathAccessor', function () {
       var data = {
         planet: 'Earth'
       };
-      
+
       var result = ObjectPathAccessor.getPath('planet', data);
-      
+
       should(result).eql('Earth');
     });
     it('should return value at given deep path', function () {
@@ -49,9 +49,9 @@ describe('ObjectPathAccessor', function () {
           }
         }
       };
-      
+
       var result = ObjectPathAccessor.getPath('planet.continent.country', data);
-      
+
       should(result).eql({name: 'UK', city: {name: 'London'}});
     });
     it('should return value at given array index', function () {
@@ -60,9 +60,9 @@ describe('ObjectPathAccessor', function () {
         'Mars',
         'Venus'
       ];
-      
+
       var result = ObjectPathAccessor.getPath('1', data);
-      
+
       should(result).eql('Mars');
     });
     it('should return value at given deep array index', function () {
@@ -70,9 +70,9 @@ describe('ObjectPathAccessor', function () {
         ['Earth', 'Mars',],
         ['Venus']
       ];
-      
+
       var result = ObjectPathAccessor.getPath('0.1', data);
-      
+
       should(result).eql('Mars');
     });
     it('should return value at given array path', function () {
@@ -92,9 +92,9 @@ describe('ObjectPathAccessor', function () {
           }
         }
       ];
-      
+
       var result = ObjectPathAccessor.getPath('0.planet.continent.country', data);
-      
+
       should(result).eql({name: 'UK', city: {name: 'London'}});
     });
     it('should return array of values for wildcard path', function () {
@@ -105,9 +105,9 @@ describe('ObjectPathAccessor', function () {
             other: {name: 'Venus'}
           }
       };
-      
+
       var result = ObjectPathAccessor.getPath('planet.*', data);
-      
+
       should(result).eql([
         {name: 'Earth'},
         {name: 'Mars'},
@@ -127,9 +127,9 @@ describe('ObjectPathAccessor', function () {
           {name: 'NoNoNo'}
         ]
       };
-      
+
       var result = ObjectPathAccessor.getPath('planet.*', data);
-    
+
       should(result).eql([
         {name: 'Earth'},
         {name: 'Mars'},
@@ -144,9 +144,9 @@ describe('ObjectPathAccessor', function () {
             c: {three: {name: 'Venus'}}
           }
       };
-      
+
       var result = ObjectPathAccessor.getPath('planet.*.*', data);
-      
+
       should(result).eql([
         {name: 'Earth'},
         {name: 'Mars'},
@@ -166,9 +166,9 @@ describe('ObjectPathAccessor', function () {
           [{name: 'NoNoNo'}]
         ]
       };
-      
+
       var result = ObjectPathAccessor.getPath('planet.*.*', data);
-      
+
       should(result).eql([
         {name: 'Earth'},
         {name: 'Mars'},
@@ -176,14 +176,86 @@ describe('ObjectPathAccessor', function () {
       ]);
     });
   });
+  describe('unsetPath()', function () {
+    it('should unset value at given path', function () {
+      var data = {
+        planet: 'Earth'
+      };
+
+      ObjectPathAccessor.unsetPath('planet',  data);
+
+      should(data).eql({});
+      should(data.planet).eql(undefined);
+    });
+    it('should unset value at given deep path', function () {
+      var data = {
+        planet: {
+          name: 'Earth',
+          continent: {
+            name: 'Europe',
+            country: {
+              name: 'UK',
+              city: {
+                name: 'London',
+              }
+            }
+          }
+        }
+      };
+
+      ObjectPathAccessor.unsetPath('planet.continent.country', data);
+
+      should(data).eql({
+        planet: {
+          name: 'Earth',
+          continent: {
+            name: 'Europe'
+          }
+        }
+      });
+      should(data.planet.continent.country).eql(undefined);
+    });
+    it('should unset value at given array path', function () {
+      var data = [
+        {
+          planet: {
+            name: 'Earth',
+            continent: {
+              name: 'Europe',
+              country: {
+                name: 'UK',
+                city: {
+                  name: 'London',
+                }
+              }
+            }
+          }
+        }
+      ];
+
+      ObjectPathAccessor.unsetPath('0.planet.continent.country', data);
+
+      should(data).eql( [
+        {
+          planet: {
+            name: 'Earth',
+            continent: {
+              name: 'Europe'
+            }
+          }
+        }
+      ]);
+      should(data[0].planet.continent.country).eql(undefined);
+    });
+  });
   describe('setPath()', function () {
     it('should set value at given path', function () {
       var data = {
         planet: 'Earth'
       };
-      
+
       var result = ObjectPathAccessor.setPath('planet', 'Mars', data);
-      
+
       should(result).eql('Mars');
       should(data.planet).eql('Mars');
     });
@@ -202,9 +274,9 @@ describe('ObjectPathAccessor', function () {
           }
         }
       };
-      
+
       var result = ObjectPathAccessor.setPath('planet.continent.country.city', {name: 'Liverpool'}, data);
-      
+
       should(result).eql({name: 'Liverpool'});
       should(data.planet.continent.country.city).eql({name: 'Liverpool'});
     });
@@ -214,9 +286,9 @@ describe('ObjectPathAccessor', function () {
         'Mars',
         'Venus'
       ];
-      
+
       var result = ObjectPathAccessor.setPath('1', 'neptune', data);
-      
+
       should(result).eql('neptune');
       should(data[1]).eql('neptune');
     });
@@ -225,9 +297,9 @@ describe('ObjectPathAccessor', function () {
         ['Earth', 'Mars'],
         ['Venus']
       ];
-      
+
       var result = ObjectPathAccessor.setPath('0.1', 'neptune', data);
-      
+
       should(result).eql('neptune');
       should(data[0][1]).eql('neptune');
     });
@@ -248,9 +320,9 @@ describe('ObjectPathAccessor', function () {
           }
         }
       ];
-      
+
       var result = ObjectPathAccessor.setPath('0.planet.continent.country.city', {name: 'Liverpool'}, data);
-      
+
       should(result).eql({name: 'Liverpool'});
       should(data[0].planet.continent.country.city).eql({name: 'Liverpool'});
     });
@@ -262,9 +334,9 @@ describe('ObjectPathAccessor', function () {
             other: {name: 'Venus'}
           }
       };
-      
+
       var result = ObjectPathAccessor.setPath('planet.*', {name: 'Pluto'}, data);
-      
+
       should(result).eql([
         {name: 'Pluto'},
         {name: 'Pluto'},
@@ -282,9 +354,9 @@ describe('ObjectPathAccessor', function () {
             c: {three: {name: 'Venus'}}
           }
       };
-      
+
       var result = ObjectPathAccessor.setPath('planet.*.*', {name: 'Pluto'}, data);
-      
+
       should(result).eql([
         {name: 'Pluto'},
         {name: 'Pluto'},
@@ -300,11 +372,11 @@ describe('ObjectPathAccessor', function () {
       var data = {
         planet: 'Earth'
       };
-      
-      var result = ObjectPathAccessor.mutatePath('planet', data, function(value){ 
+
+      var result = ObjectPathAccessor.mutatePath('planet', data, function(value){
         return value + ' X'
       });
-      
+
       should(result).eql('Earth X');
       should(data.planet).eql('Earth X');
     });
@@ -323,11 +395,11 @@ describe('ObjectPathAccessor', function () {
           }
         }
       };
-      
-      var result = ObjectPathAccessor.mutatePath('planet.continent.country.city.name', data, function(value){ 
+
+      var result = ObjectPathAccessor.mutatePath('planet.continent.country.city.name', data, function(value){
         return value + ' X';
       });
-      
+
       should(result).eql('London X');
       should(data.planet.continent.country.city.name).eql('London X');
     });
@@ -337,12 +409,12 @@ describe('ObjectPathAccessor', function () {
         'Mars',
         'Venus'
       ];
-      
-      var result = ObjectPathAccessor.mutatePath('1', data, function(value){ 
+
+      var result = ObjectPathAccessor.mutatePath('1', data, function(value){
         value = value + ' X';
         return value;
       });
-      
+
       should(result).eql('Mars X');
       should(data[1]).eql('Mars X');
     });
@@ -351,11 +423,11 @@ describe('ObjectPathAccessor', function () {
         ['Earth', 'Mars'],
         ['Venus']
       ];
-      
-      var result = ObjectPathAccessor.mutatePath('0.1', data, function(value){ 
+
+      var result = ObjectPathAccessor.mutatePath('0.1', data, function(value){
         return value + ' X';
       });
-      
+
       should(result).eql('Mars X');
       should(data[0][1]).eql('Mars X');
     });
@@ -376,11 +448,11 @@ describe('ObjectPathAccessor', function () {
           }
         }
       ];
-      
-      var result = ObjectPathAccessor.mutatePath('0.planet.continent.country.city.name', data, function(value){ 
+
+      var result = ObjectPathAccessor.mutatePath('0.planet.continent.country.city.name', data, function(value){
         return value + ' X';
       });
-      
+
       should(result).eql('London X');
       should(data[0].planet.continent.country.city.name).eql('London X');
     });
@@ -392,11 +464,11 @@ describe('ObjectPathAccessor', function () {
             other: {name: 'Venus'}
           }
       };
-      
-      var result = ObjectPathAccessor.mutatePath('planet.*', data, function(value){ 
+
+      var result = ObjectPathAccessor.mutatePath('planet.*', data, function(value){
         return {name: value.name + ' X'};
       });
-      
+
       should(result).eql([
         {name: 'Earth X'},
         {name: 'Mars X'},
@@ -414,12 +486,12 @@ describe('ObjectPathAccessor', function () {
             c: {three: {name: 'Venus'}}
           }
       };
-      
-      var result = ObjectPathAccessor.mutatePath('planet.*.*', data, function(value){ 
+
+      var result = ObjectPathAccessor.mutatePath('planet.*.*', data, function(value){
         value.name = value.name + ' X';
         return value;
       });
-      
+
       should(result).eql([
         {name: 'Earth X'},
         {name: 'Mars X'},
