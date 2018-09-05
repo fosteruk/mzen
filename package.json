@@ -1,6 +1,6 @@
 {
   "name": "mzen",
-  "version": "0.1.65",
+  "version": "0.1.66",
   "description": "mZen",
   "main": "lib/index",
   "scripts": {
