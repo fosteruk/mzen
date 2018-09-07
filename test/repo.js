@@ -245,7 +245,7 @@ describe('Repo', function () {
         schema: {
           _id: String,
           name: String,
-          userTimezone: {_id: String,  userId: {$pathref: '_id'}, name: String}
+          userTimezone: {_id: String,  userId: {$pathRef: '_id'}, name: String}
         }
       });
 
