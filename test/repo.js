@@ -239,6 +239,28 @@ describe('Repo', function () {
         userTimezoneId: '1'
       });
     });
+    it('should strip pathrefs', function () {
+      var userRepo = new Repo({
+        name: 'user',
+        schema: {
+          _id: String,
+          name: String,
+          userTimezone: {_id: String,  userId: {$pathRef: '_id'}, name: String}
+        }
+      });
+
+      var user = userRepo.stripTransients({
+        _id: '1',
+        name: 'Kevin Foster',
+        userTimezone: {_id: '33',  userId: '1', name: 'Europe/London'}
+      });
+
+      should(user).eql({
+        _id: '1',
+        name: 'Kevin Foster',
+        userTimezone: {_id: '33', name: 'Europe/London'}
+      });
+    });
   });
   describe('insert()', function () {
     // Since we seperated schema defination from Repos  the 'strict' option can no longer be passed in repo options
