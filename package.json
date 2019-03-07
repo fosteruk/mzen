@@ -14,14 +14,14 @@
     "url": "https://github.com/kevin-foster/mZen.git"
   },
   "devDependencies": {
-    "mocha": "^2.5.3",
+    "mocha": "^6.0.2",
+    "rewire": "^2.5.1",
     "should": "^11.2.0",
-    "sinon": "^1.17.4",
-    "rewire": "^2.5.1"
+    "sinon": "^1.17.4"
   },
   "dependencies": {
     "clone": "^1.0.2",
     "mongodb": "^2.2.26",
-    "mzen-schema": "0.0.64"
+    "mzen-schema": "0.0.68"
   }
 }
