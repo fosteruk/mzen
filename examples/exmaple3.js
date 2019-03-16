@@ -1,6 +1,6 @@
 'use strict'
 
-var { ModelManager, Repo } = require('mzen');
+var { ModelManager, Repo } = require('../lib/index');
 
 var data = {
   person: [
