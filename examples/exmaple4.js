@@ -52,8 +52,11 @@ countryRepo.dataSource = dataSource;
 userTimezoneRepo.repos.country = countryRepo;
 userRepo.repos.country = countryRepo;
 
-userRepo.find({}, {populate: {'userTimezone.country': true}}).then(function(docs){
-  console.log(JSON.stringify(docs, null, 2));
-}).catch(function(err){
-  console.log(err.stack);
-});
+(async () => {
+  try {
+    var docs = await userRepo.find({}, {populate: {'userTimezone.country': true}});
+    console.log(JSON.stringify(docs, null, 2));
+  } catch (e) {
+    console.log(JSON.stringify(e, null, 2));
+  }
+})();

@@ -183,3 +183,25 @@ modelManager
 }).catch(function(err) {
   console.log(err.stack);
 });
+
+
+(async () => {
+  try {
+    await modelManager.init();
+    console.log('** Connected **');
+    
+    await personRepo.deleteMany();
+    await workPlaceRepo.deleteMany();
+    await personRepo.insertMany(data.person);
+    await workPlaceRepo.insertOne(data.workPlace[0]);
+    await personRepo.updateMany({'workPlaceId': 1}, {$set: {'contact.address': '123 Updated Street'}});
+    var people = await personRepo.find({}, {sort: [['name', 'asc']]});
+
+    console.log(JSON.stringify(people, null, 2));
+
+    await modelManager.shutdown();
+    console.log('** Disconnected **');
+  } catch (e) {
+    console.log(JSON.stringify(e, null, 2));
+  }
+})();

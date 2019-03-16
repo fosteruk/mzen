@@ -20,7 +20,7 @@ var data = {
 var modelManager = new ModelManager();
 modelManager.addDataSource('db', new MockDataSource(data));
 
-var person = new Repo({
+var personRepo = new Repo({
   name: 'person',
   dataSource: 'db',
   relations: {
@@ -44,9 +44,9 @@ var person = new Repo({
     }
   }
 });
-modelManager.addRepo(person);
+modelManager.addRepo(personRepo);
 
-var workPlace = new Repo({
+var workPlaceRepo = new Repo({
   name: 'workPlace',
   dataSource: 'db',
   relations: {
@@ -58,16 +58,17 @@ var workPlace = new Repo({
     }
   }
 });
-modelManager.addRepo(workPlace);
+modelManager.addRepo(workPlaceRepo);
 
-modelManager
-.init()
-.then(function(){
-  return person.find({});
-}).then(function(objects){
-  console.log(JSON.stringify(objects, null, 2));
-}).then(function(){
-  modelManager.shutdown();
-}).catch(function(err) {
-  console.log(err.stack);
-});
+(async () => {
+  try {
+    await modelManager.init();
+
+    var person = await personRepo.find({});
+    console.log(JSON.stringify(person, null, 2));
+
+    await modelManager.shutdown();
+  } catch (e) {
+    console.log(JSON.stringify(e, null, 2));
+  }
+})();

@@ -81,28 +81,27 @@ class AlbumRepo extends Repo
   }
 }
 
-var recordCompany = new RecordCompanyRepo();
-modelManager.addRepo(recordCompany);
+const recordCompanyRepo = new RecordCompanyRepo();
+modelManager.addRepo(recordCompanyRepo);
 
-var artist = new ArtistRepo();
-modelManager.addRepo(artist);
+const artistRepo = new ArtistRepo();
+modelManager.addRepo(artistRepo);
 
-var album = new AlbumRepo();
-modelManager.addRepo(album);
+const albumRepo = new AlbumRepo();
+modelManager.addRepo(albumRepo);
 
-modelManager
-.init()
-.then(function(){
-  return recordCompany.find({});
-}).then(function(objects){
-  console.log(JSON.stringify(objects, null, 2));
-  return this;
-}).then(function(){
-  return artist.find({});
-}).then(function(objects){
-  console.log(JSON.stringify(objects, null, 2));
-}).then(function(){
-  modelManager.shutdown();
-}).catch(function(err) {
-  console.log(err.stack);
-});
+(async () => {
+  try {
+    await modelManager.init();
+
+    var recordCompanies = await recordCompanyRepo.find({});
+    console.log(JSON.stringify(recordCompanies, null, 2));
+
+    var artists = await artistRepo.find({});
+    console.log(JSON.stringify(artists, null, 2));
+
+    await modelManager.shutdown();
+  } catch (e) {
+    console.log(JSON.stringify(e, null, 2));
+  }
+})();
