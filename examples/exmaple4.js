@@ -1,7 +1,7 @@
 'use strict'
 
-var MockDataSource = require('mzen/lib/data-source/mock');
-var { ModelManager, Repo } = require('mzen');
+var MockDataSource = require('../lib/data-source/mock');
+var { ModelManager, Repo } = require('../lib/index');
 
 var data = {
   country: [
@@ -38,23 +38,22 @@ var userTimezoneRepo = new Repo({
       repo: 'country',
       key: 'countryId',
       alias: 'country',
-      recursion: 1,
-      populate: true // important - initialy the relation is configured not to populate
+      populate: false // important - initialy the relation is configured not to populate
     }
   }
 });
 userTimezoneRepo.dataSource = dataSource;
-userRepo.repos['userTimezone'] = userTimezoneRepo;
+userRepo.repos.userTimezone = userTimezoneRepo;
 
 var countryRepo = new Repo({
   name: 'country'
 });
 countryRepo.dataSource = dataSource;
-userTimezoneRepo.repos['country'] = countryRepo;
-userRepo.repos['country'] = countryRepo;
+userTimezoneRepo.repos.country = countryRepo;
+userRepo.repos.country = countryRepo;
 
-userRepo.find({}, {populate: {'userTimezone.country': false}}).then(function(docs){
-  console.log(JSON.stringify(docs[0].userTimezone.country, null, 2));
+userRepo.find({}, {populate: {'userTimezone.country': true}}).then(function(docs){
+  console.log(JSON.stringify(docs, null, 2));
 }).catch(function(err){
   console.log(err.stack);
 });

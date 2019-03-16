@@ -1,7 +1,7 @@
 'use strict'
 
-var { ModelManager, Repo } = require('mzen');
-var MockDataSource = require('mzen/lib/data-source/mock');
+var { ModelManager, Repo } = require('../lib/index');
+var MockDataSource = require('../lib/data-source/mock');
 
 var data = {
   person: [
