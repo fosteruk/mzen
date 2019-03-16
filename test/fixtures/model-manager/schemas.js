@@ -1,5 +1,5 @@
 'use strict'
-var Schema = require('mzen-schema');
+var Schema = require('mzen-schema').default;
 
 // schemas file allows you to full in schemas from other packages
 

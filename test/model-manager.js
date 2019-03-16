@@ -2,7 +2,7 @@ var should = require('should');
 var ModelManager = require('../lib/model-manager');
 var Repo = require('../lib/repo');
 var Service = require('../lib/service');
-var Schema = require('mzen-schema');
+var Schema = require('mzen-schema').default;
 
 describe('ModelManager', function () {
   describe('init()', function () {
