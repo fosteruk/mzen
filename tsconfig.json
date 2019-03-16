@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "sourceMap": true,
+    "removeComments": false,
+    "declaration": true,
+    "outDir": "./lib",
+    "strict": true,
+    "strictNullChecks": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "moduleResolution": "node"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "**/__tests__/*"]
+}

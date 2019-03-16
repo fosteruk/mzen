@@ -2,9 +2,14 @@
   "name": "mzen",
   "version": "0.1.68",
   "description": "mZen",
-  "main": "lib/index",
+  "main": "./lib/index",
+  "types": "./lib/index.d.ts",
   "scripts": {
-    "test": "mocha ./test/*"
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test",
+    "test": "mocha -r test/ts-node-hooks.js test/**/*.ts",
+    "build": "npm run clean && tsc",
+    "clean": "rm -fr ./lib/*"
   },
   "author": "Kevin Foster <kevin.foster.uk@gmail.com>",
   "license": "BSD-3-Clause",
@@ -14,12 +19,21 @@
     "url": "https://github.com/kevin-foster/mZen.git"
   },
   "devDependencies": {
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^11.11.3",
     "mocha": "^6.0.2",
-    "should": "^11.2.0"
+    "should": "^11.2.0",
+    "ts-node": "^8.0.3",
+    "typescript": "^3.3.3333"
   },
   "dependencies": {
     "clone": "^1.0.2",
     "mongodb": "^3.1.13",
-    "mzen-schema": "0.0.70"
-  }
+    "mzen-schema": "0.0.72"
+  },
+  "files": [
+    "/lib",
+    "/src",
+    "/tsconfig.json"
+  ]
 }
