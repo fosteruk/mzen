@@ -6,9 +6,9 @@
  *
  * A path is a string representation of an Object or Array property call path.
  * Object property names and array index values are separated with a dot '.' to form a string.
- *  For exmaple: 'prop1.some_array.0.myVariable'.
+ *  For example: 'prop1.some_array.0.myVariable'.
  * An asterisks can be used to match any value:
- *  For exmaple: 'prop1.some_array.*.myVariable'.
+ *  For example: 'prop1.some_array.*.myVariable'.
  */
 export class ObjectPathAccessor
 {
