@@ -1,12 +1,10 @@
 # mZen
 ## NodeJS application model with MongoDB
 
-mZen is a small NodeJS module that provides functionality for implementing an application model using MongoDB for persistence.
+Application model using MongoDB for persistence.
 
-mZen can be used in any type application, server-side, client-app or as a REST API. [mZen-Server](https://github.com/kevin-foster/mZen-Server) is a separate NodeJS module that exposes an mZen model as a REST API server.
-
-- Model elements are separated into Schemas, Services and Repositories
-  - Schemas are objects that define your data structures and validation rules
+- Model elements are defined by Schemas, Services and Repositories
+  - Schemas define data structures and validation rules
   - Repositories are responsible for persisting data
     - Data saved and retrieved from the database via repositories
     - Each repository has a schema which defines it data structure
@@ -17,7 +15,7 @@ mZen can be used in any type application, server-side, client-app or as a REST A
   - Validation
   - Type-casting
 - Object Document Mapping (ODM)
-  - Populate documents into constructor instances (e.g instance of an ES6 class)
+  - Populate documents into constructor instances
   - Populate document relations
 
 - Document relation population
@@ -45,15 +43,10 @@ mZen can be used in any type application, server-side, client-app or as a REST A
     - equality (must be equal to another field in the same object)
     - email
   - Supports custom validators
-  - Specify default values
+  - Default values
     - Default value is used when validating, inserting or updating a field with an undefined or null value
   - Type-casting
     - When field type is configured, value is cast to the required type on validation, insert or update
     - Cast failure produces a validation error
-      - For example: casting the string 'three' to type number would produce NaN resulting in a validation error
-    - Supported types
-      - string
-      - number
-      - boolean
-      - Date
-      - ObjectID (BSON/MongoDB)
+      - e.g. casting the string 'three' to type number would produce NaN resulting in a validation error
+    - Supports ObjectID type (BSON/MongoDB)
