@@ -14,3 +14,6 @@
 coverage
 node_modules
 npm-debug.log
+/test/fixtures/**/*.js
+/test/fixtures/**/*.js.map
+/test/fixtures/**/*.d.ts

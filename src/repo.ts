@@ -1,4 +1,4 @@
-import clone from 'clone';
+import clone = require('clone');
 import RepoPopulate from './repo-populate';
 import ObjectPathAccessor from './object-path-accessor';
 import Schema, { SchemaValidationResult } from 'mzen-schema';
@@ -83,9 +83,9 @@ export class Repo
   services: {[key: string]: any};
   relationPaths: Array<string>;
   
-  constructor(options: RepoConfig = {})
+  constructor(options?: RepoConfig)
   {
-    this.config = options;
+    this.config = options ? options : {};
     this.config.model = this.config.model ? this.config.model : {}; // The main config is injected here
     this.config.pkey = this.config.pkey ? this.config.pkey : '_id';
     this.config.name = this.config.name ? this.config.name : '';
@@ -277,11 +277,11 @@ export class Repo
     }
     return Promise.all(promises);
   }
-  createIndex(fieldOrSpec, options)
+  createIndex(fieldOrSpec, options?)
   {
     return this.dataSource.createIndex(this.config.collectionName, fieldOrSpec, options);
   }
-  dropIndex(indexName, options)
+  dropIndex(indexName, options?)
   {
     return this.dataSource.dropIndex(this.config.collectionName, indexName, options);
   }
@@ -289,7 +289,8 @@ export class Repo
   {
     return this.dataSource.dropIndexes(this.config.collectionName);
   }
-  async find()
+  // @ts-ignore 'args' is declared but its value is never read.
+  async find(...args: any[])
   {
     this.initSchema();
     const findOptions = this.findQueryOptions(arguments);
@@ -301,7 +302,8 @@ export class Repo
     var objects = await this.dataSource.find(this.config.collectionName, findOptions.query, findOptions.fields, findOptions.queryOptions);
     return this.findPopulate(objects, findOptions);
   }
-  async findOne()
+  // @ts-ignore 'args' is declared but its value is never read.
+  async findOne(...args: any[])
   {
     this.initSchema();
     const findOptions = this.findQueryOptions(arguments);
@@ -313,7 +315,7 @@ export class Repo
     var objects = await this.dataSource.findOne(this.config.collectionName, findOptions.query, findOptions.fields, findOptions.queryOptions);
     return this.findPopulate(objects, findOptions);
   }
-  async count(query, options)
+  async count(query, options?)
   {
     this.initSchema();
     var validateResult = await this.schema.validateQuery(query);
@@ -486,7 +488,7 @@ export class Repo
 
     return flatRelations;
   }
-  populateAll(objects, options: {populateRelations?: boolean})
+  populateAll(objects, options: {populateRelations?: boolean, populate: {[key: string]: boolean} | boolean})
   {
     const flattenedRelations = this.getFlattenedRelations(options);
     options.populateRelations = false; // Dont populate recursively - we already flattened the relations
@@ -544,7 +546,7 @@ export class Repo
 
     return repoPopulate[relation.type](objects, relationOptions);
   }
-  async insertMany(objects, options)
+  async insertMany(objects, options?)
   {
     this.initSchema();
     var args = Array.prototype.slice.call(arguments); // We use Array.slice() to make a copy of the original args
@@ -562,7 +564,7 @@ export class Repo
     args.unshift(this.config.collectionName); // Prepend collection name to arguments
     return this.dataSource.insertMany.apply(this.dataSource, args);
   }
-  async insertOne(object, options)
+  async insertOne(object, options?)
   {
     this.initSchema();
     var args = Array.prototype.slice.call(arguments); // We use Array.slice() to make a copy of the original args
@@ -580,7 +582,7 @@ export class Repo
     args.unshift(this.config.collectionName); // Prepend collection name to arguments
     return this.dataSource.insertOne.apply(this.dataSource, args);
   }
-  async updateMany(criteria, update, options)
+  async updateMany(criteria, update, options?)
   {
     this.initSchema();
     criteria = clone(criteria);
@@ -612,7 +614,7 @@ export class Repo
     }
     return this.dataSource.updateMany(this.config.collectionName, criteria, update, options);
   }
-  async updateOne(criteria, update, options)
+  async updateOne(criteria, update, options?)
   {
     this.initSchema();
     criteria = clone(criteria);
@@ -644,7 +646,7 @@ export class Repo
 
     return this.dataSource.updateOne(this.config.collectionName, criteria, update, options);
   }
-  async deleteMany(filter, options)
+  async deleteMany(filter, options?)
   {
     this.initSchema();
     options = options ? options : {};
@@ -659,7 +661,7 @@ export class Repo
     args.unshift(this.config.collectionName); // Prepend collection name to arguments
     return this.dataSource.deleteMany.apply(this.dataSource, args);
   }
-  async deleteOne(filter, options)
+  async deleteOne(filter, options?)
   {
     this.initSchema();
     options = options ? options : {};

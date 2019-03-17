@@ -7,9 +7,11 @@
   "scripts": {
     "prepare": "npm run build",
     "prepublishOnly": "npm test",
-    "test": "mocha -r test/ts-node-hooks.js test/**/*.ts",
     "build": "npm run clean && tsc",
-    "clean": "rm -fr ./lib/*"
+    "clean": "rm -fr ./lib/*",
+    "test": "mocha -r test/tests/ts-node-hooks.js test/tests/*.ts test/tests/**/*.ts",
+    "test-fixtures-build": "cd ./test/fixtures && tsc",
+    "test-fixtures-clean": "find ./test/fixtures -type f \\( -name '*.js' -or -name '*.js.map' -or -name '*.d.ts' \\) -delete"
   },
   "author": "Kevin Foster <kevin.foster.uk@gmail.com>",
   "license": "BSD-3-Clause",

@@ -1,11 +1,9 @@
-'use strict'
-var Service = require('../../../../lib/service');
-
-class ArtistSignupService extends Service
-{
-  constructor(options) {
-    super({name: 'artistSignup'});
-  }
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const service_1 = require("../../../../lib/service");
+class ArtistSignupService extends service_1.default {
+    constructor() {
+        super({ name: 'artistSignup' });
+    }
 }
-
-module.exports = ArtistSignupService;
+exports.default = ArtistSignupService;

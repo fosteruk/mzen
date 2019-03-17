@@ -1,8 +1,5 @@
-'use strict'
-var should = require('should');
-var Service = require('../lib/service');
-var Repo = require('../lib/repo');
-var MockDataSource = require('../lib/data-source/mock');
+import should = require('should');
+import Service from '../../lib/service';
 
 describe('Service', function (){
   describe('getName()', function (){
@@ -21,9 +18,9 @@ describe('Service', function (){
     });
     it('should throw an exception if service name is not configured when using the default constructor', function(){
       var aService = new Service();
-      (function(){
+      should.throws(function(){
         aService.getName()
-      }).should.throw(/Service name not configured/);
+      }, /Service name not configured/);
     });
   });
 });

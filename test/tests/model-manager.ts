@@ -1,8 +1,8 @@
-var should = require('should');
-var ModelManager = require('../lib/model-manager');
-var Repo = require('../lib/repo');
-var Service = require('../lib/service');
-var Schema = require('mzen-schema').default;
+import should = require('should');
+import ModelManager from '../../lib/model-manager';
+import Repo from '../../lib/repo';
+import Service from '../../lib/service';
+import Schema from 'mzen-schema';
 
 describe('ModelManager', function () {
   describe('init()', function () {
@@ -25,82 +25,82 @@ describe('ModelManager', function () {
     });
     describe('loadResources()', function () {
       it('should load constructors from constructor directory of configured model directory', function (done) {
-          var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-          should(modelManager.constructors['Artist']).be.Undefined();
-          should(modelManager.constructors['Album']).be.Undefined();
+          var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+          should(modelManager.constructors.Artist).be.Undefined();
+          should(modelManager.constructors.Album).be.Undefined();
           modelManager.loadResources().then(function(){
-            should(modelManager.constructors['Artist']).be.a.Function();
-            should(modelManager.constructors['Album']).be.a.Function();
+            should(modelManager.constructors.Artist).be.a.Function();
+            should(modelManager.constructors.Album).be.a.Function();
             done();
           }).catch(function(err){
             done(err);
           });
       });
       it('should load constructors from constructors file of configured model directory', function (done) {
-          var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-          should(modelManager.constructors['TestImportedConstructor']).be.Undefined();
+          var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+          should(modelManager.constructors.TestImportedConstructor).be.Undefined();
           modelManager.loadResources().then(function(){
-            should(modelManager.constructors['TestImportedConstructor']).be.a.Function();
+            should(modelManager.constructors.TestImportedConstructor).be.a.Function();
             done();
           }).catch(function(err){
             done(err);
           });
       });
       it('should load schemas from schema directory of configured model directory', function (done) {
-          var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-          should(modelManager.schemas['artist']).be.Undefined();
+          var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+          should(modelManager.schemas.artist).be.Undefined();
           modelManager.loadResources().then(function(){
-            should(modelManager.schemas['artist']).be.a.Object();
+            should(modelManager.schemas.artist).be.a.Object();
             done();
           }).catch(function(err){
             done(err);
           });
       });
       it('should load schemas from schemas file of configured model directory', function (done) {
-          var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-          should(modelManager.schemas['testImportedSchema']).be.Undefined();
+          var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+          should(modelManager.schemas.testImportedSchema).be.Undefined();
           modelManager.loadResources().then(function(){
-            should(modelManager.schemas['testImportedSchema']).be.a.Object();
+            should(modelManager.schemas.testImportedSchema).be.a.Object();
             done();
           }).catch(function(err){
             done(err);
           });
       });
-      it('should repositorys from repo directory of configured model directory', function (done) {
-          var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-          should(modelManager.repos['artist']).be.Undefined();
+      it('should load repositorys from repo directory of configured model directory', function (done) {
+          var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+          should(modelManager.repos.artist).be.Undefined();
           modelManager.loadResources().then(function(){
-            should(modelManager.repos['artist']).be.a.Object();
+            should(modelManager.repos.artist).be.a.Object();
             done();
           }).catch(function(err){
             done(err);
           });
       });
       it('should load repos from schemas file of configured configured model directory', function (done) {
-          var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-          should(modelManager.repos['testImportedRepo']).be.Undefined();
+          var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+          should(modelManager.repos.testImportedRepo).be.Undefined();
           modelManager.loadResources().then(function(){
-            should(modelManager.repos['testImportedRepo']).be.a.Object();
+            should(modelManager.repos.testImportedRepo).be.a.Object();
             done();
           }).catch(function(err){
             done(err);
           });
       });
       it('should services from service directory of configured model directory', function (done) {
-          var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-          should(modelManager.services['artistSignup']).be.Undefined();
+          var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+          should(modelManager.services.artistSignup).be.Undefined();
           modelManager.loadResources().then(function(){
-            should(modelManager.services['artistSignup']).be.a.Object();
+            should(modelManager.services.artistSignup).be.a.Object();
             done();
         }).catch(function(err){
           done(err);
         });
       });
       it('should load service from services file of configured configured model directory', function (done) {
-          var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-          should(modelManager.services['testImportedService']).be.Undefined();
+          var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+          should(modelManager.services.testImportedService).be.Undefined();
           modelManager.loadResources().then(function(){
-            should(modelManager.services['testImportedService']).be.a.Object();
+            should(modelManager.services.testImportedService).be.a.Object();
             done();
           }).catch(function(err){
             done(err);
@@ -151,23 +151,23 @@ describe('ModelManager', function () {
         });
       });
       it('should inject loaded constructors into schemas', function (done) {
-        var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-        should(modelManager.schemas['artist']).be.Undefined();
+        var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+        should(modelManager.schemas.artist).be.Undefined();
         modelManager.init().then(function(){
-          should(modelManager.schemas['artist'].constructors['artist']).eql(modelManager.constructors['artist']);
-          should(modelManager.schemas['artist'].constructors['album']).eql(modelManager.constructors['album']);
+          should(modelManager.schemas.artist.constructors.Artist).eql(modelManager.constructors.Artist);
+          should(modelManager.schemas.artist.constructors.Album).eql(modelManager.constructors.Album);
           done();
         }).catch(function(err){
           done(err);
         });
       });
       it('should inject loaded schemas into schemas', function (done) {
-        var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-        should(modelManager.schemas['artist']).be.Undefined();
-        should(modelManager.schemas['album']).be.Undefined();
+        var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+        should(modelManager.schemas.artist).be.Undefined();
+        should(modelManager.schemas.album).be.Undefined();
         modelManager.init().then(function(){
-          should(modelManager.schemas['artist'].schemas['artist']).eql(modelManager.schemas['artist']);
-          should(modelManager.schemas['artist'].schemas['album']).eql(modelManager.schemas['album']);
+          should(modelManager.schemas.artist.schemas.artist).eql(modelManager.schemas.artist);
+          should(modelManager.schemas.artist.schemas.album).eql(modelManager.schemas.album);
           done();
         }).catch(function(err){
           done(err);
@@ -254,45 +254,45 @@ describe('ModelManager', function () {
         });
       });
       it('should inject loaded constructors into repo', function (done) {
-        var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-        should(modelManager.repos['artist']).be.Undefined();
+        var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+        should(modelManager.repos.artist).be.Undefined();
         modelManager.init().then(function(){
-          should(modelManager.repos['artist'].constructors['Album'].name).eql('Album');
-          should(modelManager.repos['artist'].constructors['Artist'].name).eql('Artist');
+          should(modelManager.repos.artist.constructors.Album.name).eql('Album');
+          should(modelManager.repos.artist.constructors.Artist.name).eql('Artist');
           done();
         }).catch(function(err){
           done(err);
         });
       });
       it('should inject loaded schemas into repo', function (done) {
-        var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-        should(modelManager.repos['artist']).be.Undefined();
-        should(modelManager.repos['album']).be.Undefined();
+        var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+        should(modelManager.repos.artist).be.Undefined();
+        should(modelManager.repos.album).be.Undefined();
         modelManager.init().then(function(){
-          should(modelManager.repos['artist'].schemas['artist']).eql(modelManager.schemas['artist']);
-          should(modelManager.repos['artist'].schemas['album']).eql(modelManager.schemas['album']);
+          should(modelManager.repos.artist.schemas.artist).eql(modelManager.schemas.artist);
+          should(modelManager.repos.artist.schemas.album).eql(modelManager.schemas.album);
           done();
         }).catch(function(err){
           done(err);
         });
       });
       it('should inject loaded repos into each repo', function (done) {
-        var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-        should(modelManager.repos['artist']).be.Undefined();
-        should(modelManager.repos['album']).be.Undefined();
+        var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+        should(modelManager.repos.artist).be.Undefined();
+        should(modelManager.repos.album).be.Undefined();
         modelManager.init().then(function(){
-          should(modelManager.repos['artist'].repos['album']).eql(modelManager.repos['album']);
+          should(modelManager.repos.artist.repos.album).eql(modelManager.repos.album);
           done();
         }).catch(function(err){
           done(err);
         });
       });
       it('should inject loaded services into each repo', function (done) {
-        var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-        should(modelManager.repos['artist']).be.Undefined();
-        should(modelManager.services['artistSignup']).be.Undefined();
+        var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+        should(modelManager.repos.artist).be.Undefined();
+        should(modelManager.services.artistSignup).be.Undefined();
         modelManager.init().then(function(){
-          should(modelManager.repos['artist'].services['artistSignup']).eql(modelManager.services['artistSignup']);
+          should(modelManager.repos.artist.services.artistSignup).eql(modelManager.services.artistSignup);
           done();
         }).catch(function(err){
           done(err);
@@ -343,21 +343,21 @@ describe('ModelManager', function () {
         });
       });
       it('should inject loaded repos into each service', function (done) {
-        var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-        should(modelManager.repos['artist']).be.Undefined();
-        should(modelManager.services['artistSignup']).be.Undefined();
+        var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+        should(modelManager.repos.artist).be.Undefined();
+        should(modelManager.services.artistSignup).be.Undefined();
         modelManager.init().then(function(){
-          should(modelManager.services['artistSignup'].repos['artist']).eql(modelManager.repos['artist']);
+          should(modelManager.services.artistSignup.repos.artist).eql(modelManager.repos.artist);
           done();
         }).catch(function(err){
           done(err);
         });
       });
       it('should inject loaded services into each service', function (done) {
-        var modelManager = new ModelManager({modelDirs: [__dirname + '/fixtures/model-manager']});
-        should(modelManager.services['artistSignup']).be.Undefined();
+        var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+        should(modelManager.services.artistSignup).be.Undefined();
         modelManager.init().then(function(){
-          should(modelManager.services['artistSignup'].services['artistSignup']).eql(modelManager.services['artistSignup']);
+          should(modelManager.services.artistSignup.services.artistSignup).eql(modelManager.services.artistSignup);
           done();
         }).catch(function(err){
           done(err);

@@ -1,4 +1,4 @@
-import clone from 'clone';
+import clone = require('clone');
 
 export class MockDataSource
 {
@@ -27,7 +27,7 @@ export class MockDataSource
   }
   
   // @ts-ignore - 'fields' is declared but its value is never read
-  find(collectionName, query, fields, findOptions)
+  find(collectionName, query?, fields?, findOptions?)
   {
     this.queryCount++;
     var data = this.filterData(collectionName, query, findOptions);
@@ -36,7 +36,7 @@ export class MockDataSource
   }
   
   // @ts-ignore - 'fields' is declared but its value is never read
-  findOne(collectionName, query, fields, findOptions)
+  findOne(collectionName, query?, fields?, findOptions?)
   {
     this.queryCount++;
     var data = this.filterData(collectionName, query, findOptions);
@@ -45,7 +45,7 @@ export class MockDataSource
   }
   
   // @ts-ignore - 'fields' is declared but its value is never read
-  count(collectionName, query, fields, findOptions)
+  count(collectionName, query?, fields?, findOptions?)
   {
     this.queryCount++;
     var data = this.filterData(collectionName, query, findOptions);
@@ -53,7 +53,7 @@ export class MockDataSource
     return Promise.resolve(count);
   }
   
-  filterData(collectionName, query, options)
+  filterData(collectionName, query?, options?)
   {
     options = options ? options : {};
     var data = this.data[collectionName];
@@ -95,7 +95,7 @@ export class MockDataSource
   }
   
   // @ts-ignore - 'collectionName' is declared but its value is never read
-  updateMany(collectionName, criteria, update, options)
+  updateMany(collectionName, criteria?, update?, options?)
   {
     this.queryCount++;
     this.dataUpdate = this.dataUpdate.concat(update);
@@ -103,7 +103,7 @@ export class MockDataSource
   }
   
   // @ts-ignore - 'collectionName' is declared but its value is never read
-  updateOne(collectionName, criteria, update, options)
+  updateOne(collectionName, criteria?, update?, options?)
   {
     this.queryCount++;
     this.dataUpdate = this.dataUpdate.concat(update);
@@ -132,7 +132,7 @@ export class MockDataSource
   }
   
   // @ts-ignore - 'collectionName' is declared but its value is never read
-  createIndex(collectionName, spec, options)
+  createIndex(collectionName, spec, options?)
   {
     this.queryCount++;
     return Promise.resolve();

@@ -1,6 +1,6 @@
 'use strict'
 
-var MockDataSource = require('../lib/data-source/mock');
+var MockDataSource = require('../lib/data-source/mock').default;
 var { ModelManager, Repo } = require('../lib/index');
 
 var data = {

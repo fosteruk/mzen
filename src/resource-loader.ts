@@ -34,7 +34,8 @@ export default class ResourceLoader
           ) {
             const filePath = path.resolve(dir + '/' + fileName);
             try {
-              resources[filePath] = require(filePath);
+              let loadedModule = require(filePath);
+              resources[filePath] = loadedModule && loadedModule.__esModule ? loadedModule.default : loadedModule;
             } catch (err) {
               console.error(err.stack);
             }

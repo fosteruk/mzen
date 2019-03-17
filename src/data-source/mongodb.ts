@@ -1,4 +1,4 @@
-import MongoClient, { Db }  from 'mongodb';
+import { MongoClient, Db } from 'mongodb';
 
 export class MongoDb
 {
@@ -19,6 +19,8 @@ export class MongoDb
     const url = this.config.url ? this.config.url : '';
     const customOptions = this.config.options ? this.config.options : {};
     const options = Object.assign({}, defaultOptions, customOptions);
+    
+    console.log(MongoClient);
 
     this.client = await MongoClient.connect(url, options);
     this.db = this.client.db();

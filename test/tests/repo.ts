@@ -1,7 +1,6 @@
-'use strict'
-var should = require('should');
-var Repo = require('../lib/repo');
-var MockDataSource = require('../lib/data-source/mock');
+import should = require('should');
+import Repo from '../../lib/repo';
+import MockDataSource from '../../lib/data-source/mock';
 
 describe('Repo', function () {
   describe('getName()', function () {
@@ -20,9 +19,9 @@ describe('Repo', function () {
     });
     it('should throw an exception if repo name is not configured when using the default constructor', function() {
       var aRepo = new Repo();
-      (function(){
+      should.throws(function(){
         aRepo.getName()
-      }).should.throw(/Repo name not configured/);
+      }, /Repo name not configured/);
     });
   });
   describe('count()', function () {

@@ -1,11 +1,7 @@
-'use strict'
-
-// constructors file allows you to full in contructors from other packages
-
-var TestImportedConstructor = function(){};
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var TestImportedConstructor = function () { };
 var constructors = [
-  TestImportedConstructor
+    TestImportedConstructor
 ];
-
-module.exports = constructors;
+exports.default = constructors;

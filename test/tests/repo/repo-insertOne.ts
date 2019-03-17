@@ -1,11 +1,10 @@
-'use strict'
-var should = require('should');
-var Repo = require('../../lib/repo');
-var MockDataSource = require('../../lib/data-source/mock');
+import should = require('should');
+import Repo from '../../../lib/repo';
+import MockDataSource from '../../../lib/data-source/mock';
 
 describe('Repo', function () {
-  describe('insertMany()', function () {
-    it('should returns type casted documents', function (done) {
+  describe('insertOne()', function () {
+    it('should type cast documents', function (done) {
       var data = {
         user: [
           {_id: '1', name: 'Kevin', number: '123', string: 543}
@@ -22,8 +21,8 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource(data);
 
-      user.insertMany(data.user, {filterPrivate: true})
-      .then(function(result){
+      user.insertOne(data.user[0], {filterPrivate: true})
+      .then(function(){
         should(user.dataSource.dataInsert[0].number).eql(123);
         should(user.dataSource.dataInsert[0].string).eql('543');
         done();
@@ -47,8 +46,8 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource(data);
 
-      user.insertMany(data.user, {filterPrivate: true})
-      .then(function(result){
+      user.insertOne(data.user[0], {filterPrivate: true})
+      .then(function(){
         should(user.dataSource.dataInsert[0].name).eql('Kevin');
         should(user.dataSource.dataInsert[0].cannotInsertThisValue).eql(undefined);
         done();
@@ -72,8 +71,8 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource(data);
 
-      user.insertMany(data.user, {filterPrivate: true})
-      .then(function(result){
+      user.insertOne(data.user[0], {filterPrivate: true})
+      .then(function(){
         should(user.dataSource.dataInsert[0].name).eql('Kevin');
         should(user.dataSource.dataInsert[0].cannotInsertThisValue).eql(undefined);
         done();
@@ -97,8 +96,8 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource(data);
 
-      user.insertMany(data.user, {filterPrivate: true})
-      .then(function(result){
+      user.insertOne(data.user[0], {filterPrivate: true})
+      .then(function(){
         should(user.dataSource.dataInsert[0].name).eql('Kevin');
         should(user.dataSource.dataInsert[0].canInsertThisValue).eql('test');
         done();
@@ -122,8 +121,8 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource(data);
 
-      user.insertMany(data.user)
-      .then(function(result){
+      user.insertOne(data.user[0])
+      .then(function(){
         should(user.dataSource.dataInsert[0].name).eql('Kevin');
         should(user.dataSource.dataInsert[0].canInsertThisValue).eql('test');
         done();

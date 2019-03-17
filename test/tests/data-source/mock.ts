@@ -1,6 +1,5 @@
-'use strict'
-var should = require('should');
-var MockDataSource = require('../../lib/data-source/mock');
+import should = require('should');
+import MockDataSource from '../../../lib/data-source/mock';
 
 var data = {
   recordCompany: [

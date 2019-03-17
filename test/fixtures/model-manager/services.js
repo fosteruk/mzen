@@ -1,12 +1,9 @@
-'use strict'
-var Service = require('../../../lib/service');
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const service_1 = require("../../../lib/service");
 // services file allows you to full in services from other packages
-
-var TestImportedService = new Service({name: 'testImportedService'});
-
+var TestImportedService = new service_1.default({ name: 'testImportedService' });
 var services = [
-  TestImportedService
+    TestImportedService
 ];
-
-module.exports = services;
+exports.default = services;

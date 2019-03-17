@@ -1,16 +1,13 @@
-'use strict'
-var Schema = require('mzen-schema').default;
-
-class ArtistSchema extends Schema
-{
-  constructor(spec, options)
-  {
-    super(spec, options);
-    this.setName('artist');
-    this.setSpec({
-      firstAlbum: {$schema: 'album'}
-    });
-  }
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const mzen_schema_1 = require("mzen-schema");
+class ArtistSchema extends mzen_schema_1.default {
+    constructor(spec, options) {
+        super(spec, options);
+        this.setName('artist');
+        this.setSpec({
+            firstAlbum: { $schema: 'album' }
+        });
+    }
 }
-
-module.exports = ArtistSchema;
+exports.default = ArtistSchema;

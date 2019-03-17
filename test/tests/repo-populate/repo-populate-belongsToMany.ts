@@ -1,7 +1,7 @@
-var should = require('should');
-var RepoPopulate = require('../../lib/repo-populate');
-var Repo = require('../../lib/repo');
-var MockDataSource = require('../../lib/data-source/mock');
+import should = require('should');
+import RepoPopulate from '../../../lib/repo-populate';
+import Repo from '../../../lib/repo';
+import MockDataSource from '../../../lib/data-source/mock';
 
 describe('RepoPopulate.belongsToMany', function () {
   describe('belongsToMany()', function () {

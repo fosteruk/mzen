@@ -1,7 +1,6 @@
-'use strict'
-var should = require('should');
-var Repo = require('../../lib/repo');
-var MockDataSource = require('../../lib/data-source/mock');
+import should = require('should');
+import Repo from '../../../lib/repo';
+import MockDataSource from '../../../lib/data-source/mock';
 
 describe('Repo', function () {
   describe('findOne()', function () {
@@ -191,6 +190,8 @@ describe('Repo', function () {
       };
 
       var User = class {
+        name_first: string;
+        name_last: string;
         getFullname(){
           return this.name_first + ' ' + this.name_last;
         }
@@ -237,6 +238,7 @@ describe('Repo', function () {
       userRepo.dataSource = dataSource;
 
       var Timezone = class {
+        name: string;
         getName(){
           return this.name;
         }
@@ -276,6 +278,7 @@ describe('Repo', function () {
       };
 
       var Contact = class {
+        address: string;
         getAddress(){
           return this.address + ' (@)';
         }
@@ -330,6 +333,7 @@ describe('Repo', function () {
       };
 
       var Contact = class {
+        address: string;
         getAddress(){
           return this.address + ' (@)';
         }
@@ -363,6 +367,8 @@ describe('Repo', function () {
       };
 
       var User = class {
+        name_first: string;
+        name_last: string;
         getFullname(){
           return this.name_first + ' ' + this.name_last;
         }
@@ -409,6 +415,7 @@ describe('Repo', function () {
       userRepo.dataSource = dataSource;
 
       var Timezone = class {
+        name: string;
         getName(){
           return this.name;
         }

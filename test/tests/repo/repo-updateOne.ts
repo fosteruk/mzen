@@ -1,7 +1,6 @@
-'use strict'
-var should = require('should');
-var Repo = require('../../lib/repo');
-var MockDataSource = require('../../lib/data-source/mock');
+import should = require('should');
+import Repo from '../../../lib/repo';
+import MockDataSource from '../../../lib/data-source/mock';
 
 describe('Repo', function () {
   describe('updateOne()', function () {
@@ -23,7 +22,7 @@ describe('Repo', function () {
       user.dataSource = new MockDataSource({});
 
       user.updateOne({}, updateData, {filterPrivate: true})
-      .then(function(result){
+      .then(function(){
         should(user.dataSource.dataUpdate[0]['$set'].number).eql(123);
         should(user.dataSource.dataUpdate[0]['$set'].string).eql('543');
         done();
@@ -49,7 +48,7 @@ describe('Repo', function () {
       user.dataSource = new MockDataSource({});
 
       user.updateOne({}, updateData, {filterPrivate: true})
-      .then(function(result){
+      .then(function(){
         should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
         should(user.dataSource.dataUpdate[0]['$set'].cannotInsertThisValue).eql(undefined);
         done();
@@ -75,7 +74,7 @@ describe('Repo', function () {
       user.dataSource = new MockDataSource({});
 
       user.updateOne({}, updateData, {filterPrivate: true})
-      .then(function(result){
+      .then(function(){
         should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
         should(user.dataSource.dataUpdate[0]['$set'].cannotInsertThisValue).eql(undefined);
         done();
@@ -101,7 +100,7 @@ describe('Repo', function () {
       user.dataSource = new MockDataSource({});
 
       user.updateOne({}, updateData, {filterPrivate: true})
-      .then(function(result){
+      .then(function(){
         should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
         should(user.dataSource.dataUpdate[0]['$set'].canUpdateThisValue).eql('123');
         done();
@@ -127,7 +126,7 @@ describe('Repo', function () {
       user.dataSource = new MockDataSource({});
 
       user.updateOne({}, updateData)
-      .then(function(result){
+      .then(function(){
         should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
         should(user.dataSource.dataUpdate[0]['$set'].canUpdateThisValue).eql('123');
         done();
