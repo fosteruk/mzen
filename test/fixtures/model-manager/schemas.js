@@ -1,12 +1,9 @@
-'use strict'
-var Schema = require('mzen-schema').default;
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const mzen_schema_1 = require("mzen-schema");
 // schemas file allows you to full in schemas from other packages
-
-var TestImportedSchema = new Schema({$name: 'testImportedSchema'});
-
+var TestImportedSchema = new mzen_schema_1.default({ $name: 'testImportedSchema' });
 var schemas = [
-  TestImportedSchema
+    TestImportedSchema
 ];
-
-module.exports = schemas;
+exports.default = schemas;

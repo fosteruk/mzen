@@ -1,8 +1,5 @@
-'use strict';
-
-class Artist
-{
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class Artist {
 }
-
-module.exports = Artist;
+exports.default = Artist;

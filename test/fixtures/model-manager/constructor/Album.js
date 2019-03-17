@@ -1,8 +1,5 @@
-'use strict';
-
-class Album
-{
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class Album {
 }
-
-module.exports = Album;
+exports.default = Album;
