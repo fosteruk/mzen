@@ -31,7 +31,7 @@
   "dependencies": {
     "clone": "^1.0.2",
     "mongodb": "^3.1.13",
-    "mzen-schema": "0.0.73"
+    "mzen-schema": "0.0.74"
   },
   "files": [
     "/lib",

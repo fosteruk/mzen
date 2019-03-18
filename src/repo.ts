@@ -1,7 +1,7 @@
 import clone = require('clone');
 import RepoPopulate from './repo-populate';
 import ObjectPathAccessor from './object-path-accessor';
-import Schema, { SchemaValidationResult } from 'mzen-schema';
+import Schema, { SchemaValidationResult, SchemaSpec } from 'mzen-schema';
 
 export class RepoErrorValidation extends Error
 {
@@ -21,7 +21,7 @@ export interface RepoConfig
   name?: string;
   dataSource?: string;
   collectionName?: string;
-  schema?: any;
+  schema?: SchemaSpec;
   indexes?: Array<any>;
   autoIndex?: boolean;
   relations?: {[key: string]: any};
