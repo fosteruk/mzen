@@ -1,7 +1,7 @@
 import path = require('path');
 import fs = require('fs');
 
-export default class ResourceLoader
+export class ResourceLoader
 {
   constructor() {
   }
@@ -81,3 +81,5 @@ export default class ResourceLoader
     return result;
   }
 }
+
+export default ResourceLoader;

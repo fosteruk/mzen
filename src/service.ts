@@ -1,4 +1,4 @@
-interface ServiceConfig
+export interface ServiceConfig
 {
   model?: {[key: string]: any};
   name?: string;
@@ -6,7 +6,7 @@ interface ServiceConfig
   services?: {[key: string]: any};
 }
 
-export default class Service
+export class Service
 {
   config: ServiceConfig;
   name: string;
@@ -94,3 +94,5 @@ export default class Service
     return this.services[name];
   }
 }
+
+export default Service;
