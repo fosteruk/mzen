@@ -127,6 +127,7 @@ export class Repo
       this.relationPaths.push(aliasPath);
     });
   }
+  
   // Init creates indexes
   async init()
   {
@@ -137,6 +138,7 @@ export class Repo
     }
     return Promise.all(promises);
   }
+  
   initSchema()
   {
     if (!this.schema) {
@@ -156,6 +158,7 @@ export class Repo
       this.schema.addSchemas(this.schemas);
     }
   }
+  
   getName()
   {
     // If repo name == 'Repo' then we are most likely using the name of the default repo constrcutor.
@@ -165,14 +168,17 @@ export class Repo
     if (this.name == 'Repo') throw new Error('Repo name not configured - you must specify a repo name when using the default repo entityConstructor');
     return this.name;
   }
+  
   addConstructor(value)
   {
     this.constructors[value.name] = value;
   }
+  
   getConstructor(constructorName)
   {
     return this.constructors[constructorName] ? this.constructors[constructorName] : null;
   }
+  
   addConstructors(constructors)
   {
     if (constructors) {
@@ -191,10 +197,12 @@ export class Repo
       }
     }
   }
+  
   addSchema(schema)
   {
     this.schemas[schema.getName()] = schema;
   }
+  
   addSchemas(schemas)
   {
     if (schemas) {
@@ -209,10 +217,12 @@ export class Repo
       }
     }
   }
+  
   addRepo(repo)
   {
     this.repos[repo.getName()] = repo;
   }
+  
   addRepos(repos)
   {
     if (repos) {
@@ -227,10 +237,12 @@ export class Repo
       }
     }
   }
+  
   addService(service)
   {
     this.services[service.getName()] = service;
   }
+  
   addServices(services)
   {
     if (services) {
@@ -245,15 +257,18 @@ export class Repo
       }
     }
   }
+  
   getService(name)
   {
     const service = this.services[name];
     return service;
   }
+  
   drop()
   {
     return this.dataSource.drop(this.config.collectionName);
   }
+  
   reset()
   {
     // This method drops the collection and re-creates it with indexes if any are defined
@@ -261,6 +276,7 @@ export class Repo
       return this.config.autoIndex ? this.createIndexes() : null;
     });
   }
+  
   createIndexes()
   {
     var promises = [];
@@ -277,18 +293,22 @@ export class Repo
     }
     return Promise.all(promises);
   }
+  
   createIndex(fieldOrSpec, options?)
   {
     return this.dataSource.createIndex(this.config.collectionName, fieldOrSpec, options);
   }
+  
   dropIndex(indexName, options?)
   {
     return this.dataSource.dropIndex(this.config.collectionName, indexName, options);
   }
+  
   dropIndexes()
   {
     return this.dataSource.dropIndexes(this.config.collectionName);
   }
+  
   // @ts-ignore 'args' is declared but its value is never read.
   async find(...args: any[])
   {
@@ -302,6 +322,7 @@ export class Repo
     var objects = await this.dataSource.find(this.config.collectionName, findOptions.query, findOptions.fields, findOptions.queryOptions);
     return this.findPopulate(objects, findOptions);
   }
+  
   // @ts-ignore 'args' is declared but its value is never read.
   async findOne(...args: any[])
   {
@@ -315,6 +336,7 @@ export class Repo
     var objects = await this.dataSource.findOne(this.config.collectionName, findOptions.query, findOptions.fields, findOptions.queryOptions);
     return this.findPopulate(objects, findOptions);
   }
+  
   async count(query, options?)
   {
     this.initSchema();
@@ -324,10 +346,12 @@ export class Repo
     }
     return this.dataSource.count(this.config.collectionName, query, options);
   }
+  
   aggregate(pipeline, options?)
   {
     return this.dataSource.aggregate(this.config.collectionName, pipeline, options);
   }
+  
   findQueryOptions(findArguments)
   {
     // This method parses query options for finder methods and compiles into an array that is easier to consunme
@@ -380,6 +404,7 @@ export class Repo
 
     return findOptions;
   }
+  
   async findPopulate(objects, findOptions)
   {
     if (findOptions.options.filterPrivate) {
@@ -392,6 +417,7 @@ export class Repo
       return this.populateAll(objects, findOptions.options);
     }
   }
+  
   async populate(relation, objects, options)
   {
     options = (options == Object(options)) ? options : {};
@@ -402,6 +428,7 @@ export class Repo
     await this.getPopulatePromise(relation, options, objects); // side affect modified objects
     return objects;
   }
+  
   getFlattenedRelations(options)
   {
     // This method returns an array of arrays - were each child array contains relations for a given relation depth
@@ -428,6 +455,7 @@ export class Repo
 
     return flattenedRelations;
   }
+  
   getFlattenedRelationsRecursive(options = {}, parentRepo?, basePath = [], flatRelations = [])
   {
     parentRepo = parentRepo ? parentRepo : this.config.name;
@@ -488,6 +516,7 @@ export class Repo
 
     return flatRelations;
   }
+  
   populateAll(objects, options: {populateRelations?: boolean, populate: {[key: string]: boolean} | boolean})
   {
     const flattenedRelations = this.getFlattenedRelations(options);
@@ -522,6 +551,7 @@ export class Repo
 
     return promise.then(() => objects);
   }
+  
   getPopulatePromise(relation, options: RepoPopulateOptions = {}, objects = [])
   {
     this.initSchema();
@@ -546,6 +576,7 @@ export class Repo
 
     return repoPopulate[relation.type](objects, relationOptions);
   }
+  
   async insertMany(objects, options?)
   {
     this.initSchema();
@@ -564,6 +595,7 @@ export class Repo
     args.unshift(this.config.collectionName); // Prepend collection name to arguments
     return this.dataSource.insertMany.apply(this.dataSource, args);
   }
+  
   async insertOne(object, options?)
   {
     this.initSchema();
@@ -582,6 +614,7 @@ export class Repo
     args.unshift(this.config.collectionName); // Prepend collection name to arguments
     return this.dataSource.insertOne.apply(this.dataSource, args);
   }
+  
   async updateMany(criteria, update, options?)
   {
     this.initSchema();
@@ -614,6 +647,7 @@ export class Repo
     }
     return this.dataSource.updateMany(this.config.collectionName, criteria, update, options);
   }
+  
   async updateOne(criteria, update, options?)
   {
     this.initSchema();
@@ -646,6 +680,7 @@ export class Repo
 
     return this.dataSource.updateOne(this.config.collectionName, criteria, update, options);
   }
+  
   async deleteMany(filter, options?)
   {
     this.initSchema();
@@ -661,6 +696,7 @@ export class Repo
     args.unshift(this.config.collectionName); // Prepend collection name to arguments
     return this.dataSource.deleteMany.apply(this.dataSource, args);
   }
+  
   async deleteOne(filter, options?)
   {
     this.initSchema();
@@ -675,6 +711,7 @@ export class Repo
     args.unshift(this.config.collectionName); // Prepend collection name to arguments
     return this.dataSource.deleteOne.apply(this.dataSource, args);
   }
+  
   stripTransients(objects)
   {
     this.initSchema();
@@ -692,6 +729,7 @@ export class Repo
     var result = isArray ? newObjects : newObjects.pop();
     return result;
   }
+  
   getRepo(name)
   {
     return (name == this.config.name) ? this : this.repos[name];
