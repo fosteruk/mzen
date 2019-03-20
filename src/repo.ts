@@ -28,8 +28,6 @@ export interface RepoConfig
   schemas?: {[key: string]: any};
   repos?: {[key: string]: any};
   constructors?: {[key: string]: any};
-  entityConstructor?: {[key: string]: any};
-  embeddedConstructors?: {[key: string]: any}; 
   services?: {[key: string]: any};
 }
 
@@ -51,8 +49,6 @@ export interface RepoQueryOptions
      maxVariable?: string,
      backwards?: boolean
   };
-  entityConstructor?: any;
-  embeddedConstructors?: {[key: string]: any};
 }
 
 export interface RepoPopulateOptions
@@ -388,17 +384,6 @@ export class Repo
     delete options.hint;
     if (options.collation != undefined) queryOptions.collation = options.collation;
     delete options.collation;
-
-    // We dont wan to propagate embedded constructor config
-    queryOptions.embeddedConstructors = (options.embeddedConstructors !== undefined)
-                                            ? options.embeddedConstructors : this.config.embeddedConstructors;
-    delete options.embeddedConstructors;
-
-    queryOptions.entityConstructor = (options.entityConstructor !== undefined)
-                                          ? options.entityConstructor : this.config.entityConstructor;
-    // Allow entityConstructor option to propagate if its false
-    // - If we dont want to populate entity prototypes on this repo we also dont want to populate them on relations
-    if (options.entityConstructor !== false) delete options.entityConstructor;
 
     findOptions.queryOptions = queryOptions;
 
