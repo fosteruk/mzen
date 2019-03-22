@@ -158,32 +158,6 @@ var workPlaceRepo = new Repo({
 });
 modelManager.addRepo(workPlaceRepo);
 
-modelManager
-.init()
-.then(function(){
-  console.log('** Connected **');
-}).then(function(){
-  return personRepo.deleteMany();
-}).then(function(){
-  return workPlaceRepo.deleteMany();
-}).then(function(){
-  return personRepo.insertMany(data.person);
-}).then(function(savedData){
-  return workPlaceRepo.insertOne(data.workPlace[0]);
-}).then(function(savedData){
-  return personRepo.updateMany({'workPlaceId': 1}, {$set: {'contact.address': '123 Updated Street'}});
-}).then(function(savedData){
-  return personRepo.find({}, {sort: [['name', 'asc']]});
-}).then(function(objects){
-  console.log(JSON.stringify(objects, null, 2));
-}).then(function(){
-  return modelManager.shutdown();
-}).then(function(){
-  console.log('** Disconnected **');
-}).catch(function(err) {
-  console.log(err.stack);
-});
-
 
 (async () => {
   try {
