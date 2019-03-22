@@ -155,7 +155,7 @@ export class Repo
     }
   }
   
-  getName()
+  getName(): string
   {
     // If repo name == 'Repo' then we are most likely using the name of the default repo constrcutor.
     // This can cause problems because repositories are referred to by name in the model and if we have multiple
@@ -214,7 +214,7 @@ export class Repo
   
   getRepo(name): Repo
   {
-    return (name == this.config.name) ? this : this.repos[name];
+    return (name == this.name) ? this : this.repos[name];
   }
   
   addRepos(repos: Array<Repo> | {[key:string]: Repo})
