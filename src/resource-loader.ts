@@ -3,8 +3,6 @@ import fs = require('fs');
 
 export class ResourceLoader
 {
-  constructor() {
-  }
   /**
    * Load Resources
    *
@@ -12,12 +10,18 @@ export class ResourceLoader
    * If subdirectory is specified we will only look in subdirectory of each dirPaths.
    * By default only loads files with extension '.js' unless fileExt is specified.
    */
-  getResources(dirPaths, subdirectory?, fileExt?, fileNamesExclude?, fileNamesLimit?)
+  getResources(
+    dirPaths: Array<string>, 
+    subdirectory?: string, 
+    fileExt?: string, 
+    fileNamesExclude?: Array<string>, 
+    fileNamesLimit?: Array<string>
+  )
   {
     var fileExt = fileExt ? fileExt : '.js';
     var resources = {};
 
-    dirPaths.forEach(function(dirPath){
+    dirPaths.forEach((dirPath) => {
       const dir = subdirectory ? dirPath + '/' + subdirectory : dirPath;
       if (!dir) return;
       try {
@@ -53,7 +57,7 @@ export class ResourceLoader
    *
    * Given a resource file path, returns the associated config object loaded from a config file with the same name.
    */
-  getResourceConfig(resourcePath, resourceExt?, configExt?)
+  getResourceConfig(resourcePath: string, resourceExt?: string, configExt?: string)
   {
     resourceExt = resourceExt ? resourceExt : '.js';
     configExt = configExt ? configExt : '.json';
@@ -73,7 +77,7 @@ export class ResourceLoader
     return config;
   }
 
-  static resourcePathToName(resourcePath, ext)
+  static resourcePathToName(resourcePath: string, ext?: string)
   {
     ext = ext ? ext : '.js';
     let result = path.basename(resourcePath, ext);
