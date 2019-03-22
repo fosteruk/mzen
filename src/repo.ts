@@ -1,7 +1,6 @@
 import clone = require('clone');
 import RepoPopulate from './repo-populate';
-import ObjectPathAccessor from './object-path-accessor';
-import Schema, { SchemaValidationResult, SchemaSpec } from 'mzen-schema';
+import Schema, { SchemaValidationResult, SchemaSpec, ObjectPathAccessor } from 'mzen-schema';
 
 export class RepoErrorValidation extends Error
 {

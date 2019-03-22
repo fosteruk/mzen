@@ -1,5 +1,5 @@
 import Repo from './repo';
-import ObjectPathAccessor from './object-path-accessor';
+import { ObjectPathAccessor } from 'mzen-schema';
 
 export class RepoPopulate
 {

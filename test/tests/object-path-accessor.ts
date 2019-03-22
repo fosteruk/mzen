@@ -1,5 +1,5 @@
 import should = require('should');
-import ObjectPathAccessor from '../../lib/object-path-accessor';
+import { ObjectPathAccessor } from 'mzen-schema';
 
 describe('ObjectPathAccessor', function () {
   describe('pathsMatch()', function () {
