@@ -21,10 +21,10 @@ export interface RepoConfig
   name?: string;
   dataSource?: string;
   collectionName?: string;
-  schema?: SchemaSpec;
+  schema?: Schema | SchemaSpec;
   indexes?: Array<any>;
   autoIndex?: boolean;
-  relations?: {[key: string]: any};
+  relations?: {[key: string]: RepoRelationConfig};
   constructors?: {[key: string]: any} | Array<any>;
   schemas?: {[key: string]: Schema} | Array<Schema>;
   repos?: {[key: string]: Repo} | Array<Repo>;
@@ -33,7 +33,7 @@ export interface RepoConfig
 
 export interface RepoQueryOptions
 {
-  populate?: {[key: string]: boolean};
+  populate?: {[key: string]: boolean} | boolean;
   filterPrivate?: boolean; 
   sort?: {[key: string]: number};
   limit?: number;
@@ -51,20 +51,21 @@ export interface RepoQueryOptions
   };
 }
 
-export interface RepoPopulateOptions
+export interface RepoRelationConfig extends RepoQueryOptions
 {
   repo?: string;
   type?: string;
   docPath?: string;
   docPathRelated?: string;
-  key?: string | number;
-  alias?: string | number;
+  key?: string;
+  alias?: string;
   query?: any;
-  sort?: {[key: string]: number};
-  limit?: number;
-  skip?: number;
-  entityConstructor?: any;
-  populateRelations?: boolean;
+  recursion?: number;
+}
+
+export interface RepoPopulateOptions
+{
+  populate?: {[key: string]: boolean} | boolean;
 }
 
 export class Repo
@@ -262,7 +263,7 @@ export class Repo
     });
   }
   
-  createIndexes()
+  async createIndexes()
   {
     var promises = [];
     for (let indexName in this.config.indexes) {
@@ -279,17 +280,17 @@ export class Repo
     return Promise.all(promises);
   }
   
-  createIndex(fieldOrSpec, options?)
+  async createIndex(fieldOrSpec, options?)
   {
     return this.dataSource.createIndex(this.config.collectionName, fieldOrSpec, options);
   }
   
-  dropIndex(indexName, options?)
+  async dropIndex(indexName, options?)
   {
     return this.dataSource.dropIndex(this.config.collectionName, indexName, options);
   }
   
-  dropIndexes()
+  async dropIndexes()
   {
     return this.dataSource.dropIndexes(this.config.collectionName);
   }
@@ -332,7 +333,7 @@ export class Repo
     return this.dataSource.count(this.config.collectionName, query, options);
   }
   
-  aggregate(pipeline, options?)
+  async aggregate(pipeline, options?)
   {
     return this.dataSource.aggregate(this.config.collectionName, pipeline, options);
   }
@@ -379,20 +380,20 @@ export class Repo
     return findOptions;
   }
   
-  async findPopulate(objects, findOptions)
+  async findPopulate(objects: any, findOptions: any)
   {
     if (findOptions.options.filterPrivate) {
       this.schema.filterPrivate(objects, 'read');
     }
     objects = objects ? this.schema.applyTransients(objects, findOptions) : objects;
-    if (findOptions.options.populateRelations === false) {
+    if (findOptions.options.populate === false) {
       return objects;
     } else {
       return this.populateAll(objects, findOptions.options);
     }
   }
   
-  async populate(relation, objects, options)
+  async populate(relation: RepoRelationConfig | string, objects: any, options?: any)
   {
     options = (options == Object(options)) ? options : {};
 
@@ -403,7 +404,7 @@ export class Repo
     return objects;
   }
   
-  getFlattenedRelations(options)
+  getFlattenedRelations(options: any)
   {
     // This method returns an array of arrays - were each child array contains relations for a given relation depth
     // In order to populate a relation at a given depth its parent relation must have already been populated
@@ -430,9 +431,11 @@ export class Repo
     return flattenedRelations;
   }
   
-  getFlattenedRelationsRecursive(options = {}, parentRepo?, basePath = [], flatRelations = [])
+  getFlattenedRelationsRecursive(options = {}, parentRepo?, basePath?: Array<string>, flatRelations?: Array<any>)
   {
     parentRepo = parentRepo ? parentRepo : this.config.name;
+    basePath = basePath ? basePath : [];
+    flatRelations = flatRelations ? flatRelations : [];
     for (var alias in this.config.relations) {
       const depth = basePath.length;
       const relation = clone(this.config.relations[alias]); // copy the relation we dont want to modify the original
@@ -491,10 +494,10 @@ export class Repo
     return flatRelations;
   }
   
-  populateAll(objects, options: {populateRelations?: boolean, populate: {[key: string]: boolean} | boolean})
+  populateAll(objects: any, options?: RepoPopulateOptions)
   {
     const flattenedRelations = this.getFlattenedRelations(options);
-    options.populateRelations = false; // Dont populate recursively - we already flattened the relations
+    options.populate = false; // Dont populate recursively - we already flattened the relations
     var populateDepth = (relations, options, objects) => {
       let populatePromises = [];
       if (relations) {
@@ -526,12 +529,12 @@ export class Repo
     return promise.then(() => objects);
   }
   
-  getPopulatePromise(relation, options: RepoPopulateOptions = {}, objects = [])
+  getPopulatePromise(relation: RepoRelationConfig, options?: RepoQueryOptions, objects?: any)
   {
     this.initSchema();
 
     // Clone the options because we dont want changes to the options object to change the original object
-    var relationOptions = clone(options);
+    var relationOptions = options ? clone(options) : {};
     relationOptions.repo = relation.repo;
     relationOptions.type = relation.type;
     relationOptions.docPath = relation.docPath ? relation.docPath : '';
@@ -542,8 +545,7 @@ export class Repo
     relationOptions.sort = options.sort ? options.sort : relation.sort;
     relationOptions.limit = options.limit ? options.limit : relation.limit;
     relationOptions.skip = options.skip ? options.skip : relation.skip;
-    relationOptions.entityConstructor = options.entityConstructor;
-    relationOptions.populateRelations = options.populateRelations;
+    relationOptions.populate = options.populate;
 
     var repo = this.getRepo(relation.repo);
     var repoPopulate = new RepoPopulate(repo);
@@ -686,7 +688,7 @@ export class Repo
     return this.dataSource.deleteOne.apply(this.dataSource, args);
   }
   
-  stripTransients(objects)
+  stripTransients(objects: any)
   {
     this.initSchema();
 

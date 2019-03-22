@@ -16,9 +16,9 @@ export class Service
   repos: {[key: string]: Repo};
   services: {[key: string]: Service};
   
-  constructor(options: ServiceConfig = {}) 
+  constructor(options?: ServiceConfig) 
   {
-    this.config = options;
+    this.config = options ? options : {};
     this.config.model = this.config.model ? this.config.model : {}; // The main config is injected here
     this.config.name = this.config.name ? this.config.name : '';
     this.config.repos = this.config.repos ? this.config.repos : {};
