@@ -1,6 +1,7 @@
 import clone = require('clone');
 import RepoPopulate from './repo-populate';
 import Schema, { SchemaValidationResult, SchemaSpec, ObjectPathAccessor } from 'mzen-schema';
+import Service from './service';
 
 export class RepoErrorValidation extends Error
 {
@@ -24,10 +25,10 @@ export interface RepoConfig
   indexes?: Array<any>;
   autoIndex?: boolean;
   relations?: {[key: string]: any};
-  schemas?: {[key: string]: any};
-  repos?: {[key: string]: any};
-  constructors?: {[key: string]: any};
-  services?: {[key: string]: any};
+  constructors?: {[key: string]: any} | Array<any>;
+  schemas?: {[key: string]: Schema} | Array<Schema>;
+  repos?: {[key: string]: Repo} | Array<Repo>;
+  services?: {[key: string]: Service} | Array<Service>;
 }
 
 export interface RepoQueryOptions
@@ -72,10 +73,10 @@ export class Repo
   name: string;
   dataSource: any;
   schema: any;
-  schemas: {[key: string]: any};
-  repos: {[key: string]: any};
+  schemas: {[key: string]: Schema};
+  repos: {[key: string]: Repo};
   constructors: {[key: string]: any};
-  services: {[key: string]: any};
+  services: {[key: string]: Service};
   relationPaths: Array<string>;
   
   constructor(options?: RepoConfig)
@@ -177,86 +178,75 @@ export class Repo
   addConstructors(constructors)
   {
     if (constructors) {
-      if (Array.isArray(constructors)) {
-        constructors.forEach((construct) => {
-          if (typeof construct == 'function') {
-            this.addConstructor(construct);
-          }
-        });
-      } else {
-        Object.keys(constructors).forEach((constructorName) => {
-          if (typeof constructors[constructorName] == 'function') {
-            this.addConstructor(constructors[constructorName]);
-          }
-        });
-      }
+      // could be an array of constructor functions or a object map 
+      var constructorsArray = Array.isArray(constructors) ? constructors : Object.keys(constructors).map(name => constructors[name]);
+      constructorsArray.forEach(construct => {
+        if (typeof construct == 'function') this.addConstructor(construct);
+      });
     }
   }
   
-  addSchema(schema)
+  addSchema(schema: Schema)
   {
     this.schemas[schema.getName()] = schema;
   }
   
-  addSchemas(schemas)
+  getSchema(name): Schema
+  {
+    return this.schemas[name] ? this.schemas[name] : null;
+  }
+  
+  addSchemas(schemas: Array<Schema> | {[key:string]: Schema})
   {
     if (schemas) {
-      if (Array.isArray(schemas)) {
-        schemas.forEach((schema) => {
-          this.addSchema(schema);
-        });
-      } else {
-        Object.keys(schemas).forEach((schemaName) => {
-          this.addSchema(schemas[schemaName]);
-        });
-      }
+      // could be an array of schema objects functions or a object map
+      var schemasArray = Array.isArray(schemas) ? schemas : Object.keys(schemas).map(name => schemas[name]);
+      schemasArray.forEach((schema) => {
+        if (schema instanceof Schema) this.addSchema(schema);
+      });
     }
   }
   
-  addRepo(repo)
+  addRepo(repo: Repo)
   {
     this.repos[repo.getName()] = repo;
   }
   
-  addRepos(repos)
+  getRepo(name): Repo
+  {
+    return (name == this.config.name) ? this : this.repos[name];
+  }
+  
+  addRepos(repos: Array<Repo> | {[key:string]: Repo})
   {
     if (repos) {
-      if (Array.isArray(repos)) {
-        repos.forEach(repo => {
-          this.addRepo(repo);
-        });
-      } else {
-        Object.keys(repos).forEach(repoName => {
-          this.addRepo(repos[repoName]);
-        });
-      }
+      // could be an array of repo objects or a object map
+      var reopsArray = Array.isArray(repos) ? repos : Object.keys(repos).map(name => repos[name]);
+      reopsArray.forEach(repo => {
+        if (repo instanceof Repo) this.addRepo(repo);
+      });
     }
   }
   
-  addService(service)
+  addService(service: Service)
   {
     this.services[service.getName()] = service;
   }
   
-  addServices(services)
+  getService(name): Service
   {
-    if (services) {
-      if (Array.isArray(services)) {
-        services.forEach((service) => {
-          this.addService(service);
-        });
-      } else {
-        Object.keys(services).forEach((serviceName) => {
-          this.addService(services[serviceName]);
-        });
-      }
-    }
+    return this.services[name];
   }
   
-  getService(name)
+  addServices(services: Array<Service> | {[key: string]: Service})
   {
-    const service = this.services[name];
-    return service;
+    if (services) {
+      // could be an array of repo objects or a object map
+      var servicesArray = Array.isArray(services) ? services : Object.keys(services).map(name => services[name]);
+      servicesArray.forEach(service => {
+        if (service instanceof Service) this.addService(service);
+      });
+    }
   }
   
   drop()
@@ -712,11 +702,6 @@ export class Repo
 
     var result = isArray ? newObjects : newObjects.pop();
     return result;
-  }
-  
-  getRepo(name)
-  {
-    return (name == this.config.name) ? this : this.repos[name];
   }
 }
 

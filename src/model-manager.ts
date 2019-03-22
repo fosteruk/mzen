@@ -1,18 +1,28 @@
 import MongoDb from './data-source/mongodb';
 import ResourceLoader from './resource-loader';
+import Repo from './repo';
+import Service from './service';
+import Schema from 'mzen-schema';
+
+export interface ModelManagerConfigDataSource
+{
+  name?: string;
+  type?: string;
+  [key: string]: any;
+}
 
 export interface ModelManagerConfig
 {
-  dataSources?: {[key: string]: any};
+  dataSources?: Array<{[key: string]: ModelManagerConfigDataSource}>;
   modelDirs?: Array<string>;
   schemasDirName?: string;
   constructorsDirName?: string;
   reposDirName?: string;
   servicesDirName?: string;
-  constructors?: {[key: string]: any};
-  schemas?: {[key: string]: any};
-  repos?: {[key: string]: any};
-  services?: {[key: string]: any};
+  constructors?: {[key: string]: any} | Array<any>;
+  schemas?: {[key: string]: Schema} | Array<Schema>;
+  repos?: {[key: string]: Repo} | Array<Repo>;
+  services?: {[key: string]: Service} | Array<Service>;
 }
 
 /**
@@ -26,14 +36,14 @@ export class ModelManager
   config: ModelManagerConfig;
   dataSources: {[key: string]: any};
   constructors: {[key: string]: any};
-  schemas: {[key: string]: any};
-  repos: {[key: string]: any};
-  services: {[key: string]: any};
+  schemas: {[key: string]: Schema};
+  repos: {[key: string]: Repo};
+  services: {[key: string]: Service};
   
   constructor(options?: ModelManagerConfig)
   {
     this.config = options ? options : {};
-    this.config.dataSources = this.config.dataSources ? this.config.dataSources : {};
+    this.config.dataSources = this.config.dataSources ? this.config.dataSources : [];
     this.config.modelDirs = this.config.modelDirs ? this.config.modelDirs : [];
     this.config.schemasDirName = this.config.schemasDirName ? this.config.schemasDirName  : 'schema';
     this.config.constructorsDirName = this.config.constructorsDirName ? this.config.constructorsDirName  : 'constructor';
@@ -44,7 +54,7 @@ export class ModelManager
     this.config.repos = this.config.repos ? this.config.repos : {};
     this.config.services = this.config.services ? this.config.services : {};
 
-    this.dataSources = {};
+    this.dataSources = [];
     this.constructors = {};
     this.schemas = {};
     this.repos = {};
@@ -124,7 +134,7 @@ export class ModelManager
     return this;
   }
   
-  addDataSourceFromConfig(options)
+  initDataSourceFromConfig(options)
   {
     var dataSource = null;
     switch (options.type) {
@@ -133,10 +143,10 @@ export class ModelManager
       break;
     }
 
-    return this.addDataSource(options.name, dataSource);
+    return this.initDataSource(options.name, dataSource);
   }
   
-  addDataSource(name, dataSource)
+  initDataSource(name: string, dataSource)
   {
     return dataSource.connect()
           .then((dataSource) => {
@@ -147,8 +157,7 @@ export class ModelManager
   
   getDataSource(name)
   {
-    const dataSource = this.dataSources[name] ? this.dataSources[name] : null;
-    return dataSource;
+    return this.dataSources[name];
   }
   
   addConstructor(value)
@@ -158,107 +167,89 @@ export class ModelManager
   
   getConstructor(constructorName)
   {
-    return this.constructors[constructorName] ? this.constructors[constructorName] : null;
+    return this.constructors[constructorName];
   }
   
   addConstructors(constructors)
   {
     if (constructors) {
-      if (Array.isArray(constructors)) {
-        constructors.forEach((construct) => {
-          if (typeof construct == 'function') {
-            this.addConstructor(construct);
-          }
-        });
-      } else {
-        Object.keys(constructors).forEach((constructorName) => {
-          if (typeof constructors[constructorName] == 'function') {
-            this.addConstructor(constructors[constructorName]);
-          }
-        });
-      }
+      // could be an array of constructor functions or a object map 
+      var constructorsArray = Array.isArray(constructors) ? constructors : Object.keys(constructors).map(name => constructors[name]);
+      constructorsArray.forEach(construct => {
+        if (typeof construct == 'function') this.addConstructor(construct);
+      });
     }
   }
   
-  addSchema(schema)
+  addSchema(schema: Schema)
   {
     this.schemas[schema.getName()] = schema;
   }
   
-  addSchemas(schemas)
+  getSchema(name): Schema
+  {
+    return this.schemas[name];
+  }
+  
+  addSchemas(schemas: Array<Schema> | {[key:string]: Schema})
   {
     if (schemas) {
-      if (Array.isArray(schemas)) {
-        schemas.forEach((schema) => {
-          this.addSchema(schema);
-        });
-      } else {
-        Object.keys(schemas).forEach((schemaName) => {
-          this.addSchema(schemas[schemaName]);
-        });
-      }
+      // could be an array of schema objects functions or a object map
+      var schemasArray = Array.isArray(schemas) ? schemas : Object.keys(schemas).map(name => schemas[name]);
+      schemasArray.forEach((schema) => {
+        if (schema instanceof Schema) this.addSchema(schema);
+      });
     }
   }
   
-  addRepo(repo)
+  addRepo(repo: Repo)
   {
     this.repos[repo.getName()] = repo;
   }
   
-  addRepos(repos)
+  getRepo(name): Repo
+  {
+    return this.repos[name];
+  }
+  
+  addRepos(repos: Array<Repo> | {[key:string]: Repo})
   {
     if (repos) {
-      if (Array.isArray(repos)) {
-        repos.forEach((repo) => {
-          this.addRepo(repo);
-        });
-      } else {
-        Object.keys(repos).forEach((repoName) => {
-          this.addRepo(repos[repoName]);
-        });
-      }
+      // could be an array of repo objects or a object map
+      var reopsArray = Array.isArray(repos) ? repos : Object.keys(repos).map(name => repos[name]);
+      reopsArray.forEach(repo => {
+        if (repo instanceof Repo) this.addRepo(repo);
+      });
     }
   }
   
-  getRepo(repoName)
-  {
-    const repo = this.repos[repoName] ? this.repos[repoName] : null;
-    return repo;
-  }
-  
-  addService(service)
+  addService(service: Service)
   {
     this.services[service.getName()] = service;
   }
   
-  addServices(services)
+  getService(name): Service
   {
-    if (services) {
-      if (Array.isArray(services)) {
-        services.forEach((service) => {
-          this.addService(service);
-        });
-      } else {
-        Object.keys(services).forEach((serviceName) => {
-          this.addService(services[serviceName]);
-        });
-      }
-    }
+    return this.services[name];
   }
   
-  getService(name)
+  addServices(services: Array<Service> | {[key:string]: Service})
   {
-    const service = this.services[name];
-    return service;
+    if (services) {
+      // could be an array of repo objects or a object map
+      var servicesArray = Array.isArray(services) ? services : Object.keys(services).map(name => services[name]);
+      servicesArray.forEach(service => {
+        if (service instanceof Service) this.addService(service);
+      });
+    }
   }
   
   async loadDataSources()
   {
-    const sourcesCount = this.config['dataSources'].length;
     let promises = [];
-    if (sourcesCount > 0) {
+    if (this.config.dataSources.length > 0) {
       this.config.dataSources.forEach(dataSource => {
-        promises.push(this.addDataSourceFromConfig(dataSource));
+        promises.push(this.initDataSourceFromConfig(dataSource));
       });
     }
     await Promise.all(promises);
@@ -267,21 +258,19 @@ export class ModelManager
   
   async initSchemas()
   {
-    for (var schemaName in this.schemas) {
-      const schema = this.schemas[schemaName];
-      schema.addSchemas(this.schemas);
-      schema.addConstructors(this.constructors);
-    }
+     Object.values(this.schemas).forEach(schema => {
+       schema.addSchemas(this.schemas);
+       schema.addConstructors(this.constructors);
+     });
   }
   
   async initRepos()
   {
     const dataSourceNames = Object.keys(this.dataSources);
     const defaultDataSourceName = dataSourceNames[0];
-
-    for (var repoName in this.repos) {
-      const repo = this.repos[repoName];
-
+    
+    var promises = [];
+    Object.values(this.repos).forEach(async repo => {
       // We inject the main config object into every repo so it can access global config values
       repo.config.model = this.config;
       repo.addConstructors(this.constructors);
@@ -296,21 +285,23 @@ export class ModelManager
         repo.dataSource = this.dataSources[defaultDataSourceName];
       }
 
-      await repo.init();
-    }
+      promises.push(repo.init());
+    });
+    return await Promise.all(promises);
   }
   
   async initServices()
   {
-    for (var serviceName in this.services) {
-      const service = this.services[serviceName];
+    var promises = [];
+    Object.values(this.services).forEach(async service => {
       // We inject the main config object into every service so it can access global config values
       service.config.model = this.config;
       service.addRepos(this.repos);
       service.addServices(this.services);
-
-      await service.init();
-    }
+      
+      promises.push(service.init());
+    });
+    return await Promise.all(promises);
   }
   
   async init()
@@ -324,14 +315,13 @@ export class ModelManager
     return this;
   }
   
-  shutdown()
+  async shutdown()
   {
     var promises = [];
-    for (let key in this.dataSources) {
-      if (!this.dataSources.hasOwnProperty(key)) continue;
-      promises.push(this.dataSources[key].close());
-    }
-    return Promise.all(promises);
+    Object.values(this.dataSources).forEach(async dataSource => {
+      promises.push(dataSource.close());
+    });
+    return await Promise.all(promises);
   }
 }
 
