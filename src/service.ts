@@ -60,13 +60,9 @@ export class Service
   
   addRepos(repos: Array<Repo> | {[key:string]: Repo})
   {
-    if (repos) {
-      // could be an array of repo objects or a object map
-      var reopsArray = Array.isArray(repos) ? repos : Object.keys(repos).map(name => repos[name]);
-      reopsArray.forEach(repo => {
-        if (repo instanceof Repo) this.addRepo(repo);
-      });
-    }
+    // could be an array of repo objects or a object map
+    var reopsArray = Array.isArray(repos) ? repos : Object.values(repos);
+    reopsArray.forEach(repo => this.addRepo(repo));
   }
   
   addService(service: Service)
@@ -81,13 +77,9 @@ export class Service
   
   addServices(services: Array<Service> | {[key: string]: Service})
   {
-    if (services) {
-      // could be an array of repo objects or a object map
-      var servicesArray = Array.isArray(services) ? services : Object.keys(services).map(name => services[name]);
-      servicesArray.forEach(service => {
-        if (service instanceof Service) this.addService(service);
-      });
-    }
+    // could be an array of repo objects or a object map
+    var servicesArray = Array.isArray(services) ? services : Object.values(services);
+    servicesArray.forEach(service => this.addService(service));
   }
 }
 
