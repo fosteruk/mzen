@@ -5,7 +5,7 @@ import Service from './service';
 
 export class RepoErrorValidation extends Error
 {
-  validationErrors: Array<any>;
+  validationErrors: any;
   
   constructor(errors)
   {
@@ -73,7 +73,7 @@ export class Repo
   config: RepoConfig;
   name: string;
   dataSource: any;
-  schema: any;
+  schema: Schema;
   schemas: {[key: string]: Schema};
   repos: {[key: string]: Repo};
   constructors: {[key: string]: any};
@@ -385,7 +385,7 @@ export class Repo
     if (findOptions.options.filterPrivate) {
       this.schema.filterPrivate(objects, 'read');
     }
-    objects = objects ? this.schema.applyTransients(objects, findOptions) : objects;
+    objects = objects ? this.schema.applyTransients(objects) : objects;
     if (findOptions.options.populate === false) {
       return objects;
     } else {
