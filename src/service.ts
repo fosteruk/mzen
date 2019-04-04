@@ -13,8 +13,8 @@ export class Service
 {
   config: ServiceConfig;
   name: string;
-  repos: {[key: string]: Repo};
-  services: {[key: string]: Service};
+  repos: {[key: string]: Repo | any};
+  services: {[key: string]: Service | any};
   
   constructor(options?: ServiceConfig) 
   {

@@ -88,10 +88,10 @@ export class Repo
   name: string;
   dataSource: any;
   schema: Schema;
-  schemas: {[key: string]: Schema};
-  repos: {[key: string]: Repo};
+  schemas: {[key: string]: Schema | any};
+  repos: {[key: string]: Repo | any}; // we allow any because the actual object may be of a class that extends Repo
   constructors: {[key: string]: any};
-  services: {[key: string]: Service};
+  services: {[key: string]: Service | any};
   relationPaths: Array<string>;
   
   constructor(options?: RepoConfig)
