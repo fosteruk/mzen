@@ -14,6 +14,26 @@ export class RepoErrorValidation extends Error
   }
 }
 
+export interface RepoIndexTypeConfig
+{
+
+}
+
+export interface RepoIndexConfig
+{
+  // fieldname or {fieldA: 1, fieldB: -1} or ['field', 1] or [['fieldA', 1], ['fieldB', 1]]
+  // {location: '2dsphere', otherField: 1}
+  spec: {[key: string]: (number | string)} | [string, (number | string)] | Array<[string, (number | string)]> | string;
+  // boolean options indicates unique index
+  options?: boolean | {
+    name?: string,
+    unique?: boolean,
+    sparse?: boolean,
+    background?: boolean,
+    expireAfterSeconds?: number
+  };
+}
+
 export interface RepoConfig
 {
   model?: {[key: string]: any};
@@ -22,7 +42,7 @@ export interface RepoConfig
   dataSource?: string;
   collectionName?: string;
   schema?: Schema | SchemaSpec;
-  indexes?: Array<any>;
+  indexes?: {[key: string]: RepoIndexConfig} | Array<RepoIndexConfig>;
   autoIndex?: boolean;
   relations?: {[key: string]: RepoRelationConfig};
   constructors?: {[key: string]: any} | Array<any>;
