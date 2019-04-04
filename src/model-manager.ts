@@ -150,7 +150,7 @@ export class ModelManager
   {
     return dataSource.connect()
           .then((dataSource) => {
-            this.dataSources[name] = dataSource;
+            this.addDataSource(name, dataSource);
             return dataSource;
           });
   }
@@ -158,6 +158,11 @@ export class ModelManager
   getDataSource(name)
   {
     return this.dataSources[name];
+  }
+
+  addDataSource(name, dataSource: any)
+  {
+    this.dataSources[name] = dataSource;
   }
   
   addConstructor(value)
