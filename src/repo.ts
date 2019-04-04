@@ -14,16 +14,10 @@ export class RepoErrorValidation extends Error
   }
 }
 
-export interface RepoIndexTypeConfig
-{
-
-}
-
 export interface RepoIndexConfig
 {
-  // fieldname or {fieldA: 1, fieldB: -1} or ['field', 1] or [['fieldA', 1], ['fieldB', 1]]
-  // {location: '2dsphere', otherField: 1}
-  spec: {[key: string]: (number | string)} | [string, (number | string)] | Array<[string, (number | string)]> | string;
+  // fieldname or {fieldA: 1, fieldB: -1} or {location: '2dsphere', description: 'text', otherField: 1}
+  spec: {[key: string]: (number | string)} | string;
   // boolean options indicates unique index
   options?: boolean | {
     name?: string,
