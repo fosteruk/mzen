@@ -260,31 +260,31 @@ export class RepoPopulate
     // pkey is the primary key name to use when looking up relations
     // - the primary key is the key of the source document on has* type relations
     // - the primary key is the key of the related document on blongsTo* type relations
-    options.pkey = options['pkey'] ? options['pkey'] : '_id';
+    options.pkey = options.pkey ? options.pkey : '_id';
     // Key is the field where the relation id is stored in the related document
     // - for all except belongsTo type relations where the key is on the source document
-    options.key = options['key'] ? options['key'] : '';
+    options.key = options.key ? options.key : '';
 
     // relation type name
-    options.relation = options['relation'] ? options['relation'] : '';
+    options.relation = options.relation ? options.relation : '';
 
     // sourceKey is an internal option which refers to either the key or the pkey depending on relation type
     // - sourceKey is the same as key value on belongsTo* type relations
     // - sourceKey is the same as pkey value on has* type relations
-    let isBelongsTo = (options['relation'].toLowerCase().indexOf('belongsto') != -1);
-    options.sourceKey = isBelongsTo ? options['key'] : options['pkey'];
+    let isBelongsTo = (options.relation.toLowerCase().indexOf('belongsto') != -1);
+    options.sourceKey = isBelongsTo ? options.key : options.pkey;
 
     // alias is the field name used to store the compiled relations
-    options.alias = options['alias'] ? options['alias'] : '';
+    options.alias = options.alias ? options.alias : '';
     // docPath is path to the object(s) where the relation should be populated
-    options.docPath = options['docPath'] ? options['docPath'] : false;
+    options.docPath = options.docPath ? options.docPath : false;
     // docPathRelated is the path to the related objects
-    options.docPathRelated = options['docPathRelated'] ? options['docPathRelated'] : false;
+    options.docPathRelated = options.docPathRelated ? options.docPathRelated : false;
 
     // query is query object used to further filter related objects
-    options.query = options['query'] ? options['query'] : {};
+    options.query = options.query ? options.query : {};
 
-    options.populateRelations = options['populateRelations'] !== false;
+    options.populate = options.populate !== false;
   }
 }
 
