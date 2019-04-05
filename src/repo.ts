@@ -1,5 +1,6 @@
 import clone = require('clone');
 import RepoPopulate from './repo-populate';
+import { ModelManagerConfig } from './model-manager';
 import Schema, { SchemaValidationResult, SchemaSpec, ObjectPathAccessor } from 'mzen-schema';
 import Service from './service';
 
@@ -30,7 +31,7 @@ export interface RepoIndexConfig
 
 export interface RepoConfig
 {
-  model?: {[key: string]: any};
+  model?: ModelManagerConfig;
   pkey?: string;
   name?: string;
   dataSource?: string;
