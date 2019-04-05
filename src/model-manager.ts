@@ -23,6 +23,7 @@ export interface ModelManagerConfig
   schemas?: {[key: string]: Schema} | Array<Schema>;
   repos?: {[key: string]: Repo} | Array<Repo>;
   services?: {[key: string]: Service} | Array<Service>;
+  app?: any; // adhoc app configuration passed by consumers
 }
 
 /**
