@@ -52,18 +52,6 @@ export class ResourceLoader
     return normalised;
   }
 
-  loadModule(filePath: string)
-  {
-    let result = null;
-    try {
-      let loadedModule = require(filePath);
-      result = loadedModule && loadedModule.__esModule ? loadedModule.default : loadedModule;
-    } catch (err) {
-      console.error(err.stack);
-    }
-    return result;
-  }
-
   /**
    * Load Resources
    *
@@ -77,7 +65,7 @@ export class ResourceLoader
     var resourcePaths = this.getResourcePaths(options);
 
     resourcePaths.forEach(filePath => {
-      resources[filePath] = this.loadModule(filePath);
+      resources[filePath] = ResourceLoader.loadModule(filePath);
     });
 
     return resources;
@@ -143,6 +131,18 @@ export class ResourceLoader
       }
     }
     return config;
+  }
+
+  static loadModule(filePath: string)
+  {
+    let result = null;
+    try {
+      let loadedModule = require(filePath);
+      result = loadedModule && loadedModule.__esModule ? loadedModule.default : loadedModule;
+    } catch (err) {
+      console.error(err.stack);
+    }
+    return result;
   }
 
   static resourcePathToName(resourcePath: string, ext?: string)
