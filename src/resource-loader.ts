@@ -4,7 +4,7 @@ import fs = require('fs');
 interface ResourceLoaderConfig
 {
   dirPaths?: Array<string>;
-  subdirectory?: string;
+  subdir?: string;
   fileExt?: string;
   fileNamesExclude?: Array<string> 
   fileNamesLimit?: Array<string>;
@@ -14,7 +14,7 @@ export class ResourceLoader
 {
   options: {
     dirPaths?: Array<string>,
-    subdirectory?: string,
+    subdir?: string,
     fileExt?: string,
     fileNamesExclude?: Array<string>,
     fileNamesLimit?: Array<string>
@@ -27,6 +27,8 @@ export class ResourceLoader
 
   configNormalise(options?: ResourceLoaderConfig)
   {
+    // If a given option is not specified use the object scope value or the default value
+
     var normalised = options ? options : {...options};
 
     this.options = this.options ? this.options : {};
@@ -34,8 +36,8 @@ export class ResourceLoader
     normalised.dirPaths = options && options.dirPaths !== undefined ? options.dirPaths : (
       this.options.dirPaths !== undefined ? this.options.dirPaths : []
     );
-    normalised.subdirectory = options && options.dirPaths !== undefined ? options.subdirectory : (
-      this.options.subdirectory !== undefined ? this.options.subdirectory : null
+    normalised.subdir = options && options.dirPaths !== undefined ? options.subdir : (
+      this.options.subdir !== undefined ? this.options.subdir : null
     );
     normalised.fileExt = options && options.fileExt !== undefined ? options.fileExt : (
       this.options.fileExt !== undefined ? this.options.fileExt : null
@@ -66,7 +68,7 @@ export class ResourceLoader
    * Load Resources
    *
    * Loads all files in each of dirPaths via require().
-   * If subdirectory is specified we will only look in subdirectory of each dirPaths.
+   * If subdir is specified we will only look in subdir of each dirPaths.
    * By default only loads files with extension '.js' unless fileExt is specified.
    */
   getResources(options?: ResourceLoaderConfig)
@@ -89,7 +91,7 @@ export class ResourceLoader
     var resourcePaths = [];
 
     opts.dirPaths.forEach(dirPath => {
-      const dir = opts.subdirectory ? dirPath + '/' + opts.subdirectory : dirPath;
+      const dir = opts.subdir ? dirPath + '/' + opts.subdir : dirPath;
       if (!dir) return;
       try {
         fs.accessSync(dir, fs.constants.R_OK); // This throws if any accessibility checks fail, and does nothing otherwise.

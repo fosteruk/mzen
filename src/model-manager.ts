@@ -88,7 +88,7 @@ export class ModelManager
       this.addConstructors(constructorsCollection[resourcePath]);
     }
     // Load any constructors specified in the constructor directory of the model directory
-    const constructors = loader.getResources({subdirectory: this.config.constructorsDirName});
+    const constructors = loader.getResources({subdir: this.config.constructorsDirName});
     for (let resourcePath in constructors) {
       this.addConstructor(constructors[resourcePath]);
     }
@@ -100,7 +100,7 @@ export class ModelManager
       this.addSchemas(schemasCollection[resourcePath]);
     }
     // Load any schemas specified in the schema directory of the model directory
-    const schemas = loader.getResources({subdirectory: this.config.schemasDirName});
+    const schemas = loader.getResources({subdir: this.config.schemasDirName});
     for (let resourcePath in schemas) {
       const config = loader.getResourceConfig(resourcePath);
       const schema = new schemas[resourcePath](null, config);
@@ -114,7 +114,7 @@ export class ModelManager
       this.addRepos(reposCollection[resourcePath]);
     }
     // Load any repos specified in the repo directory of the model directory
-    const repos = loader.getResources({subdirectory: this.config.reposDirName});
+    const repos = loader.getResources({subdir: this.config.reposDirName});
     for (let resourcePath in repos) {
       const config = loader.getResourceConfig(resourcePath);
       const repo = new repos[resourcePath](config);
@@ -128,7 +128,7 @@ export class ModelManager
       this.addServices(servicesCollection[resourcePath]);
     }
     // Load any services specified in the service directory of the model directory
-    const services = loader.getResources({subdirectory: this.config.servicesDirName});
+    const services = loader.getResources({subdir: this.config.servicesDirName});
     for (let resourcePath in services) {
       const config = loader.getResourceConfig(resourcePath);
       const service = new services[resourcePath](config);
