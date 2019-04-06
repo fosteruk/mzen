@@ -77,27 +77,30 @@ export class ModelManager
   
   async loadResources()
   {
-    const loader = new ResourceLoader();
+    const loader = new ResourceLoader({
+      dirPaths: this.config.modelDirs
+    });
+    
     // Load Entity Constructors
     // First load any constructors specified in the constructors.js file of the model directory
-    const constructorsCollection = loader.getResources(this.config.modelDirs, null, '.js', [], ['constructors.js']);
+    const constructorsCollection = loader.getResources({fileNamesLimit: ['constructors.js']});
     for (let resourcePath in constructorsCollection) {
       this.addConstructors(constructorsCollection[resourcePath]);
     }
     // Load any constructors specified in the constructor directory of the model directory
-    const constructors = loader.getResources(this.config.modelDirs, this.config.constructorsDirName);
+    const constructors = loader.getResources({subdirectory: this.config.constructorsDirName});
     for (let resourcePath in constructors) {
       this.addConstructor(constructors[resourcePath]);
     }
 
     // Load Schemas
     // First load any schemas specified in the schemas.js file of the model directory
-    const schemasCollection = loader.getResources(this.config.modelDirs, null, '.js', [], ['schemas.js']);
+    const schemasCollection = loader.getResources({fileNamesLimit: ['schemas.js']});
     for (let resourcePath in schemasCollection) {
       this.addSchemas(schemasCollection[resourcePath]);
     }
     // Load any schemas specified in the schema directory of the model directory
-    const schemas = loader.getResources(this.config.modelDirs, this.config.schemasDirName);
+    const schemas = loader.getResources({subdirectory: this.config.schemasDirName});
     for (let resourcePath in schemas) {
       const config = loader.getResourceConfig(resourcePath);
       const schema = new schemas[resourcePath](null, config);
@@ -106,12 +109,12 @@ export class ModelManager
 
     // Load Repos
     // First load any repos specified in the repos.js file of the model directory
-    const reposCollection = loader.getResources(this.config.modelDirs, null, '.js', [], ['repos.js']);
+    const reposCollection = loader.getResources({fileNamesLimit: ['repos.js']});
     for (let resourcePath in reposCollection) {
       this.addRepos(reposCollection[resourcePath]);
     }
     // Load any repos specified in the repo directory of the model directory
-    const repos = loader.getResources(this.config.modelDirs, this.config.reposDirName);
+    const repos = loader.getResources({subdirectory: this.config.reposDirName});
     for (let resourcePath in repos) {
       const config = loader.getResourceConfig(resourcePath);
       const repo = new repos[resourcePath](config);
@@ -120,12 +123,12 @@ export class ModelManager
 
     // Load services
     // First load any services specified in the services.js file of the model directory
-    const servicesCollection = loader.getResources(this.config.modelDirs, null, '.js', [], ['services.js']);
+    const servicesCollection = loader.getResources({fileNamesLimit: ['services.js']});
     for (let resourcePath in servicesCollection) {
       this.addServices(servicesCollection[resourcePath]);
     }
     // Load any services specified in the service directory of the model directory
-    const services = loader.getResources(this.config.modelDirs, this.config.servicesDirName);
+    const services = loader.getResources({subdirectory: this.config.servicesDirName});
     for (let resourcePath in services) {
       const config = loader.getResourceConfig(resourcePath);
       const service = new services[resourcePath](config);
