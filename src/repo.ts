@@ -405,17 +405,19 @@ export class Repo
   
   getFlattenedRelations(options: any)
   {
-    // This method returns an array of arrays - were each child array contains relations for a given relation depth
     // In order to populate a relation at a given depth its parent relation must have already been populated
     // To ensure parent relations are populate first we populate in order of relation depth
+    // This method returns an array of arrays - were each child is an array of relation configs for a given relation depth
+    // [
+    //  [relationConfigA, relationConfigB], // depth 1 to be populated first
+    //  [relationConfigB, relationConfigC] // depth 2 to be populated second
+    // ]
 
     const flattenedRelationsRecursive = this.getFlattenedRelationsRecursive(options);
 
     var flattenedRelations = [];
-    flattenedRelationsRecursive.forEach(function(relationConfig){
-      const depth = relationConfig.depth;
-      const relation = relationConfig.relation;
-      const path = relationConfig.path;
+    flattenedRelationsRecursive.forEach(relationConfig => {
+      const { depth, relation, path } = relationConfig;
       // Remove relations based on query options
       let populate = (relation.populate !== undefined) ? relation.populate : false;
       // Relation populate value can be overriden by option to populateAll()
@@ -430,11 +432,15 @@ export class Repo
     return flattenedRelations;
   }
   
-  getFlattenedRelationsRecursive(options = {}, parentRepo?, basePath?: Array<string>, flatRelations?: Array<any>)
+  getFlattenedRelationsRecursive(options = {}, meta?)
   {
-    parentRepo = parentRepo ? parentRepo : this.config.name;
-    basePath = basePath ? basePath : [];
-    flatRelations = flatRelations ? flatRelations : [];
+    // parentRepo?, basePath?: Array<string>, flatRelations?: Array<any>
+    meta = meta ? meta : {};
+
+    let parentRepo = meta.parentRepo ? meta.parentRepo : this.config.name;
+    let basePath = meta.basePath ? meta.basePath : [];
+    let flatRelations = meta.flatRelations ? meta.flatRelations : [];
+
     for (var alias in this.config.relations) {
       const depth = basePath.length;
       const relation = clone(this.config.relations[alias]); // copy the relation we dont want to modify the original
@@ -451,39 +457,42 @@ export class Repo
                                 : (basePath && basePath.length ? basePath.join('.') : '');
 
       const flatRelation = {
-        depth: depth,
-        path: relation.docPath ? relation.docPath + '.' + relation.alias : relation.alias,
         id: parentRepo + '.' + relation.alias,
-        relation: relation,
+        depth,
+        path: relation.docPath ? relation.docPath + '.' + relation.alias : relation.alias,
+        relation,
         recursionCount: 0
       };
 
       // How many parents of this relation are the same relation?
       let realtionDepths = [];
-      flatRelations.forEach(function(existingFlatRelation){
+      flatRelations.forEach(existingFlatRelation => {
         if (existingFlatRelation.id == flatRelation.id && existingFlatRelation.depth < depth) {
           realtionDepths[existingFlatRelation.depth] =  true;
         }
       });
       flatRelation.recursionCount = realtionDepths.length;
 
-      if (flatRelation.recursionCount > recursion) {
-        continue;
-      }
+      // IF we have reached the recursion count skip this relation
+      if (flatRelation.recursionCount > recursion) continue;
 
       flatRelations.push(flatRelation);
 
-      if (relation.type != 'hasManyCount') {
-    		let newBasePath = basePath.slice();
-    		newBasePath.push(relation.alias);
+      // hasManyCountRelation does not require recursive populations since its data is just a number
+      if (relation.type == 'hasManyCount') continue;
 
-        if (relation.type == 'hasMany' || relation.type == 'belongsToMany') {
-          newBasePath.push('*');
-        }
+      let newBasePath = basePath.slice();
+      newBasePath.push(relation.alias);
 
-        const repo = this.getRepo(relation.repo);
-        flatRelations.concat(repo.getFlattenedRelationsRecursive(options, relation.repo, newBasePath, flatRelations));
+      if (relation.type == 'hasMany' || relation.type == 'belongsToMany') {
+        newBasePath.push('*');
       }
+
+      flatRelations.concat(this.getRepo(relation.repo).getFlattenedRelationsRecursive(options, {
+        parentRepo: relation.repo, 
+        basePath: newBasePath, 
+        flatRelations
+      }));
     }
     // sort by document path length
     flatRelations = flatRelations.sort(function(a, b) {
@@ -493,15 +502,16 @@ export class Repo
     return flatRelations;
   }
   
-  populateAll(objects: any, options?: RepoPopulateOptions)
+  async populateAll(objects: any, options?: RepoPopulateOptions)
   {
     const flattenedRelations = this.getFlattenedRelations(options);
     options.populate = false; // Dont populate recursively - we already flattened the relations
-    var populateDepth = (relations, options, objects) => {
+
+    for (let depth in flattenedRelations) {
       let populatePromises = [];
-      if (relations) {
-        for (let x in relations) {
-          let relation = relations[x];
+      if (flattenedRelations[depth]) {
+        for (let x in flattenedRelations[depth]) {
+          let relation = flattenedRelations[depth][x];
           if ((Array.isArray(objects) && relation.limit)) {
             // This relation is using the limit option so we can not populate a collection of objects in a single query
             // - as it would produce in unexpcetd results.
@@ -514,18 +524,10 @@ export class Repo
           }
         }
       }
-      return Promise.all(populatePromises);
-    };
-
-    var promise = Promise.resolve([]);
-    for (let depth in flattenedRelations) {
-      let relations = flattenedRelations[depth];
-      promise = promise.then(() => {
-        return populateDepth(relations, options, objects);
-      });
+      await Promise.all(populatePromises);
     }
 
-    return promise.then(() => objects);
+    return objects;
   }
   
   getPopulatePromise(relation: RepoRelationConfig, options?: RepoQueryOptions, objects?: any)
