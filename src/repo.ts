@@ -327,7 +327,7 @@ export class Repo
     this.initSchema();
     var validateResult = await this.schema.validateQuery(query);
     if (!validateResult.isValid) {
-      return new RepoErrorValidation(validateResult.errors);
+      throw new RepoErrorValidation(validateResult.errors);
     }
     return this.dataSource.count(this.config.collectionName, query, options);
   }
@@ -392,7 +392,7 @@ export class Repo
   {
     // If relation is passed as string relation name, lookup the relation config
     relation = (typeof relation == 'string') ? this.config.relations[relation] : relation;
-    
+
     await this.getPopulatePromise(relation, options, objects); // side affect modified objects
 
     return objects;
