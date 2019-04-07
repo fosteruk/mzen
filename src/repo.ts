@@ -76,6 +76,8 @@ export interface RepoRelationConfig extends RepoQueryOptions
   alias?: string;
   query?: any;
   recursion?: number;
+  populate?: boolean;
+  populateRelations?: boolean
 }
 
 export interface RepoPopulateOptions
@@ -388,16 +390,6 @@ export class Repo
     return (findOptions.options.populate === false) ? objects : this.populateAll(objects, findOptions.options);
   }
   
-  async populate(relation: RepoRelationConfig | string, objects: any, options?: any)
-  {
-    // If relation is passed as string relation name, lookup the relation config
-    relation = (typeof relation == 'string') ? this.config.relations[relation] : relation;
-
-    await this.getPopulatePromise(relation, options, objects); // side affect modified objects
-
-    return objects;
-  }
-  
   getFlattenedRelations(options: any)
   {
     // In order to populate a relation at a given depth its parent relation must have already been populated
@@ -407,7 +399,6 @@ export class Repo
     //  [relationConfigA, relationConfigB], // depth 1 to be populated first
     //  [relationConfigB, relationConfigC] // depth 2 to be populated second
     // ]
-
     const flattenedRelationsRecursive = this.getFlattenedRelationsRecursive(options);
 
     var flattenedRelations = [];
@@ -415,7 +406,7 @@ export class Repo
       const { depth, relation, path } = relationConfig;
       // Remove relations based on query options
       let populate = (relation.populate !== undefined) ? relation.populate : false;
-      // Relation populate value can be overriden by option to populateAll()
+      // Relation populate value can be overridden by option to populateAll()
       populate = (options.populate[path] !== undefined) ? options.populate[path] : populate;
       if (!populate) return;
 
@@ -440,6 +431,7 @@ export class Repo
       const depth = basePath.length;
       const relation = clone(this.config.relations[alias]); // copy the relation we dont want to modify the original
       const recursion = relation.recursion ? relation.recursion : 0;
+      const populateRelations = relation.populateRelations != undefined ? !!relation.populateRelations : true;
 
       // Append base path
       relation.docPath = (relation.docPath)
@@ -468,7 +460,7 @@ export class Repo
       });
       flatRelation.recursionCount = realtionDepths.length;
 
-      // IF we have reached the recursion count skip this relation
+      // If we have reached the recursion count skip this relation
       if (flatRelation.recursionCount > recursion) continue;
 
       flatRelations.push(flatRelation);
@@ -483,11 +475,14 @@ export class Repo
         newBasePath.push('*');
       }
 
-      flatRelations.concat(this.getRepo(relation.repo).getFlattenedRelationsRecursive(options, {
-        parentRepo: relation.repo, 
-        basePath: newBasePath, 
-        flatRelations
-      }));
+      // Recurse into this relation only if populateRelations is true
+      if (populateRelations) {
+        flatRelations.concat(this.getRepo(relation.repo).getFlattenedRelationsRecursive(options, {
+          parentRepo: relation.repo, 
+          basePath: newBasePath, 
+          flatRelations
+        }));
+      }
     }
     // sort by document path length
     flatRelations = flatRelations.sort(function(a, b) {
@@ -511,11 +506,11 @@ export class Repo
             // This relation is using the limit option so we can not populate a collection of objects in a single query
             // - as it would produce in unexpcetd results.
             // We must populate each document individually with a seperate query
-            objects.forEach((object) => {
-              populatePromises.push(this.getPopulatePromise(relation, options, object));
+            objects.forEach(object => {
+              populatePromises.push(this.populate(relation, object, options));
             });
           } else {
-            populatePromises.push(this.getPopulatePromise(relation, options, objects));
+            populatePromises.push(this.populate(relation, objects, options));
           }
         }
       }
@@ -525,9 +520,12 @@ export class Repo
     return objects;
   }
   
-  getPopulatePromise(relation: RepoRelationConfig, options?: RepoQueryOptions, objects?: any)
+  async populate(relation: RepoRelationConfig | string, objects?: any, options?: RepoQueryOptions)
   {
     this.initSchema();
+
+    // If relation is passed as string relation name, lookup the relation config
+    relation = (typeof relation == 'string') ? this.config.relations[relation] : relation;
 
     // Clone the options because we dont want changes to the options object to change the original object
     var relationOptions = options ? clone(options) : {};
@@ -546,7 +544,9 @@ export class Repo
     var repo = this.getRepo(relation.repo);
     var repoPopulate = new RepoPopulate(repo);
 
-    return repoPopulate[relation.type](objects, relationOptions);
+    await repoPopulate[relation.type](objects, relationOptions);
+
+    return objects;
   }
   
   async insertMany(objects, options?)
