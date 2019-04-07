@@ -385,21 +385,16 @@ export class Repo
       this.schema.filterPrivate(objects, 'read');
     }
     objects = objects ? this.schema.applyTransients(objects) : objects;
-    if (findOptions.options.populate === false) {
-      return objects;
-    } else {
-      return this.populateAll(objects, findOptions.options);
-    }
+    return (findOptions.options.populate === false) ? objects : this.populateAll(objects, findOptions.options);
   }
   
   async populate(relation: RepoRelationConfig | string, objects: any, options?: any)
   {
-    options = (options == Object(options)) ? options : {};
-
     // If relation is passed as string relation name, lookup the relation config
     relation = (typeof relation == 'string') ? this.config.relations[relation] : relation;
-
+    
     await this.getPopulatePromise(relation, options, objects); // side affect modified objects
+
     return objects;
   }
   
