@@ -2,9 +2,9 @@ import should = require('should');
 import Repo from '../../../lib/repo';
 import MockDataSource from '../../../lib/data-source/mock';
 
-describe('Repo', function () {
-  describe('insertMany()', function () {
-    it('should returns type casted documents', function (done) {
+describe('Repo', function(){
+  describe('insertMany()', function(){
+    it('should returns type casted documents', async () => {
       var data = {
         user: [
           {_id: '1', name: 'Kevin', number: '123', string: 543}
@@ -21,16 +21,11 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource(data);
 
-      user.insertMany(data.user, {filterPrivate: true})
-      .then(function(){
-        should(user.dataSource.dataInsert[0].number).eql(123);
-        should(user.dataSource.dataInsert[0].string).eql('543');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      await user.insertMany(data.user, {filterPrivate: true});
+      should(user.dataSource.dataInsert[0].number).eql(123);
+      should(user.dataSource.dataInsert[0].string).eql('543');
     });
-    it('should filter private fields', function (done) {
+    it('should filter private fields', async () => {
       var data = {
         user: [
           {_id: '1', name: 'Kevin', cannotInsertThisValue: 'test'}
@@ -46,16 +41,11 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource(data);
 
-      user.insertMany(data.user, {filterPrivate: true})
-      .then(function(){
-        should(user.dataSource.dataInsert[0].name).eql('Kevin');
-        should(user.dataSource.dataInsert[0].cannotInsertThisValue).eql(undefined);
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      await user.insertMany(data.user, {filterPrivate: true});
+      should(user.dataSource.dataInsert[0].name).eql('Kevin');
+      should(user.dataSource.dataInsert[0].cannotInsertThisValue).eql(undefined);
     });
-    it('should filter private "write" fields', function (done) {
+    it('should filter private "write" fields', async () => {
       var data = {
         user: [
           {_id: '1', name: 'Kevin', cannotInsertThisValue: 'test'}
@@ -71,16 +61,11 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource(data);
 
-      user.insertMany(data.user, {filterPrivate: true})
-      .then(function(){
-        should(user.dataSource.dataInsert[0].name).eql('Kevin');
-        should(user.dataSource.dataInsert[0].cannotInsertThisValue).eql(undefined);
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      await user.insertMany(data.user, {filterPrivate: true});
+      should(user.dataSource.dataInsert[0].name).eql('Kevin');
+      should(user.dataSource.dataInsert[0].cannotInsertThisValue).eql(undefined);
     });
-    it('should not filter private "read" fields', function (done) {
+    it('should not filter private "read" fields', async () => {
       var data = {
         user: [
           {_id: '1', name: 'Kevin', canInsertThisValue: 'test'}
@@ -96,16 +81,11 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource(data);
 
-      user.insertMany(data.user, {filterPrivate: true})
-      .then(function(){
-        should(user.dataSource.dataInsert[0].name).eql('Kevin');
-        should(user.dataSource.dataInsert[0].canInsertThisValue).eql('test');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      await user.insertMany(data.user, {filterPrivate: true});
+      should(user.dataSource.dataInsert[0].name).eql('Kevin');
+      should(user.dataSource.dataInsert[0].canInsertThisValue).eql('test');
     });
-    it('should not filter private fields by default', function (done) {
+    it('should not filter private fields by default', async () => {
       var data = {
         user: [
           {_id: '1', name: 'Kevin', canInsertThisValue: 'test'}
@@ -121,14 +101,9 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource(data);
 
-      user.insertMany(data.user)
-      .then(function(){
-        should(user.dataSource.dataInsert[0].name).eql('Kevin');
-        should(user.dataSource.dataInsert[0].canInsertThisValue).eql('test');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      await user.insertMany(data.user);
+      should(user.dataSource.dataInsert[0].name).eql('Kevin');
+      should(user.dataSource.dataInsert[0].canInsertThisValue).eql('test');
     });
   });
 });

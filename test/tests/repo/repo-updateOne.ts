@@ -2,9 +2,9 @@ import should = require('should');
 import Repo from '../../../lib/repo';
 import MockDataSource from '../../../lib/data-source/mock';
 
-describe('Repo', function () {
-  describe('updateOne()', function () {
-    it('should return type casted documents', function (done) {
+describe('Repo', function(){
+  describe('updateOne()', function(){
+    it('should return type casted documents', async () => {
       var updateData = {
         $set: {
           number: '123',
@@ -21,16 +21,11 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource({});
 
-      user.updateOne({}, updateData, {filterPrivate: true})
-      .then(function(){
-        should(user.dataSource.dataUpdate[0]['$set'].number).eql(123);
-        should(user.dataSource.dataUpdate[0]['$set'].string).eql('543');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      await user.updateOne({}, updateData, {filterPrivate: true});
+      should(user.dataSource.dataUpdate[0]['$set'].number).eql(123);
+      should(user.dataSource.dataUpdate[0]['$set'].string).eql('543');
     });
-    it('should filter private fields', function (done) {
+    it('should filter private fields', async () => {
       var updateData = {
         $set: {
           name: 'Kevin',
@@ -47,16 +42,11 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource({});
 
-      user.updateOne({}, updateData, {filterPrivate: true})
-      .then(function(){
-        should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
-        should(user.dataSource.dataUpdate[0]['$set'].cannotInsertThisValue).eql(undefined);
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      await user.updateOne({}, updateData, {filterPrivate: true});
+      should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
+      should(user.dataSource.dataUpdate[0]['$set'].cannotInsertThisValue).eql(undefined);
     });
-    it('should filter private "write" fields', function (done) {
+    it('should filter private "write" fields', async () => {
       var updateData = {
         $set: {
           name: 'Kevin',
@@ -73,16 +63,11 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource({});
 
-      user.updateOne({}, updateData, {filterPrivate: true})
-      .then(function(){
-        should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
-        should(user.dataSource.dataUpdate[0]['$set'].cannotInsertThisValue).eql(undefined);
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      await user.updateOne({}, updateData, {filterPrivate: true});
+      should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
+      should(user.dataSource.dataUpdate[0]['$set'].cannotInsertThisValue).eql(undefined);
     });
-    it('should not filter private "read" fields', function (done) {
+    it('should not filter private "read" fields', async () => {
       var updateData = {
         $set: {
           name: 'Kevin',
@@ -99,16 +84,11 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource({});
 
-      user.updateOne({}, updateData, {filterPrivate: true})
-      .then(function(){
-        should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
-        should(user.dataSource.dataUpdate[0]['$set'].canUpdateThisValue).eql('123');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      await user.updateOne({}, updateData, {filterPrivate: true});
+      should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
+      should(user.dataSource.dataUpdate[0]['$set'].canUpdateThisValue).eql('123');
     });
-    it('should not not filter private fields by default', function (done) {
+    it('should not not filter private fields by default', async () => {
       var updateData = {
         $set: {
           name: 'Kevin',
@@ -125,14 +105,9 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource({});
 
-      user.updateOne({}, updateData)
-      .then(function(){
-        should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
-        should(user.dataSource.dataUpdate[0]['$set'].canUpdateThisValue).eql('123');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      await user.updateOne({}, updateData);
+      should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
+      should(user.dataSource.dataUpdate[0]['$set'].canUpdateThisValue).eql('123');
     });
   });
 });
