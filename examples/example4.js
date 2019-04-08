@@ -24,7 +24,7 @@ var userRepo = new Repo({
       repo: 'userTimezone',
       key: 'userTimezoneId',
       alias: 'userTimezone',
-      populate: true
+      autoPopulate: true
     }
   }
 });
@@ -38,7 +38,7 @@ var userTimezoneRepo = new Repo({
       repo: 'country',
       key: 'countryId',
       alias: 'country',
-      populate: false // important - initialy the relation is configured not to populate
+      autoPopulate: false // important - initialy the relation is configured not to populate
     }
   }
 });
@@ -54,7 +54,7 @@ userRepo.repos.country = countryRepo;
 
 (async () => {
   try {
-    var docs = await userRepo.find({}, {populate: {'userTimezone.country': true}});
+    var docs = await userRepo.find({}, {autoPopulate: {'userTimezone.country': true}});
     console.log(JSON.stringify(docs, null, 2));
   } catch (e) {
     console.log(JSON.stringify(e, null, 2));

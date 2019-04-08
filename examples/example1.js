@@ -39,7 +39,7 @@ class RecordCompanyRepo extends Repo
           type: 'hasMany',
           repo: 'artist',
           key: 'recordCompanyId',
-          populate: true
+          autoPopulate: true
         }
       }
     });
@@ -57,13 +57,13 @@ class ArtistRepo extends Repo
           type: 'hasMany',
           repo: 'album',
           key: 'artistId',
-          populate: true
+          autoPopulate: true
         },
         recordCompany: {
           type: 'belongsToOne',
           repo: 'recordCompany',
           key: 'recordCompanyId',
-          populate: true
+          autoPopulate: true
         }
       }
     });

@@ -28,19 +28,19 @@ var personRepo = new Repo({
       type: 'hasMany',
       repo: 'person',
       key: 'bestFriendId',
-      populate: true
+      autoPopulate: true
     },
     bestFriend: {
       type: 'belongsToOne',
       repo: 'person',
       key: 'bestFriendId',
-      populate: true
+      autoPopulate: true
     },
     workPlace: {
       type: 'belongsToOne',
       repo: 'workPlace',
       key: 'workPlaceId',
-      populate: true
+      autoPopulate: true
     }
   }
 });
@@ -54,7 +54,7 @@ var workPlaceRepo = new Repo({
       type: 'belongsToOne',
       repo: 'person',
       key: 'managerId',
-      populate: true
+      autoPopulate: true
     }
   }
 });

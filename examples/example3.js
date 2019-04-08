@@ -111,7 +111,7 @@ var personRepo = new Repo({
       repo: 'person',
       key: 'bestFriendId',
       sort: ['name', 'asc'],
-      populate: true,
+      autoPopulate: true,
       recursion: 0
     },
     isConsideredBestFriendByCount: {
@@ -119,21 +119,21 @@ var personRepo = new Repo({
       repo: 'person',
       key: 'bestFriendId',
       sort: ['name', 'asc'],
-      populate: true,
+      autoPopulate: true,
       recursion: 0
     },
     bestFriend: {
       type: 'belongsToOne',
       repo: 'person',
       key: 'bestFriendId',
-      populate: true,
+      autoPopulate: true,
       recursion: 0
     },
     workPlace: {
       type: 'belongsToOne',
       repo: 'workPlace',
       key: 'workPlaceId',
-      populate: true,
+      autoPopulate: true,
       recursion: 0
     },
   }
@@ -152,7 +152,7 @@ var workPlaceRepo = new Repo({
       type: 'belongsToOne',
       repo: 'person',
       key: 'managerId',
-      populate: true
+      autoPopulate: true
     }
   }
 });
