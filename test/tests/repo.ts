@@ -2,13 +2,13 @@ import should = require('should');
 import Repo from '../../lib/repo';
 import MockDataSource from '../../lib/data-source/mock';
 
-describe('Repo', function () {
-  describe('getName()', function () {
-    it('should return configured name', function () {
+describe('Repo', function(){
+  describe('getName()', function(){
+    it('should return configured name', function(){
       var userRepo = new Repo({name: 'UserRepo'});
       should(userRepo.getName()).eql('UserRepo');
     });
-    it('should return constructor name if name not configured', function () {
+    it('should return constructor name if name not configured', function(){
       class UserRepo extends Repo {};
       var userRepo = new UserRepo();
       should(userRepo.getName()).eql('UserRepo');
@@ -17,15 +17,15 @@ describe('Repo', function () {
       var newUserRepo = new NewUserRepo();
       should(newUserRepo.getName()).eql('NewUserRepo');
     });
-    it('should throw an exception if repo name is not configured when using the default constructor', function() {
+    it('should throw an exception if repo name is not configured when using the default constructor', function(){
       var aRepo = new Repo();
       should.throws(function(){
         aRepo.getName()
       }, /Repo name not configured/);
     });
   });
-  describe('count()', function () {
-    it('should return document count', function (done) {
+  describe('count()', function(){
+    it('should return document count', async () => {
       var data = {
         user: [
           {_id: '1', name: 'Kevin Foster', userTimezoneId: '1'},
@@ -47,16 +47,12 @@ describe('Repo', function () {
       });
       userRepo.dataSource = new MockDataSource(data);
 
-      userRepo.count({}).then(function(result){
-        should(result).eql(3);
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      const result = await userRepo.count({});
+      should(result).eql(3);
     });
   });
-  describe('populateAll()', function () {
-    it('should populate relations', function (done) {
+  describe('populateAll()', function(){
+    it('should populate relations', async () => {
       var data = {
         userTimezone: [
           {_id: '1',  name: 'Europe/London'}
@@ -85,30 +81,24 @@ describe('Repo', function () {
       userTimezoneRepo.dataSource = new MockDataSource(data);
       userRepo.repos['userTimezone'] = userTimezoneRepo;
 
-      userRepo.find({}).then(function(docs){
-        should(docs[0]).eql({
-          _id: '1',
-          name: 'Kevin Foster',
-          userTimezoneId: '1'
-        });
-        userRepo.populateAll(docs, {populate: {userTimezone: true}}).then(function(docs){
-          should(docs[0]).eql({
-            _id: '1',
-            name: 'Kevin Foster',
-            userTimezoneId: '1',
-            userTimezone: {_id: '1', name: 'Europe/London'}
-          });
-          done();
-        }).catch(function(err){
-          done(err);
-        });
-      }).catch(function(err){
-        done(err);
+      var docs = await userRepo.find({});
+      should(docs[0]).eql({
+        _id: '1',
+        name: 'Kevin Foster',
+        userTimezoneId: '1'
+      });
+
+      await userRepo.populateAll(docs, {populate: {userTimezone: true}});
+      should(docs[0]).eql({
+        _id: '1',
+        name: 'Kevin Foster',
+        userTimezoneId: '1',
+        userTimezone: {_id: '1', name: 'Europe/London'}
       });
     });
   });
-  describe('populate()', function () {
-    it('should populate single relation by name', function (done) {
+  describe('populate()', function(){
+    it('should populate single relation by name', async () => {
       var data = {
         userTimezone: [
           {_id: '1',  name: 'Europe/London'}
@@ -137,29 +127,22 @@ describe('Repo', function () {
       userTimezoneRepo.dataSource = new MockDataSource(data);
       userRepo.repos['userTimezone'] = userTimezoneRepo;
 
-      userRepo.find({}).then(function(docs){
-        should(docs[0]).eql({
-          _id: '1',
-          name: 'Kevin Foster',
-          userTimezoneId: '1'
-        });
+      var docs = await userRepo.find({});
+      should(docs[0]).eql({
+        _id: '1',
+        name: 'Kevin Foster',
+        userTimezoneId: '1'
+      });
 
-        userRepo.populate('userTimezone', docs, {}).then(function(docs){
-          should(docs[0]).eql({
-            _id: '1',
-            name: 'Kevin Foster',
-            userTimezoneId: '1',
-            userTimezone: {_id: '1',  name: 'Europe/London'}
-          });
-          done();
-        }).catch(function(err){
-          done(err);
-        });
-      }).catch(function(err){
-        done(err);
+      await userRepo.populate('userTimezone', docs, {});
+      should(docs[0]).eql({
+        _id: '1',
+        name: 'Kevin Foster',
+        userTimezoneId: '1',
+        userTimezone: {_id: '1',  name: 'Europe/London'}
       });
     });
-    it('should populate single relation', function (done) {
+    it('should populate single relation', async () => {
       var data = {
         userTimezone: [
           {_id: '1',  name: 'Europe/London'}
@@ -188,31 +171,24 @@ describe('Repo', function () {
       userTimezoneRepo.dataSource = new MockDataSource(data);
       userRepo.repos['userTimezone'] = userTimezoneRepo;
 
-      userRepo.find({}).then(function(docs){
-        should(docs[0]).eql({
-          _id: '1',
-          name: 'Kevin Foster',
-          userTimezoneId: '1'
-        });
+      var docs = await userRepo.find({});
+      should(docs[0]).eql({
+        _id: '1',
+        name: 'Kevin Foster',
+        userTimezoneId: '1'
+      });
 
-        userRepo.populate(userRepo.config.relations.userTimezone, docs, {}).then(function(docs){
-          should(docs[0]).eql({
-            _id: '1',
-            name: 'Kevin Foster',
-            userTimezoneId: '1',
-            userTimezone: {_id: '1',  name: 'Europe/London'}
-          });
-          done();
-        }).catch(function(err){
-          done(err);
-        });
-      }).catch(function(err){
-        done(err);
+      await userRepo.populate(userRepo.config.relations.userTimezone, docs, {});
+      should(docs[0]).eql({
+        _id: '1',
+        name: 'Kevin Foster',
+        userTimezoneId: '1',
+        userTimezone: {_id: '1',  name: 'Europe/London'}
       });
     });
   });
-  describe('stripTransients()', function () {
-    it('should strip relations', function () {
+  describe('stripTransients()', function(){
+    it('should strip relations', function(){
       var user = new Repo({
         name: 'user',
         relations: {
@@ -238,7 +214,7 @@ describe('Repo', function () {
         userTimezoneId: '1'
       });
     });
-    it('should strip pathrefs', function () {
+    it('should strip pathrefs', function(){
       var userRepo = new Repo({
         name: 'user',
         schema: {
@@ -261,11 +237,11 @@ describe('Repo', function () {
       });
     });
   });
-  describe('insert()', function () {
-    // Since we seperated schema defination from Repos  the 'strict' option can no longer be passed in repo options
+  describe('insert()', function(){
+    // Since we seperated schema defination from Repos the 'strict' option can no longer be passed in repo options
     // - we need to add the ability to specify the $strict option within the schema spec itself
     /*
-    it('should fail validation in strict mode if contains unspecified properties', function (done) {
+    it('should fail validation in strict mode if contains unspecified properties', async () => {
       var data = {
         user: [
           {_id: '1', name: 'Kevin Foster', age: 33}
