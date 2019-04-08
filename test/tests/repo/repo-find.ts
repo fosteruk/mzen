@@ -50,7 +50,7 @@ describe('Repo', function(){
         name: 'userTimezone'
       });
       userTimezone.dataSource = dataSource;
-      user.repos['userTimezone'] = userTimezone;
+      user.repos.userTimezone = userTimezone;
 
       var docs = await user.find();
       should(docs[0].name).eql('Kevin Foster');
@@ -84,7 +84,7 @@ describe('Repo', function(){
         name: 'userTimezone'
       });
       userTimezone.dataSource = dataSource;
-      user.repos['userTimezone'] = userTimezone;
+      user.repos.userTimezone = userTimezone;
 
       var docs = await user.find();
       should(docs[0].name).eql('Kevin Foster');
@@ -121,7 +121,7 @@ describe('Repo', function(){
         name: 'album'
       });
       album.dataSource = dataSource;
-      artist.repos['album'] = album;
+      artist.repos.album = album;
 
       var docs = await artist.find();
       should(docs[0].albums[0].name).eql('Pablo Honey');
@@ -160,7 +160,7 @@ describe('Repo', function(){
         name: 'userTimezone'
       });
       userTimezoneRepo.dataSource = dataSource;
-      userRepo.repos['userTimezone'] = userTimezoneRepo;
+      userRepo.repos.userTimezone = userTimezoneRepo;
 
       var docs = await userRepo.find();
       should(docs[0].name).eql('Kevin Foster');
@@ -199,7 +199,7 @@ describe('Repo', function(){
         name: 'album'
       });
       album.dataSource = dataSource;
-      artist.repos['album'] = album;
+      artist.repos.album = album;
 
       var docs = await artist.find();
       should(docs[0].albums[0].name).eql('Pablo Honey');
@@ -234,7 +234,7 @@ describe('Repo', function(){
         }
       });
       user.dataSource = new MockDataSource(data);
-      user.repos['user'] = user;
+      user.repos.user = user;
 
       var docs = await user.find();
       should(docs[0].name).eql('Kevin');
@@ -314,7 +314,7 @@ describe('Repo', function(){
         constructors: [Timezone]
       });
       userTimezoneRepo.dataSource = dataSource;
-      userRepo.repos['userTimezone'] = userTimezoneRepo;
+      userRepo.repos.userTimezone = userTimezoneRepo;
 
       var docs = await userRepo.find();
       should(docs[0].userTimezone.getName).be.type('function');
@@ -361,7 +361,7 @@ describe('Repo', function(){
         }
       });
       timezoneRepo.dataSource = dataSource;
-      userRepo.repos['timezone'] = timezoneRepo;
+      userRepo.repos.timezone = timezoneRepo;
 
       var Country = class {
         name: string;
@@ -375,8 +375,8 @@ describe('Repo', function(){
         constructors: [Country]
       });
       countryRepo.dataSource = dataSource;
-      timezoneRepo.repos['country'] = countryRepo;
-      userRepo.repos['country'] = countryRepo;
+      timezoneRepo.repos.country = countryRepo;
+      userRepo.repos.country = countryRepo;
 
       var docs = await userRepo.find();
       should(docs[0].timezone.country.getName).be.type('function');
@@ -511,7 +511,7 @@ describe('Repo', function(){
         name: 'userTimezone'
       });
       userTimezoneRepo.dataSource = dataSource;
-      userRepo.repos['userTimezone'] = userTimezoneRepo;
+      userRepo.repos.userTimezone = userTimezoneRepo;
 
       var docs = await userRepo.find({}, {populate: {userTimezone: true}});
       should(docs[0].userTimezone.name).eql('Europe/London');
@@ -545,7 +545,7 @@ describe('Repo', function(){
         name: 'userTimezone'
       });
       userTimezoneRepo.dataSource = dataSource;
-      userRepo.repos['userTimezone'] = userTimezoneRepo;
+      userRepo.repos.userTimezone = userTimezoneRepo;
 
       var docs = await userRepo.find({}, {populate: {userTimezone: false}});
       should(docs[0].userTimezone).be.type('undefined');
@@ -592,14 +592,14 @@ describe('Repo', function(){
         }
       });
       userTimezoneRepo.dataSource = dataSource;
-      userRepo.repos['userTimezone'] = userTimezoneRepo;
+      userRepo.repos.userTimezone = userTimezoneRepo;
 
       var countryRepo = new Repo({
         name: 'country'
       });
       countryRepo.dataSource = dataSource;
-      userTimezoneRepo.repos['country'] = countryRepo;
-      userRepo.repos['country'] = countryRepo;
+      userTimezoneRepo.repos.country = countryRepo;
+      userRepo.repos.country = countryRepo;
 
       var docs = await userRepo.find({}, {populate: {'userTimezone.country': true}});
       should(docs[0].userTimezone.name).eql('Europe/London');
@@ -647,14 +647,14 @@ describe('Repo', function(){
         }
       });
       userTimezoneRepo.dataSource = dataSource;
-      userRepo.repos['userTimezone'] = userTimezoneRepo;
+      userRepo.repos.userTimezone = userTimezoneRepo;
 
       var countryRepo = new Repo({
         name: 'country'
       });
       countryRepo.dataSource = dataSource;
-      userTimezoneRepo.repos['country'] = countryRepo;
-      userRepo.repos['country'] = countryRepo;
+      userTimezoneRepo.repos.country = countryRepo;
+      userRepo.repos.country = countryRepo;
 
       var docs = await userRepo.find({}, {populate: {'userTimezone.country': false}});
       should(docs[0].userTimezone.name).eql('Europe/London');
