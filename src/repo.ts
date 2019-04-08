@@ -48,11 +48,11 @@ export interface RepoConfig
 
 export interface RepoQueryOptions
 {
-  populate?: {[key: string]: boolean} | boolean;
-  filterPrivate?: boolean; 
-  sort?: {[key: string]: number};
   limit?: number;
   skip?: number;
+  sort?: {[key: string]: number};
+  populate?: {[key: string]: boolean} | boolean;
+  filterPrivate?: boolean; 
   hint?: string | {[key: string]: number};
   collation?: {
      locale?: string,
@@ -76,8 +76,7 @@ export interface RepoRelationConfig extends RepoQueryOptions
   alias?: string;
   query?: any;
   recursion?: number;
-  populate?: boolean;
-  populateRelations?: boolean
+  autoPopulate?: boolean;
 }
 
 export interface RepoPopulateOptions
@@ -403,13 +402,7 @@ export class Repo
 
     var flattenedRelations = [];
     flattenedRelationsRecursive.forEach(relationConfig => {
-      const { depth, relation, path } = relationConfig;
-      // Remove relations based on query options
-      let populate = (relation.populate !== undefined) ? relation.populate : false;
-      // Relation populate value can be overridden by option to populateAll()
-      populate = (options.populate[path] !== undefined) ? options.populate[path] : populate;
-      if (!populate) return;
-
+      const { depth, relation } = relationConfig;
       // Sort into depth arrays
       if (flattenedRelations[depth] == undefined) flattenedRelations[depth] = [];
       flattenedRelations[depth].push(relation);
@@ -418,7 +411,7 @@ export class Repo
     return flattenedRelations;
   }
   
-  getFlattenedRelationsRecursive(options = {}, meta?)
+  getFlattenedRelationsRecursive(options: any, meta?)
   {
     // parentRepo?, basePath?: Array<string>, flatRelations?: Array<any>
     meta = meta ? meta : {};
@@ -431,7 +424,10 @@ export class Repo
       const depth = basePath.length;
       const relation = clone(this.config.relations[alias]); // copy the relation we dont want to modify the original
       const recursion = relation.recursion ? relation.recursion : 0;
-      const populateRelations = relation.populateRelations != undefined ? !!relation.populateRelations : true;
+      const autoPopulate = relation.autoPopulate != undefined ? relation.autoPopulate : false;
+      const populate = relation.populate != undefined ? relation.populate : true;
+      const queryPopulate = options.populate != undefined ? options.populate : true;
+
 
       // Append base path
       relation.docPath = (relation.docPath)
@@ -443,10 +439,22 @@ export class Repo
                                 ? (basePath && basePath.length ? basePath.join('.') + '.' + relation.docPathRelated : relation.docPathRelated)
                                 : (basePath && basePath.length ? basePath.join('.') : '');
 
+      const path = relation.docPath ? relation.docPath + '.' + relation.alias : relation.alias;
+
+
+      if (
+        !queryPopulate || // query said dont populate any relations
+        (queryPopulate[path] !== undefined && !queryPopulate[path]) || // query said dont populate this path
+        (queryPopulate[path] === undefined && !autoPopulate) // query didnt specificaly enable population and relation auto population is disabled
+      ) {
+        // relation should not populate - continue to next relation
+        continue;
+      }
+
       const flatRelation = {
         id: parentRepo + '.' + relation.alias,
         depth,
-        path: relation.docPath ? relation.docPath + '.' + relation.alias : relation.alias,
+        path,
         relation,
         recursionCount: 0
       };
@@ -475,8 +483,8 @@ export class Repo
         newBasePath.push('*');
       }
 
-      // Recurse into this relation only if populateRelations is true
-      if (populateRelations) {
+      // Recurse into this relation only if populate is true or is populate relation path is true
+      if (populate) {
         flatRelations.concat(this.getRepo(relation.repo).getFlattenedRelationsRecursive(options, {
           parentRepo: relation.repo, 
           basePath: newBasePath, 

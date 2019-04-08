@@ -41,7 +41,7 @@ describe('Repo', function(){
             type: 'belongsTo',
             repo: 'userTimezone',
             key: 'userTimezoneId',
-            populate: false
+            autoPopulate: false
           }
         }
       });
@@ -69,7 +69,7 @@ describe('Repo', function(){
             type: 'belongsTo',
             repo: 'userTimezone',
             key: 'userTimezoneId',
-            populate: false
+            autoPopulate: false
           }
         }
       });
@@ -115,7 +115,7 @@ describe('Repo', function(){
             type: 'belongsToOne',
             repo: 'userTimezone',
             key: 'userTimezoneId',
-            populate: false
+            autoPopulate: false
           }
         }
       });
@@ -159,7 +159,7 @@ describe('Repo', function(){
             type: 'belongsToOne',
             repo: 'userTimezone',
             key: 'userTimezoneId',
-            populate: false
+            autoPopulate: false
           }
         }
       });
@@ -196,7 +196,7 @@ describe('Repo', function(){
             type: 'belongsTo',
             repo: 'userTimezone',
             key: 'userTimezoneId',
-            populate: true
+            autoPopulate: true
           }
         }
       });

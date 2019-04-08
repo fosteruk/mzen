@@ -40,7 +40,7 @@ describe('Repo', function(){
             repo: 'userTimezone',
             key: 'userId',
             alias: 'userTimezone',
-            populate: true
+            autoPopulate: true
           }
         }
       });
@@ -74,7 +74,7 @@ describe('Repo', function(){
             type: 'belongsTo',
             repo: 'userTimezone',
             key: 'userTimezoneId',
-            populate: true
+            autoPopulate: true
           }
         }
       });
@@ -111,7 +111,7 @@ describe('Repo', function(){
             type: 'hasMany',
             repo: 'album',
             key: 'artistId',
-            populate: true
+            autoPopulate: true
           }
         }
       });
@@ -150,7 +150,7 @@ describe('Repo', function(){
             key: 'userId',
             alias: 'userTimezone',
             query: {deleted: 0},
-            populate: true
+            autoPopulate: true
           }
         }
       });
@@ -189,7 +189,7 @@ describe('Repo', function(){
             repo: 'album',
             key: 'artistId',
             query: {deleted: 0},
-            populate: true
+            autoPopulate: true
           }
         }
       });
@@ -223,13 +223,13 @@ describe('Repo', function(){
             type: 'belongsToOne',
             repo: 'user',
             key: 'referredByUserId',
-            populate: true
+            autoPopulate: true
           },
           referred: {
             type: 'hasMany',
             repo: 'user',
             key: 'referredByUserId',
-            populate: true
+            autoPopulate: true
           },
         }
       });
@@ -295,7 +295,7 @@ describe('Repo', function(){
             repo: 'userTimezone',
             key: 'timeZoneId',
             alias: 'userTimezone',
-            populate: true
+            autoPopulate: true
           }
         }
       });
@@ -342,7 +342,7 @@ describe('Repo', function(){
             repo: 'timezone',
             key: 'timeZoneId',
             alias: 'timezone',
-            populate: true
+            autoPopulate: true
           }
         }
       });
@@ -356,7 +356,7 @@ describe('Repo', function(){
             repo: 'country',
             key: 'countryId',
             alias: 'country',
-            populate: true
+            autoPopulate: true
           }
         }
       });
@@ -501,7 +501,7 @@ describe('Repo', function(){
             repo: 'userTimezone',
             key: 'timezoneId',
             alias: 'userTimezone',
-            populate: false // important - initialy the relation is configured not to populate
+            autoPopulate: false // important - initialy the relation is configured not to populate
           }
         }
       });
@@ -535,7 +535,7 @@ describe('Repo', function(){
             repo: 'userTimezone',
             key: 'timezoneId',
             alias: 'userTimezone',
-            populate: true
+            autoPopulate: true
           }
         }
       });
@@ -572,7 +572,7 @@ describe('Repo', function(){
             repo: 'userTimezone',
             key: 'userTimezoneId',
             alias: 'userTimezone',
-            populate: true
+            autoPopulate: true
           }
         }
       });
@@ -587,7 +587,7 @@ describe('Repo', function(){
             key: 'countryId',
             alias: 'country',
             recursion: 1,
-            populate: false // important - initialy the relation is configured not to populate
+            autoPopulate: false // important - initialy the relation is configured not to populate
           }
         }
       });
@@ -627,7 +627,7 @@ describe('Repo', function(){
             repo: 'userTimezone',
             key: 'userTimezoneId',
             alias: 'userTimezone',
-            populate: true
+            autoPopulate: true
           }
         }
       });
@@ -642,7 +642,7 @@ describe('Repo', function(){
             key: 'countryId',
             alias: 'country',
             recursion: 1,
-            populate: true // important - initialy the relation is configured to populate
+            autoPopulate: true // important - initialy the relation is configured to populate
           }
         }
       });
@@ -679,7 +679,7 @@ describe('Repo', function(){
             repo: 'child',
             key: 'motherId',
             alias: 'children',
-            populate: true
+            autoPopulate: true
           }
         }
       });
@@ -693,7 +693,7 @@ describe('Repo', function(){
             repo: 'mother',
             key: 'motherId',
             alias: 'mother',
-            populate: true
+            autoPopulate: true
           }
         }
       });
@@ -726,7 +726,7 @@ describe('Repo', function(){
             repo: 'child',
             key: 'motherId',
             alias: 'children',
-            populate: true,
+            autoPopulate: true,
             recursion: 1
           }
         }
@@ -741,7 +741,7 @@ describe('Repo', function(){
             repo: 'mother',
             key: 'motherId',
             alias: 'mother',
-            populate: true
+            autoPopulate: true
           }
         }
       });
@@ -782,7 +782,7 @@ describe('Repo', function(){
             key: 'motherId',
             alias: 'children',
             limit: 1,
-            populate: true
+            autoPopulate: true
           }
         }
       });
