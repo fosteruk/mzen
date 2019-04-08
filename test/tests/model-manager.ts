@@ -4,10 +4,10 @@ import Repo from '../../lib/repo';
 import Service from '../../lib/service';
 import Schema from 'mzen-schema';
 
-describe('ModelManager', function () {
-  describe('init()', function () {
-    describe('loadDataSources()', function () {
-      it('should inject named datasource into each repo', function (done) {
+describe('ModelManager', function(){
+  describe('init()', function(){
+    describe('loadDataSources()', function(){
+      it('should inject named datasource into each repo', async () => {
         var person = new Repo({name: 'person', dataSource: 'db'});
         should(person.dataSource).be.null();
 
@@ -15,100 +15,66 @@ describe('ModelManager', function () {
         var dataSource = {test: 1};
         modelManager.dataSources = {db: dataSource};
         modelManager.addRepo(person);
-        modelManager.init().then(function(){
-          should(person.dataSource).eql(dataSource);
-          done();
-        }).catch(function(err){
-          done(err);
-        });
+        await modelManager.init();
+
+        should(person.dataSource).eql(dataSource);
       });
     });
-    describe('loadResources()', function () {
-      it('should load constructors from constructor directory of configured model directory', function (done) {
-          var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
-          should(modelManager.constructors.Artist).be.Undefined();
-          should(modelManager.constructors.Album).be.Undefined();
-          modelManager.loadResources().then(function(){
-            should(modelManager.constructors.Artist).be.a.Function();
-            should(modelManager.constructors.Album).be.a.Function();
-            done();
-          }).catch(function(err){
-            done(err);
-          });
+    describe('loadResources()', function(){
+      it('should load constructors from constructor directory of configured model directory', async () => {
+        var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+        should(modelManager.constructors.Artist).be.Undefined();
+        should(modelManager.constructors.Album).be.Undefined();
+        await modelManager.loadResources();
+        should(modelManager.constructors.Artist).be.a.Function();
+        should(modelManager.constructors.Album).be.a.Function();
       });
-      it('should load constructors from constructors file of configured model directory', function (done) {
-          var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
-          should(modelManager.constructors.TestImportedConstructor).be.Undefined();
-          modelManager.loadResources().then(function(){
-            should(modelManager.constructors.TestImportedConstructor).be.a.Function();
-            done();
-          }).catch(function(err){
-            done(err);
-          });
+      it('should load constructors from constructors file of configured model directory', async () => {
+        var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+        should(modelManager.constructors.TestImportedConstructor).be.Undefined();
+        await modelManager.loadResources();
+
+        should(modelManager.constructors.TestImportedConstructor).be.a.Function();
       });
-      it('should load schemas from schema directory of configured model directory', function (done) {
-          var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
-          should(modelManager.schemas.artist).be.Undefined();
-          modelManager.loadResources().then(function(){
-            should(modelManager.schemas.artist).be.a.Object();
-            done();
-          }).catch(function(err){
-            done(err);
-          });
+      it('should load schemas from schema directory of configured model directory', async () => {
+        var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+        should(modelManager.schemas.artist).be.Undefined();
+        await modelManager.loadResources();
+        should(modelManager.schemas.artist).be.a.Object();
       });
-      it('should load schemas from schemas file of configured model directory', function (done) {
-          var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
-          should(modelManager.schemas.testImportedSchema).be.Undefined();
-          modelManager.loadResources().then(function(){
-            should(modelManager.schemas.testImportedSchema).be.a.Object();
-            done();
-          }).catch(function(err){
-            done(err);
-          });
+      it('should load schemas from schemas file of configured model directory', async () => {
+        var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+        should(modelManager.schemas.testImportedSchema).be.Undefined();
+        await modelManager.loadResources();
+        should(modelManager.schemas.testImportedSchema).be.a.Object();
       });
-      it('should load repositorys from repo directory of configured model directory', function (done) {
-          var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
-          should(modelManager.repos.artist).be.Undefined();
-          modelManager.loadResources().then(function(){
-            should(modelManager.repos.artist).be.a.Object();
-            done();
-          }).catch(function(err){
-            done(err);
-          });
+      it('should load repositorys from repo directory of configured model directory', async () => {
+        var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+        should(modelManager.repos.artist).be.Undefined();
+        await modelManager.loadResources();
+        should(modelManager.repos.artist).be.a.Object();
       });
-      it('should load repos from schemas file of configured configured model directory', function (done) {
-          var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
-          should(modelManager.repos.testImportedRepo).be.Undefined();
-          modelManager.loadResources().then(function(){
-            should(modelManager.repos.testImportedRepo).be.a.Object();
-            done();
-          }).catch(function(err){
-            done(err);
-          });
+      it('should load repos from schemas file of configured configured model directory', async () => {
+        var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+        should(modelManager.repos.testImportedRepo).be.Undefined();
+        await modelManager.loadResources();
+        should(modelManager.repos.testImportedRepo).be.a.Object();
       });
-      it('should services from service directory of configured model directory', function (done) {
-          var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
-          should(modelManager.services.artistSignup).be.Undefined();
-          modelManager.loadResources().then(function(){
-            should(modelManager.services.artistSignup).be.a.Object();
-            done();
-        }).catch(function(err){
-          done(err);
-        });
+      it('should services from service directory of configured model directory', async () => {
+        var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+        should(modelManager.services.artistSignup).be.Undefined();
+        await modelManager.loadResources();
+        should(modelManager.services.artistSignup).be.a.Object();
       });
-      it('should load service from services file of configured configured model directory', function (done) {
-          var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
-          should(modelManager.services.testImportedService).be.Undefined();
-          modelManager.loadResources().then(function(){
-            should(modelManager.services.testImportedService).be.a.Object();
-            done();
-          }).catch(function(err){
-            done(err);
-          });
+      it('should load service from services file of configured configured model directory', async () => {
+        var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
+        should(modelManager.services.testImportedService).be.Undefined();
+        await modelManager.loadResources();
+        should(modelManager.services.testImportedService).be.a.Object();
       });
     });
-    describe('initSchemas()', function () {
-      it('should inject constructors into each schema', function (done) {
+    describe('initSchemas()', function(){
+      it('should inject constructors into each schema', async () => {
         var Person = function() {};
         var Post = function() {};
         var userSchema = new Schema({$name: 'user'});
@@ -120,15 +86,12 @@ describe('ModelManager', function () {
         modelManager.addConstructor(Person);
         modelManager.addConstructor(Post);
         modelManager.addSchema(userSchema);
-        modelManager.init().then(function(){
-          should(userSchema.constructors.Person).eql(Person);
-          should(userSchema.constructors.Post).eql(Post);
-          done();
-        }).catch(function(err){
-          done(err);
-        });
+        await modelManager.init();
+
+        should(userSchema.constructors.Person).eql(Person);
+        should(userSchema.constructors.Post).eql(Post);
       });
-      it('should inject schemas into each schema', function (done) {
+      it('should inject schemas into each schema', async () => {
         var userSchema = new Schema({$name: 'user'});
         var orderSchema = new Schema({$name: 'order'});
 
@@ -140,42 +103,33 @@ describe('ModelManager', function () {
         var modelManager = new ModelManager();
         modelManager.addSchema(userSchema);
         modelManager.addSchema(orderSchema);
-        modelManager.init().then(function(){
-          should(userSchema.schemas.user).eql(userSchema);
-          should(userSchema.schemas.order).eql(orderSchema);
-          should(orderSchema.schemas.user).eql(userSchema);
-          should(orderSchema.schemas.order).eql(orderSchema);
-          done();
-        }).catch(function(err){
-          done(err);
-        });
+        await modelManager.init();
+
+        should(userSchema.schemas.user).eql(userSchema);
+        should(userSchema.schemas.order).eql(orderSchema);
+        should(orderSchema.schemas.user).eql(userSchema);
+        should(orderSchema.schemas.order).eql(orderSchema);
       });
-      it('should inject loaded constructors into schemas', function (done) {
+      it('should inject loaded constructors into schemas', async () => {
         var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
         should(modelManager.schemas.artist).be.Undefined();
-        modelManager.init().then(function(){
-          should(modelManager.schemas.artist.constructors.Artist).eql(modelManager.constructors.Artist);
-          should(modelManager.schemas.artist.constructors.Album).eql(modelManager.constructors.Album);
-          done();
-        }).catch(function(err){
-          done(err);
-        });
+        await modelManager.init();
+
+        should(modelManager.schemas.artist.constructors.Artist).eql(modelManager.constructors.Artist);
+        should(modelManager.schemas.artist.constructors.Album).eql(modelManager.constructors.Album);
       });
-      it('should inject loaded schemas into schemas', function (done) {
+      it('should inject loaded schemas into schemas', async () => {
         var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
         should(modelManager.schemas.artist).be.Undefined();
         should(modelManager.schemas.album).be.Undefined();
-        modelManager.init().then(function(){
-          should(modelManager.schemas.artist.schemas.artist).eql(modelManager.schemas.artist);
-          should(modelManager.schemas.artist.schemas.album).eql(modelManager.schemas.album);
-          done();
-        }).catch(function(err){
-          done(err);
-        });
+        await modelManager.init();
+
+        should(modelManager.schemas.artist.schemas.artist).eql(modelManager.schemas.artist);
+        should(modelManager.schemas.artist.schemas.album).eql(modelManager.schemas.album);
       });
     });
-    describe('initRepos()', function () {
-      it('should inject constructors into each repo', function (done) {
+    describe('initRepos()', function(){
+      it('should inject constructors into each repo', async () => {
         var Order = function() {};
         var Post = function() {};
         var userRepo = new Repo({name: 'user'});
@@ -187,15 +141,12 @@ describe('ModelManager', function () {
         modelManager.addConstructor(Order);
         modelManager.addConstructor(Post);
         modelManager.addRepo(userRepo);
-        modelManager.init().then(function(){
-          should(userRepo.constructors.Order).eql(Order);
-          should(userRepo.constructors.Post).eql(Post);
-          done();
-        }).catch(function(err){
-          done(err);
-        });
+        await modelManager.init();
+
+        should(userRepo.constructors.Order).eql(Order);
+        should(userRepo.constructors.Post).eql(Post);
       });
-      it('should inject schemas into each repo', function (done) {
+      it('should inject schemas into each repo', async () => {
         var userSchema = new Schema({$name: 'user'});
         var orderSchema = new Schema({$name: 'order'});
         var userRepo = new Repo({name: 'user'});
@@ -207,15 +158,12 @@ describe('ModelManager', function () {
         modelManager.addSchema(userSchema);
         modelManager.addSchema(orderSchema);
         modelManager.addRepo(userRepo);
-        modelManager.init().then(function(){
-          should(userRepo.schemas.user).eql(userSchema);
-          should(userRepo.schemas.order).eql(orderSchema);
-          done();
-        }).catch(function(err){
-          done(err);
-        });
+        await modelManager.init();
+
+        should(userRepo.schemas.user).eql(userSchema);
+        should(userRepo.schemas.order).eql(orderSchema);
       });
-      it('should inject repos into each repo', function (done) {
+      it('should inject repos into each repo', async () => {
         var userRepo = new Repo({name: 'user'});
         var orderRepo = new Repo({name: 'order'});
 
@@ -225,15 +173,12 @@ describe('ModelManager', function () {
         var modelManager = new ModelManager();
         modelManager.addRepo(userRepo);
         modelManager.addRepo(orderRepo);
-        modelManager.init().then(function(){
-          should(userRepo.repos.user).eql(userRepo);
-          should(userRepo.repos.order).eql(orderRepo);
-          done();
-        }).catch(function(err){
-          done(err);
-        });
+        await modelManager.init();
+
+        should(userRepo.repos.user).eql(userRepo);
+        should(userRepo.repos.order).eql(orderRepo);
       });
-      it('should inject services into each repo', function (done) {
+      it('should inject services into each repo', async () => {
         var orderService = new Service({name: 'order'});
         var signupService = new Service({name: 'signup'});
         var userRepo = new Repo({name: 'user'});
@@ -245,62 +190,47 @@ describe('ModelManager', function () {
         modelManager.addService(orderService);
         modelManager.addService(signupService);
         modelManager.addRepo(userRepo);
-        modelManager.init().then(function(){
-          should(userRepo.services.order).eql(orderService);
-          should(userRepo.services.signup).eql(signupService);
-          done();
-        }).catch(function(err){
-          done(err);
-        });
+        await modelManager.init();
+
+        should(userRepo.services.order).eql(orderService);
+        should(userRepo.services.signup).eql(signupService);
       });
-      it('should inject loaded constructors into repo', function (done) {
+      it('should inject loaded constructors into repo', async () => {
         var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
         should(modelManager.repos.artist).be.Undefined();
-        modelManager.init().then(function(){
-          should(modelManager.repos.artist.constructors.Album.name).eql('Album');
-          should(modelManager.repos.artist.constructors.Artist.name).eql('Artist');
-          done();
-        }).catch(function(err){
-          done(err);
-        });
+        await modelManager.init();
+
+        should(modelManager.repos.artist.constructors.Album.name).eql('Album');
+        should(modelManager.repos.artist.constructors.Artist.name).eql('Artist');
       });
-      it('should inject loaded schemas into repo', function (done) {
+      it('should inject loaded schemas into repo', async () => {
         var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
         should(modelManager.repos.artist).be.Undefined();
         should(modelManager.repos.album).be.Undefined();
-        modelManager.init().then(function(){
-          should(modelManager.repos.artist.schemas.artist).eql(modelManager.schemas.artist);
-          should(modelManager.repos.artist.schemas.album).eql(modelManager.schemas.album);
-          done();
-        }).catch(function(err){
-          done(err);
-        });
+        await modelManager.init();
+
+        should(modelManager.repos.artist.schemas.artist).eql(modelManager.schemas.artist);
+        should(modelManager.repos.artist.schemas.album).eql(modelManager.schemas.album);
       });
-      it('should inject loaded repos into each repo', function (done) {
+      it('should inject loaded repos into each repo', async () => {
         var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
         should(modelManager.repos.artist).be.Undefined();
         should(modelManager.repos.album).be.Undefined();
-        modelManager.init().then(function(){
-          should(modelManager.repos.artist.repos.album).eql(modelManager.repos.album);
-          done();
-        }).catch(function(err){
-          done(err);
-        });
+        await modelManager.init();
+        
+        should(modelManager.repos.artist.repos.album).eql(modelManager.repos.album);
       });
-      it('should inject loaded services into each repo', function (done) {
+      it('should inject loaded services into each repo', async () => {
         var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
         should(modelManager.repos.artist).be.Undefined();
         should(modelManager.services.artistSignup).be.Undefined();
-        modelManager.init().then(function(){
-          should(modelManager.repos.artist.services.artistSignup).eql(modelManager.services.artistSignup);
-          done();
-        }).catch(function(err){
-          done(err);
-        });
+        await modelManager.init();
+        
+        should(modelManager.repos.artist.services.artistSignup).eql(modelManager.services.artistSignup);
       });
     });
-    describe('initServices()', function () {
-      it('should inject repos into each service', function (done) {
+    describe('initServices()', function(){
+      it('should inject repos into each service', async () => {
         var person = new Repo({name: 'person'});
         var post = new Repo({name: 'post'});
         var checkoutService = new Service({name: 'checkout'});
@@ -312,15 +242,12 @@ describe('ModelManager', function () {
         modelManager.addRepo(person);
         modelManager.addRepo(post);
         modelManager.addService(checkoutService);
-        modelManager.init().then(function(){
-          should(checkoutService.repos.person).eql(person);
-          should(checkoutService.repos.post).eql(post);
-          done();
-        }).catch(function(err){
-          done(err);
-        });
+        await modelManager.init();
+
+        should(checkoutService.repos.person).eql(person);
+        should(checkoutService.repos.post).eql(post);
       });
-      it('should inject services into each service', function (done) {
+      it('should inject services into each service', async () => {
         var checkoutService = new Service({name: 'checkout'});
         var refundService = new Service({name: 'refund'});
 
@@ -332,36 +259,27 @@ describe('ModelManager', function () {
         var modelManager = new ModelManager();
         modelManager.addService(checkoutService);
         modelManager.addService(refundService);
-        modelManager.init().then(function(){
-          should(checkoutService.services.checkout).eql(checkoutService);
-          should(checkoutService.services.refund).eql(refundService);
-          should(refundService.services.checkout).eql(checkoutService);
-          should(refundService.services.refund).eql(refundService);
-          done();
-        }).catch(function(err){
-          done(err);
-        });
+        await modelManager.init();
+
+        should(checkoutService.services.checkout).eql(checkoutService);
+        should(checkoutService.services.refund).eql(refundService);
+        should(refundService.services.checkout).eql(checkoutService);
+        should(refundService.services.refund).eql(refundService);
       });
-      it('should inject loaded repos into each service', function (done) {
+      it('should inject loaded repos into each service', async () => {
         var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
         should(modelManager.repos.artist).be.Undefined();
         should(modelManager.services.artistSignup).be.Undefined();
-        modelManager.init().then(function(){
-          should(modelManager.services.artistSignup.repos.artist).eql(modelManager.repos.artist);
-          done();
-        }).catch(function(err){
-          done(err);
-        });
+        await modelManager.init();
+
+        should(modelManager.services.artistSignup.repos.artist).eql(modelManager.repos.artist);
       });
-      it('should inject loaded services into each service', function (done) {
+      it('should inject loaded services into each service', async () => {
         var modelManager = new ModelManager({modelDirs: [__dirname + '/../fixtures/model-manager']});
         should(modelManager.services.artistSignup).be.Undefined();
-        modelManager.init().then(function(){
-          should(modelManager.services.artistSignup.services.artistSignup).eql(modelManager.services.artistSignup);
-          done();
-        }).catch(function(err){
-          done(err);
-        });
+        await modelManager.init();
+        
+        should(modelManager.services.artistSignup.services.artistSignup).eql(modelManager.services.artistSignup);
       });
     });
   });
