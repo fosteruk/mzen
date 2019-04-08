@@ -3,9 +3,9 @@ import RepoPopulate from '../../../lib/repo-populate';
 import Repo from '../../../lib/repo';
 import MockDataSource from '../../../lib/data-source/mock';
 
-describe('RepoPopulate.belongsToOne', function () {
-  describe('belongsToOne()', function () {
-    it('should populate', function (done) {
+describe('RepoPopulate.belongsToOne', function(){
+  describe('belongsToOne()', function(){
+    it('should populate', async () => {
       var data = {
         artist: [
           {_id: '1', name: 'Radiohead', createdByUserId: '1'}
@@ -21,17 +21,14 @@ describe('RepoPopulate.belongsToOne', function () {
       user.dataSource = new MockDataSource(data);
       var repoPopulate = new RepoPopulate(user);
 
-      repoPopulate.belongsToOne(data.artist, {
+      var docs = await repoPopulate.belongsToOne(data.artist, {
         key: 'createdByUserId',
         alias: 'createdByUser'
-      }).then(function(docs){
-        should(docs[0].createdByUser.name).eql('Kevin Foster');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+   
+      should(docs[0].createdByUser.name).eql('Kevin Foster');
     });
-    it('should populate embedded', function (done) {
+    it('should populate embedded', async () => {
       var data = {
         product: [
           {_id: '1', detail: { more: {
@@ -55,19 +52,16 @@ describe('RepoPopulate.belongsToOne', function () {
       user.dataSource = new MockDataSource(data);
       var repoPopulate = new RepoPopulate(user);
 
-      repoPopulate.belongsToOne(data.product, {
+      var docs = await repoPopulate.belongsToOne(data.product, {
         docPath: 'detail.more',
         key: 'createdByUserId',
         alias: 'createdByUser'
-      }).then(function(docs){
-        should(docs[0].detail.more.createdByUser.name).eql('Kevin Foster');
-        should(docs[1].detail.more.createdByUser.name).eql('Tom Murphy');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+   
+      should(docs[0].detail.more.createdByUser.name).eql('Kevin Foster');
+      should(docs[1].detail.more.createdByUser.name).eql('Tom Murphy');
     });
-    it('should populate embedded array', function (done) {
+    it('should populate embedded array', async () => {
       var data = {
         product: [
           {_id: '1', detail: { more: [
@@ -93,19 +87,16 @@ describe('RepoPopulate.belongsToOne', function () {
       user.dataSource = new MockDataSource(data);
       var repoPopulate = new RepoPopulate(user);
 
-      repoPopulate.belongsToOne(data.product, {
+      var docs = await repoPopulate.belongsToOne(data.product, {
         docPath: 'detail.more.*',
         key: 'createdByUserId',
         alias: 'createdByUser'
-      }).then(function(docs){
-        should(docs[0].detail.more[0].createdByUser.name).eql('Kevin Foster');
-        should(docs[0].detail.more[1].createdByUser.name).eql('Tom Murphy');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+      
+      should(docs[0].detail.more[0].createdByUser.name).eql('Kevin Foster');
+      should(docs[0].detail.more[1].createdByUser.name).eql('Tom Murphy');
     });
-    it('should populate embedded wildcard path', function (done) {
+    it('should populate embedded wildcard path', async () => {
       var data = {
         product: [
           {some: {unknown: {path: {_id: 'a1', detail: { more:{
@@ -129,17 +120,14 @@ describe('RepoPopulate.belongsToOne', function () {
       user.dataSource = new MockDataSource(data);
       var repoPopulate = new RepoPopulate(user);
 
-      repoPopulate.belongsToOne(data.product, {
+      var docs = await repoPopulate.belongsToOne(data.product, {
         docPath: '*.*.*.detail.more',
         key: 'createdByUserId',
         alias: 'createdByUser'
-      }).then(function(docs){
-        should(docs[0].some.unknown.path.detail.more.createdByUser.name).eql('Kevin Foster');
-        should(docs[1].some.unknown.path.detail.more.createdByUser.name).eql('Tom Murphy');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+      
+      should(docs[0].some.unknown.path.detail.more.createdByUser.name).eql('Kevin Foster');
+      should(docs[1].some.unknown.path.detail.more.createdByUser.name).eql('Tom Murphy');
     });
   });
 });

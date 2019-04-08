@@ -5,7 +5,7 @@ import MockDataSource from '../../../lib/data-source/mock';
 
 describe('RepoPopulate.hasOne', function () {
   describe('hasOne()', function () {
-    it('should populate', function (done) {
+    it('should populate', async () => {
       var data = {
         userTimezone: [
           {_id: '1', userId: '9', name: 'Europe/London'}
@@ -21,17 +21,14 @@ describe('RepoPopulate.hasOne', function () {
       userTimezone.dataSource = new MockDataSource(data);
       var repoPopulate = new RepoPopulate(userTimezone);
 
-      repoPopulate.hasOne(data.user, {
+      var docs = await repoPopulate.hasOne(data.user, {
         key: 'userId',
         alias: 'timezone'
-      }).then(function(docs){
-        should(docs[0].timezone.name).eql('Europe/London');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+
+      should(docs[0].timezone.name).eql('Europe/London');
     });
-    it('should populate embedded', function (done) {
+    it('should populate embedded', async () => {
       var data = {
         forum: [
           {_id: 'ref12380', detail: {topPoster:
@@ -49,18 +46,15 @@ describe('RepoPopulate.hasOne', function () {
       userTimezone.dataSource = new MockDataSource(data);
       var repoPopulate = new RepoPopulate(userTimezone);
 
-      repoPopulate.hasOne(data.forum, {
+      var docs = await repoPopulate.hasOne(data.forum, {
         docPath: 'detail.topPoster',
         key: 'userId',
         alias: 'timezone'
-      }).then(function(docs){
-        should(docs[0].detail.topPoster.timezone.name).eql('Europe/London');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+
+      should(docs[0].detail.topPoster.timezone.name).eql('Europe/London');
     });
-    it('should populate embedded array', function (done) {
+    it('should populate embedded array', async () => {
       var data = {
         forum: [
           {_id: 'ref12380', detail: {topPosters: [
@@ -80,19 +74,16 @@ describe('RepoPopulate.hasOne', function () {
       userTimezone.dataSource = new MockDataSource(data);
       var repoPopulate = new RepoPopulate(userTimezone);
 
-      repoPopulate.hasOne(data.forum, {
+      var docs = await repoPopulate.hasOne(data.forum, {
         docPath: 'detail.topPosters.*',
         key: 'userId',
         alias: 'timezone'
-      }).then(function(docs){
-        should(docs[0].detail.topPosters[0].timezone.name).eql('Europe/London');
-        should(docs[0].detail.topPosters[1].timezone.name).eql('America/Toronto');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+      
+      should(docs[0].detail.topPosters[0].timezone.name).eql('Europe/London');
+      should(docs[0].detail.topPosters[1].timezone.name).eql('America/Toronto');
     });
-    it('should populate embedded wildcard path', function (done) {
+    it('should populate embedded wildcard path', async () => {
       var data = {
         forum: [
           {some: {unknown: {path: {_id: 'ref12380', detail: {topPoster:
@@ -110,16 +101,13 @@ describe('RepoPopulate.hasOne', function () {
       userTimezone.dataSource = new MockDataSource(data);
       var repoPopulate = new RepoPopulate(userTimezone);
 
-      repoPopulate.hasOne(data.forum, {
+      var docs = await repoPopulate.hasOne(data.forum, {
         docPath: '*.*.*.detail.topPoster',
         key: 'userId',
         alias: 'timezone'
-      }).then(function(docs){
-        should(docs[0].some.unknown.path.detail.topPoster.timezone.name).eql('Europe/London');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+
+      should(docs[0].some.unknown.path.detail.topPoster.timezone.name).eql('Europe/London');
     });
   });
 });

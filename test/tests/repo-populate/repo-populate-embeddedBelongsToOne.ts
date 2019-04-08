@@ -3,9 +3,9 @@ import RepoPopulate from '../../../lib/repo-populate';
 import Repo from '../../../lib/repo';
 import MockDataSource from '../../../lib/data-source/mock';
 
-describe('RepoPopulate.embeddedBelongsToOne', function () {
-  describe('embeddedBelongsToOne()', function () {
-    it('should populate', function (done) {
+describe('RepoPopulate.embeddedBelongsToOne', function(){
+  describe('embeddedBelongsToOne()', function(){
+    it('should populate', async () => {
       var data = {
         recordCompany: [{
           artists: [
@@ -31,19 +31,16 @@ describe('RepoPopulate.embeddedBelongsToOne', function () {
       var repoPopulate = new RepoPopulate(recordCompany);
 
       // See RepoPopulate.normalizeOptions() comments for descrption of relation options
-      repoPopulate.embeddedBelongsToOne(data.recordCompany, {
+      var docs = await repoPopulate.embeddedBelongsToOne(data.recordCompany, {
         docPath: 'artists.*',
         docPathRelated: 'albums.*',
         key: 'topAlbumId',
         alias: 'topAlbum'
-      }).then(function(docs){
-        should(docs[0].artists[0].topAlbum.name).eql('OK Computer');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+
+      should(docs[0].artists[0].topAlbum.name).eql('OK Computer');
     });
-    it('should populate array of docs', function (done) {
+    it('should populate array of docs', async () => {
       var data = {
         recordCompany: 
         [
@@ -87,18 +84,15 @@ describe('RepoPopulate.embeddedBelongsToOne', function () {
       var repoPopulate = new RepoPopulate(recordCompany);
 
       // See RepoPopulate.normalizeOptions() comments for descrption of relation options
-      repoPopulate.embeddedBelongsToOne(data.recordCompany, {
+      var docs = await repoPopulate.embeddedBelongsToOne(data.recordCompany, {
         docPath: 'artists.*',
         docPathRelated: 'albums.*',
         key: 'topAlbumId',
         alias: 'topAlbum'
-      }).then(function(docs){
-        should(docs[0].artists[0].topAlbum.name).eql('OK Computer');
-        should(docs[1].artists[0].topAlbum.name).eql('Amputechture');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+
+      should(docs[0].artists[0].topAlbum.name).eql('OK Computer');
+      should(docs[1].artists[0].topAlbum.name).eql('Amputechture');
     });
   });
 });

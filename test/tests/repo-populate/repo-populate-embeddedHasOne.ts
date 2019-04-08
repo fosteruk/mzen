@@ -3,9 +3,9 @@ import RepoPopulate from '../../../lib/repo-populate';
 import Repo from '../../../lib/repo';
 import MockDataSource from '../../../lib/data-source/mock';
 
-describe('RepoPopulate.embeddedHasOne', function () {
-  describe('embeddedHasOne()', function () {
-    it('should populate', function (done) {
+describe('RepoPopulate.embeddedHasOne', function(){
+  describe('embeddedHasOne()', function(){
+    it('should populate', async () => {
       var data = {
         docs: [
           {
@@ -26,19 +26,16 @@ describe('RepoPopulate.embeddedHasOne', function () {
       var repoPopulate = new RepoPopulate(doc);
 
       // See RepoPopulate.normalizeOptions() comments for descrption of relation options
-      repoPopulate.embeddedHasOne(data.docs, {
+      var docs = await repoPopulate.embeddedHasOne(data.docs, {
         docPath: 'user.*',
         docPathRelated: 'userTimezone.*',
         key: 'userId',
         alias: 'timezone'
-      }).then(function(docs){
-        should(docs[0].user[0].timezone.name).eql('Europe/London');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+      
+      should(docs[0].user[0].timezone.name).eql('Europe/London');
     });
-    it('should populate array of docs', function (done) {
+    it('should populate array of docs', async () => {
       var data = {
         docs: [
           {
@@ -67,18 +64,15 @@ describe('RepoPopulate.embeddedHasOne', function () {
       var repoPopulate = new RepoPopulate(doc);
 
       // See RepoPopulate.normalizeOptions() comments for descrption of relation options
-      repoPopulate.embeddedHasOne(data.docs, {
+      var docs = await repoPopulate.embeddedHasOne(data.docs, {
         docPath: 'user.*',
         docPathRelated: 'userTimezone.*',
         key: 'userId',
         alias: 'timezone'
-      }).then(function(docs){
-        should(docs[0].user[0].timezone.name).eql('Europe/London');
-        should(docs[1].user[0].timezone.name).eql('Asia/Kuala_Lumpur');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+      
+      should(docs[0].user[0].timezone.name).eql('Europe/London');
+      should(docs[1].user[0].timezone.name).eql('Asia/Kuala_Lumpur');
     });
   });
 });

@@ -3,9 +3,9 @@ import RepoPopulate from '../../../lib/repo-populate';
 import Repo from '../../../lib/repo';
 import MockDataSource from '../../../lib/data-source/mock';
 
-describe('RepoPopulate.belongsToMany', function () {
-  describe('belongsToMany()', function () {
-    it('should populate', function (done) {
+describe('RepoPopulate.belongsToMany', function(){
+  describe('belongsToMany()', function(){
+    it('should populate', async () => {
       var data = {
         person: [
           {_id: '1', name: 'Kevin Foster', favouriteColorIds: ['1', '5']}
@@ -25,18 +25,15 @@ describe('RepoPopulate.belongsToMany', function () {
       color.dataSource = new MockDataSource(data);
       var repoPopulate = new RepoPopulate(color);
 
-      repoPopulate.belongsToMany(data.person, {
+      var docs = await repoPopulate.belongsToMany(data.person, {
         key: 'favouriteColorIds',
         alias: 'favouriteColors'
-      }).then(function(docs){
-        should(docs[0].favouriteColors[0].name).eql('Red');
-        should(docs[0].favouriteColors[1].name).eql('Green');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+ 
+      should(docs[0].favouriteColors[0].name).eql('Red');
+      should(docs[0].favouriteColors[1].name).eql('Green');
     });
-    it('should populate embeded', function (done) {
+    it('should populate embeded', async () => {
       var data = {
         person: [
           {_id: '1', name: 'Kevin Foster', about: {trivia: {favouriteColorIds: ['1', '5']}}}
@@ -57,19 +54,16 @@ describe('RepoPopulate.belongsToMany', function () {
 
       var repoPopulate = new RepoPopulate(color);
 
-      repoPopulate.belongsToMany(data.person, {
+      var docs = await repoPopulate.belongsToMany(data.person, {
         docPath: 'about.trivia',
         key: 'favouriteColorIds',
         alias: 'favouriteColors'
-      }).then(function(docs){
-        should(docs[0].about.trivia.favouriteColors[0].name).eql('Red');
-        should(docs[0].about.trivia.favouriteColors[1].name).eql('Green');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+      
+      should(docs[0].about.trivia.favouriteColors[0].name).eql('Red');
+      should(docs[0].about.trivia.favouriteColors[1].name).eql('Green');
     });
-    it('should populate embeded array', function (done) {
+    it('should populate embeded array', async () => {
       var data = {
         person: [
           {_id: '1', name: 'Kevin Foster', about: {trivia: [
@@ -93,21 +87,18 @@ describe('RepoPopulate.belongsToMany', function () {
       
       var repoPopulate = new RepoPopulate(color);
 
-      repoPopulate.belongsToMany(data.person, {
+      var docs = await repoPopulate.belongsToMany(data.person, {
         docPath: 'about.trivia.*',
         key: 'favouriteColorIds',
         alias: 'favouriteColors'
-      }).then(function(docs){
-        should(docs[0].about.trivia[0].favouriteColors[0].name).eql('Red');
-        should(docs[0].about.trivia[0].favouriteColors[1].name).eql('Green');
-        should(docs[0].about.trivia[1].favouriteColors[0].name).eql('Orange');
-        should(docs[0].about.trivia[1].favouriteColors[1].name).eql('Blue');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+
+      should(docs[0].about.trivia[0].favouriteColors[0].name).eql('Red');
+      should(docs[0].about.trivia[0].favouriteColors[1].name).eql('Green');
+      should(docs[0].about.trivia[1].favouriteColors[0].name).eql('Orange');
+      should(docs[0].about.trivia[1].favouriteColors[1].name).eql('Blue');
     });
-    it('should populate embeded wildcard path', function (done) {
+    it('should populate embeded wildcard path', async () => {
       var data = {
         person: [
           {_id: '1', name: 'Kevin Foster', about: {unknown: {path: {trivia: {favouriteColorIds: ['1', '5']}}}}}
@@ -128,17 +119,14 @@ describe('RepoPopulate.belongsToMany', function () {
       
       var repoPopulate = new RepoPopulate(color);
 
-      repoPopulate.belongsToMany(data.person, {
+      var docs = await repoPopulate.belongsToMany(data.person, {
         docPath: 'about.*.*.trivia',
         key: 'favouriteColorIds',
         alias: 'favouriteColors'
-      }).then(function(docs){
-        should(docs[0].about.unknown.path.trivia.favouriteColors[0].name).eql('Red');
-        should(docs[0].about.unknown.path.trivia.favouriteColors[1].name).eql('Green');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+      
+      should(docs[0].about.unknown.path.trivia.favouriteColors[0].name).eql('Red');
+      should(docs[0].about.unknown.path.trivia.favouriteColors[1].name).eql('Green');
     });
   });
 });

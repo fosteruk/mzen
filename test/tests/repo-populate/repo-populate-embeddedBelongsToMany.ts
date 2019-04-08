@@ -3,9 +3,9 @@ import RepoPopulate from '../../../lib/repo-populate';
 import Repo from '../../../lib/repo';
 import MockDataSource from '../../../lib/data-source/mock';
 
-describe('RepoPopulate.embeddedBelongsToMany', function () {
-  describe('embeddedBelongsToMany()', function () {
-    it('should populate', function (done) {
+describe('RepoPopulate.embeddedBelongsToMany', function(){
+  describe('embeddedBelongsToMany()', function(){
+    it('should populate', async () => {
       var data = {
         recordCompany: [{
           artists: [
@@ -31,23 +31,20 @@ describe('RepoPopulate.embeddedBelongsToMany', function () {
       var repoPopulate = new RepoPopulate(recordCompany);
 
       // See RepoPopulate.normalizeOptions() comments for descrption of relation options
-      repoPopulate.embeddedBelongsToMany(data.recordCompany, {
+      var docs = await repoPopulate.embeddedBelongsToMany(data.recordCompany, {
         docPath: 'artists.*',
         docPathRelated: 'albums.*',
         key: 'albumIds',
         alias: 'albums'
-      }).then(function(docs){
-        //console.log(JSON.stringify(docs, null, 2));
-        should(docs[0].artists[0].albums[0].name).eql('Pablo Honey');
-        should(docs[0].artists[0].albums[1].name).eql('The Bends');
-        should(docs[0].artists[0].albums[2].name).eql('OK Computer');
-        should(docs[0].artists[0].albums[3].name).eql('Kid A');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+
+      //console.log(JSON.stringify(docs, null, 2));
+      should(docs[0].artists[0].albums[0].name).eql('Pablo Honey');
+      should(docs[0].artists[0].albums[1].name).eql('The Bends');
+      should(docs[0].artists[0].albums[2].name).eql('OK Computer');
+      should(docs[0].artists[0].albums[3].name).eql('Kid A');
     });
-    it('should populate array of docs', function (done) {
+    it('should populate array of docs', async () => {
       var data = {
         recordCompany: 
         [
@@ -91,26 +88,23 @@ describe('RepoPopulate.embeddedBelongsToMany', function () {
       var repoPopulate = new RepoPopulate(recordCompany);
 
       // See RepoPopulate.normalizeOptions() comments for descrption of relation options
-      repoPopulate.embeddedBelongsToMany(data.recordCompany, {
+      var docs = await repoPopulate.embeddedBelongsToMany(data.recordCompany, {
         docPath: 'artists.*',
         docPathRelated: 'albums.*',
         key: 'albumIds',
         alias: 'albums'
-      }).then(function(docs){
-        should(docs[0].artists[0].albums.length).eql(4);
-        should(docs[0].artists[0].albums[0].name).eql('Pablo Honey');
-        should(docs[0].artists[0].albums[1].name).eql('The Bends');
-        should(docs[0].artists[0].albums[2].name).eql('OK Computer');
-        should(docs[0].artists[0].albums[3].name).eql('Kid A');
-        should(docs[1].artists[0].albums.length).eql(4);
-        should(docs[1].artists[0].albums[0].name).eql('De-Loused in the Comatorium');
-        should(docs[1].artists[0].albums[1].name).eql('Frances the Mute');
-        should(docs[1].artists[0].albums[2].name).eql('Amputechture');
-        should(docs[1].artists[0].albums[3].name).eql('The Bedlam in Goliath');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+      
+      should(docs[0].artists[0].albums.length).eql(4);
+      should(docs[0].artists[0].albums[0].name).eql('Pablo Honey');
+      should(docs[0].artists[0].albums[1].name).eql('The Bends');
+      should(docs[0].artists[0].albums[2].name).eql('OK Computer');
+      should(docs[0].artists[0].albums[3].name).eql('Kid A');
+      should(docs[1].artists[0].albums.length).eql(4);
+      should(docs[1].artists[0].albums[0].name).eql('De-Loused in the Comatorium');
+      should(docs[1].artists[0].albums[1].name).eql('Frances the Mute');
+      should(docs[1].artists[0].albums[2].name).eql('Amputechture');
+      should(docs[1].artists[0].albums[3].name).eql('The Bedlam in Goliath');
     });
   });
 });

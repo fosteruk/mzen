@@ -3,9 +3,9 @@ import RepoPopulate from '../../../lib/repo-populate';
 import Repo from '../../../lib/repo';
 import MockDataSource from '../../../lib/data-source/mock';
 
-describe('RepoPopulate.hasMany', function () {
-  describe('hasMany()', function () {
-    it('should populate', function (done) {
+describe('RepoPopulate.hasMany', function(){
+  describe('hasMany()', function(){
+    it('should populate', async () => {
       var data = {
         artist: [
           {_id: '1', name: 'Radiohead'}
@@ -24,20 +24,17 @@ describe('RepoPopulate.hasMany', function () {
       album.dataSource = new MockDataSource(data);
       var repoPopulate = new RepoPopulate(album);
 
-      repoPopulate.hasMany(data.artist,{
+      var docs = await repoPopulate.hasMany(data.artist, {
         key: 'artistId',
         alias: 'albums'
-      }).then(function(docs){
-        should(docs[0].albums[0].name).eql('Pablo Honey');
-        should(docs[0].albums[1].name).eql('The Bends');
-        should(docs[0].albums[2].name).eql('OK Computer');
-        should(docs[0].albums[3].name).eql('Kid A');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+      
+      should(docs[0].albums[0].name).eql('Pablo Honey');
+      should(docs[0].albums[1].name).eql('The Bends');
+      should(docs[0].albums[2].name).eql('OK Computer');
+      should(docs[0].albums[3].name).eql('Kid A');
     });
-    it('should populate embedded', function (done) {
+    it('should populate embedded', async () => {
       var data = {
         recordCompanies: [
           {_id: 'r234', name: 'EMI', detail: { topArtist:
@@ -58,21 +55,18 @@ describe('RepoPopulate.hasMany', function () {
       album.dataSource = new MockDataSource(data);
       var repoPopulate = new RepoPopulate(album);
 
-      repoPopulate.hasMany(data.recordCompanies, {
+      var docs = await repoPopulate.hasMany(data.recordCompanies, {
         docPath: 'detail.topArtist',
         key: 'artistId',
         alias: 'albums'
-      }).then(function(docs){
-        should(docs[0].detail.topArtist.albums[0].name).eql('Pablo Honey');
-        should(docs[0].detail.topArtist.albums[1].name).eql('The Bends');
-        should(docs[0].detail.topArtist.albums[2].name).eql('OK Computer');
-        should(docs[0].detail.topArtist.albums[3].name).eql('Kid A');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+
+      should(docs[0].detail.topArtist.albums[0].name).eql('Pablo Honey');
+      should(docs[0].detail.topArtist.albums[1].name).eql('The Bends');
+      should(docs[0].detail.topArtist.albums[2].name).eql('OK Computer');
+      should(docs[0].detail.topArtist.albums[3].name).eql('Kid A');
     });
-    it('should populate embedded array', function (done) {
+    it('should populate embedded array', async () => {
       var data = {
         recordCompanies: [
           {_id: 'r234', name: 'EMI', detail: { topArtists: [
@@ -99,26 +93,23 @@ describe('RepoPopulate.hasMany', function () {
       album.dataSource = new MockDataSource(data);
       var repoPopulate = new RepoPopulate(album);
 
-      repoPopulate.hasMany(data.recordCompanies,{
+      var docs = await repoPopulate.hasMany(data.recordCompanies,{
         docPath: 'detail.topArtists.*',
         key: 'artistId',
         alias: 'albums'
-      }).then(function(docs){
-        should(docs[0].detail.topArtists[0].albums[0].name).eql('Pablo Honey');
-        should(docs[0].detail.topArtists[0].albums[1].name).eql('The Bends');
-        should(docs[0].detail.topArtists[0].albums[2].name).eql('OK Computer');
-        should(docs[0].detail.topArtists[0].albums[3].name).eql('Kid A');
-
-        should(docs[0].detail.topArtists[1].albums[0].name).eql('Amputechture');
-        should(docs[0].detail.topArtists[1].albums[1].name).eql('The Bedlam in Goliath');
-        should(docs[0].detail.topArtists[1].albums[2].name).eql('Octahedron');
-        should(docs[0].detail.topArtists[1].albums[3].name).eql('Noctourniquet');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+      
+      should(docs[0].detail.topArtists[0].albums[0].name).eql('Pablo Honey');
+      should(docs[0].detail.topArtists[0].albums[1].name).eql('The Bends');
+      should(docs[0].detail.topArtists[0].albums[2].name).eql('OK Computer');
+      should(docs[0].detail.topArtists[0].albums[3].name).eql('Kid A');
+
+      should(docs[0].detail.topArtists[1].albums[0].name).eql('Amputechture');
+      should(docs[0].detail.topArtists[1].albums[1].name).eql('The Bedlam in Goliath');
+      should(docs[0].detail.topArtists[1].albums[2].name).eql('Octahedron');
+      should(docs[0].detail.topArtists[1].albums[3].name).eql('Noctourniquet');
     });
-    it('should populate embedded wildcard path', function (done) {
+    it('should populate embedded wildcard path', async () => {
       var data = {
         recordCompanies: [
           {some: {unknown: {path: {_id: 'r234', name: 'EMI', detail: { topArtist:
@@ -139,19 +130,16 @@ describe('RepoPopulate.hasMany', function () {
       album.dataSource = new MockDataSource(data);
       var repoPopulate = new RepoPopulate(album);
 
-      repoPopulate.hasMany(data.recordCompanies,{
+      var docs = await repoPopulate.hasMany(data.recordCompanies,{
         docPath: '*.*.*.detail.topArtist',
         key: 'artistId',
         alias: 'albums'
-      }).then(function(docs){
-        should(docs[0].some.unknown.path.detail.topArtist.albums[0].name).eql('Pablo Honey');
-        should(docs[0].some.unknown.path.detail.topArtist.albums[1].name).eql('The Bends');
-        should(docs[0].some.unknown.path.detail.topArtist.albums[2].name).eql('OK Computer');
-        should(docs[0].some.unknown.path.detail.topArtist.albums[3].name).eql('Kid A');
-        done();
-      }).catch(function(err){
-        done(err);
       });
+
+      should(docs[0].some.unknown.path.detail.topArtist.albums[0].name).eql('Pablo Honey');
+      should(docs[0].some.unknown.path.detail.topArtist.albums[1].name).eql('The Bends');
+      should(docs[0].some.unknown.path.detail.topArtist.albums[2].name).eql('OK Computer');
+      should(docs[0].some.unknown.path.detail.topArtist.albums[3].name).eql('Kid A');
     });
   });
 });
