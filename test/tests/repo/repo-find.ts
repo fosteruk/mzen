@@ -2,9 +2,9 @@ import should = require('should');
 import Repo from '../../../lib/repo';
 import MockDataSource from '../../../lib/data-source/mock';
 
-describe('Repo', function () {
-  describe('find()', function () {
-    it('should find queried data', function (done) {
+describe('Repo', function(){
+  describe('find()', function(){
+    it('should find queried data', async () => {
       var data = {
         user: [
           {_id: '1', name: 'Kevin Foster'},
@@ -17,16 +17,11 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource(data);
 
-      user.find({})
-      .then(function(docs){
-        should(docs[0].name).eql('Kevin Foster');
-        should(docs[1].name).eql('Tom Murphy');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await user.find();
+      should(docs[0].name).eql('Kevin Foster');
+      should(docs[1].name).eql('Tom Murphy');
     });
-    it('should populate hasOne relation', function (done) {
+    it('should populate hasOne relation', async () => {
       var data = {
         userTimezone: [
           {_id: '1', userId: '1', name: 'Europe/London'}
@@ -57,16 +52,11 @@ describe('Repo', function () {
       userTimezone.dataSource = dataSource;
       user.repos['userTimezone'] = userTimezone;
 
-      user.find({})
-      .then(function(docs){
-        should(docs[0].name).eql('Kevin Foster');
-        should(docs[0].userTimezone.name).eql('Europe/London');
-        done();
-      }).catch(function(err){
-        done(err)
-      });
+      var docs = await user.find();
+      should(docs[0].name).eql('Kevin Foster');
+      should(docs[0].userTimezone.name).eql('Europe/London');
     });
-    it('should populate belongsTo relation', function (done) {
+    it('should populate belongsTo relation', async () => {
       var data = {
         userTimezone: [
           {_id: '1',  name: 'Europe/London'}
@@ -96,16 +86,11 @@ describe('Repo', function () {
       userTimezone.dataSource = dataSource;
       user.repos['userTimezone'] = userTimezone;
 
-      user.find({})
-      .then(function(docs){
-        should(docs[0].name).eql('Kevin Foster');
-        should(docs[0].userTimezone.name).eql('Europe/London');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await user.find();
+      should(docs[0].name).eql('Kevin Foster');
+      should(docs[0].userTimezone.name).eql('Europe/London');
     });
-    it('should populate hasMany relation', function (done) {
+    it('should populate hasMany relation', async () => {
       var data = {
         artist: [
           {_id: '1', name: 'Radiohead'}
@@ -138,18 +123,13 @@ describe('Repo', function () {
       album.dataSource = dataSource;
       artist.repos['album'] = album;
 
-      artist.find({})
-      .then(function(docs){
-        should(docs[0].albums[0].name).eql('Pablo Honey');
-        should(docs[0].albums[1].name).eql('The Bends');
-        should(docs[0].albums[2].name).eql('OK Computer');
-        should(docs[0].albums[3].name).eql('Kid A');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await artist.find();
+      should(docs[0].albums[0].name).eql('Pablo Honey');
+      should(docs[0].albums[1].name).eql('The Bends');
+      should(docs[0].albums[2].name).eql('OK Computer');
+      should(docs[0].albums[3].name).eql('Kid A');
     });
-    it('should populate hasOne relation with query option', function (done) {
+    it('should populate hasOne relation with query option', async () => {
       var data = {
         userTimezone: [
           {_id: '1', userId: '1', name: 'Europe/London Deleted', deleted: 1},
@@ -182,17 +162,12 @@ describe('Repo', function () {
       userTimezoneRepo.dataSource = dataSource;
       userRepo.repos['userTimezone'] = userTimezoneRepo;
 
-      userRepo.find({})
-      .then(function(docs){
-        should(docs[0].name).eql('Kevin Foster');
-        should(docs[0].userTimezone.name).eql('Europe/London');
-        should(docs[0].userTimezone.deleted).eql(0);
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await userRepo.find();
+      should(docs[0].name).eql('Kevin Foster');
+      should(docs[0].userTimezone.name).eql('Europe/London');
+      should(docs[0].userTimezone.deleted).eql(0);
     });
-    it('should populate hasMany relation with query option', function (done) {
+    it('should populate hasMany relation with query option', async () => {
       var data = {
         artist: [
           {_id: '1', name: 'Radiohead'}
@@ -226,18 +201,13 @@ describe('Repo', function () {
       album.dataSource = dataSource;
       artist.repos['album'] = album;
 
-      artist.find({})
-      .then(function(docs){
-        should(docs[0].albums[0].name).eql('Pablo Honey');
-        //should(docs[0].albums[1].name).eql('The Bends'); // this wont appear because doesnt match query option
-        should(docs[0].albums[1].name).eql('OK Computer');
-        should(docs[0].albums[2].name).eql('Kid A');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await artist.find();
+      should(docs[0].albums[0].name).eql('Pablo Honey');
+      //should(docs[0].albums[1].name).eql('The Bends'); // this wont appear because doesnt match query option
+      should(docs[0].albums[1].name).eql('OK Computer');
+      should(docs[0].albums[2].name).eql('Kid A');
     });
-    it('should populate self relation with one level of recursion only', function (done) {
+    it('should populate self relation with one level of recursion only', async () => {
       var data = {
         user: [
           {_id: '1', name: 'Kevin'},
@@ -266,23 +236,19 @@ describe('Repo', function () {
       user.dataSource = new MockDataSource(data);
       user.repos['user'] = user;
 
-      user.find({}).then(function(docs){
-        should(docs[0].name).eql('Kevin');
-        should(docs[0].referer).eql(undefined);
-        should(docs[0].referred[0].name).eql('Tom');
-        should(docs[0].referred[0].referer).eql(undefined);
-        should(docs[0].referred[1].name).eql('Sarah');
-        should(docs[0].referred[1].referer).eql(undefined);
-        should(docs[1].name).eql('Tom');
-        should(docs[1].referer.name).eql('Kevin');
-        should(docs[2].name).eql('Sarah');
-        should(docs[2].referer.name).eql('Kevin');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await user.find();
+      should(docs[0].name).eql('Kevin');
+      should(docs[0].referer).eql(undefined);
+      should(docs[0].referred[0].name).eql('Tom');
+      should(docs[0].referred[0].referer).eql(undefined);
+      should(docs[0].referred[1].name).eql('Sarah');
+      should(docs[0].referred[1].referer).eql(undefined);
+      should(docs[1].name).eql('Tom');
+      should(docs[1].referer.name).eql('Kevin');
+      should(docs[2].name).eql('Sarah');
+      should(docs[2].referer.name).eql('Kevin');
     });
-    it('should return entity objects if entity constructor specified in repo schema', function (done) {
+    it('should return entity objects if entity constructor specified in repo schema', async () => {
       var data = {
         user: [
           {_id: '1', name_first: 'Kevin', name_last: 'Foster'},
@@ -305,17 +271,12 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource(data);
 
-      user.find({})
-      .then(function(docs){
-        should(docs[0].getFullname).be.type('function');
-        should(docs[0].getFullname()).eql('Kevin Foster');
-        should(docs[1].getFullname()).eql('Tom Murphy');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await user.find();
+      should(docs[0].getFullname).be.type('function');
+      should(docs[0].getFullname()).eql('Kevin Foster');
+      should(docs[1].getFullname()).eql('Tom Murphy');
     });
-    it('should return entity objects if entity constructor specified in relation repo schema', function (done) {
+    it('should return entity objects if entity constructor specified in relation repo schema', async () => {
       var data = {
         userTimezone: [
           {_id: '1', name: 'Europe/London'}
@@ -355,16 +316,11 @@ describe('Repo', function () {
       userTimezoneRepo.dataSource = dataSource;
       userRepo.repos['userTimezone'] = userTimezoneRepo;
 
-      userRepo.find({})
-      .then(function(docs){
-        should(docs[0].userTimezone.getName).be.type('function');
-        should(docs[0].userTimezone.getName()).eql('Europe/London');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await userRepo.find();
+      should(docs[0].userTimezone.getName).be.type('function');
+      should(docs[0].userTimezone.getName()).eql('Europe/London');
     });
-    it('should return entity objects if entity constructor specified by relation of relation schema', function (done) {
+    it('should return entity objects if entity constructor specified by relation of relation schema', async () => {
       var data = {
         country: [
           {_id: '1', name: 'United Kingdom'}
@@ -422,16 +378,11 @@ describe('Repo', function () {
       timezoneRepo.repos['country'] = countryRepo;
       userRepo.repos['country'] = countryRepo;
 
-      userRepo.find({})
-      .then(function(docs){
-        should(docs[0].timezone.country.getName).be.type('function');
-        should(docs[0].timezone.country.getName()).eql('United Kingdom Country');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await userRepo.find();
+      should(docs[0].timezone.country.getName).be.type('function');
+      should(docs[0].timezone.country.getName()).eql('United Kingdom Country');
     });
-    it('should return embedded entity objects if embedded constructor specified in repo schema', function (done) {
+    it('should return embedded entity objects if embedded constructor specified in repo schema', async () => {
       var data = {
         user: [
           {
@@ -471,17 +422,12 @@ describe('Repo', function () {
       });
       user.dataSource = new MockDataSource(data);
 
-      user.find({})
-      .then(function(docs){
-        should(docs[0].contact.getAddress).be.type('function');
-        should(docs[0].contact.getAddress()).eql('123 Picton Road (@)');
-        should(docs[1].contact.getAddress()).eql('5 Marina Tower (@)');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await user.find();
+      should(docs[0].contact.getAddress).be.type('function');
+      should(docs[0].contact.getAddress()).eql('123 Picton Road (@)');
+      should(docs[1].contact.getAddress()).eql('5 Marina Tower (@)');
     });
-    it('should return deep embedded entity objects if embedded constructor specified in repo schema', function (done) {
+    it('should return deep embedded entity objects if embedded constructor specified in repo schema', async () => {
       var data = {
         website: [
           {
@@ -531,17 +477,12 @@ describe('Repo', function () {
       });
       website.dataSource = new MockDataSource(data);
 
-      website.find({})
-      .then(function(docs){
-        should(docs[0].users[0].contact.getAddress).be.type('function');
-        should(docs[0].users[0].contact.getAddress()).eql('123 Picton Road (@)');
-        should(docs[0].users[1].contact.getAddress()).eql('5 Marina Tower (@)');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await website.find();
+      should(docs[0].users[0].contact.getAddress).be.type('function');
+      should(docs[0].users[0].contact.getAddress()).eql('123 Picton Road (@)');
+      should(docs[0].users[1].contact.getAddress()).eql('5 Marina Tower (@)');
     });
-    it('should allow relation to be enabled via populate option', function (done) {
+    it('should allow relation to be enabled via populate option', async () => {
       var data = {
         userTimezone: [
           {_id: '1', name: 'Europe/London'}
@@ -572,14 +513,10 @@ describe('Repo', function () {
       userTimezoneRepo.dataSource = dataSource;
       userRepo.repos['userTimezone'] = userTimezoneRepo;
 
-      userRepo.find({}, {populate: {userTimezone: true}}).then(function(docs){
-        should(docs[0].userTimezone.name).eql('Europe/London');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await userRepo.find({}, {populate: {userTimezone: true}});
+      should(docs[0].userTimezone.name).eql('Europe/London');
     });
-    it('should allow relation to be disabled via populate option', function (done) {
+    it('should allow relation to be disabled via populate option', async () => {
       var data = {
         userTimezone: [
           {_id: '1', name: 'Europe/London'}
@@ -610,14 +547,10 @@ describe('Repo', function () {
       userTimezoneRepo.dataSource = dataSource;
       userRepo.repos['userTimezone'] = userTimezoneRepo;
 
-      userRepo.find({}, {populate: {userTimezone: false}}).then(function(docs){
-        should(docs[0].userTimezone).be.type('undefined');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await userRepo.find({}, {populate: {userTimezone: false}});
+      should(docs[0].userTimezone).be.type('undefined');
     });
-    it('should allow nested relation to be enabled via populate option', function (done){
+    it('should allow nested relation to be enabled via populate option', async () => {
       var data = {
         country: [
           {_id: '1', name: 'UK'}
@@ -668,15 +601,11 @@ describe('Repo', function () {
       userTimezoneRepo.repos['country'] = countryRepo;
       userRepo.repos['country'] = countryRepo;
 
-      userRepo.find({}, {populate: {'userTimezone.country': true}}).then(function(docs){
-        should(docs[0].userTimezone.name).eql('Europe/London');
-        should(docs[0].userTimezone.country.name).eql('UK');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await userRepo.find({}, {populate: {'userTimezone.country': true}});
+      should(docs[0].userTimezone.name).eql('Europe/London');
+      should(docs[0].userTimezone.country.name).eql('UK');
     });
-    it('should allow nested relation to be disabled via populate option', function (done){
+    it('should allow nested relation to be disabled via populate option', async () => {
       var data = {
         country: [
           {_id: '1', name: 'UK'}
@@ -727,15 +656,11 @@ describe('Repo', function () {
       userTimezoneRepo.repos['country'] = countryRepo;
       userRepo.repos['country'] = countryRepo;
 
-      userRepo.find({}, {populate: {'userTimezone.country': false}}).then(function(docs){
-        should(docs[0].userTimezone.name).eql('Europe/London');
-        should(docs[0].userTimezone.country).be.type('undefined');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await userRepo.find({}, {populate: {'userTimezone.country': false}});
+      should(docs[0].userTimezone.name).eql('Europe/London');
+      should(docs[0].userTimezone.country).be.type('undefined');
     });
-    it('should not recurse relations by default', function (done){
+    it('should not recurse relations by default', async () => {
       var data = {
         mother: [
           {_id: '1', name: 'Alison'}
@@ -773,20 +698,16 @@ describe('Repo', function () {
         }
       });
       childRepo.dataSource = dataSource;
-      childRepo.repos['mother'] = motherRepo;
-      motherRepo.repos['child'] = childRepo;
+      childRepo.repos.mother = motherRepo;
+      motherRepo.repos.child = childRepo;
 
-      motherRepo.find({}).then(function(docs){
-        should(docs[0].name).eql('Alison');
-        should(docs[0].children[0].name).eql('Kevin');
-        should(docs[0].children[0].mother.name).eql('Alison');
-        should(docs[0].children[0].mother.children).be.type('undefined');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await motherRepo.find();
+      should(docs[0].name).eql('Alison');
+      should(docs[0].children[0].name).eql('Kevin');
+      should(docs[0].children[0].mother.name).eql('Alison');
+      should(docs[0].children[0].mother.children).be.type('undefined');
     });
-    it('should recurse relation up to recursion config value 1', function (done){
+    it('should recurse relation up to recursion config value 1', async () => {
       var data = {
         mother: [
           {_id: '1', name: 'Alison'}
@@ -825,21 +746,17 @@ describe('Repo', function () {
         }
       });
       childRepo.dataSource = dataSource;
-      childRepo.repos['mother'] = motherRepo;
-      motherRepo.repos['child'] = childRepo;
+      childRepo.repos.mother = motherRepo;
+      motherRepo.repos.child = childRepo;
 
-      motherRepo.find({}).then(function(docs){
-        should(docs[0].name).eql('Alison');
-        should(docs[0].children[0].name).eql('Kevin');
-        should(docs[0].children[0].mother.name).eql('Alison');
-        should(docs[0].children[0].mother.children[0].name).eql('Kevin');
-        should(docs[0].children[0].mother.children[0].mother).be.type('undefined');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await motherRepo.find();
+      should(docs[0].name).eql('Alison');
+      should(docs[0].children[0].name).eql('Kevin');
+      should(docs[0].children[0].mother.name).eql('Alison');
+      should(docs[0].children[0].mother.children[0].name).eql('Kevin');
+      should(docs[0].children[0].mother.children[0].mother).be.type('undefined');
     });
-    it('should load relation by performing one query per document if limit option was specified', function (done){
+    it('should load relation by performing one query per document if limit option was specified', async () => {
       var data = {
         mother: [
           {_id: '5', name: 'Alison'},
@@ -875,20 +792,16 @@ describe('Repo', function () {
         name: 'child'
       });
       childRepo.dataSource = dataSource;
-      motherRepo.repos['child'] = childRepo;
+      motherRepo.repos.child = childRepo;
 
-      motherRepo.find({}).then(function(docs){
-        // Query count should be 3
-        // - 1 for the initial find query and then 2 for populating relations
-        should(dataSource.queryCount).eql(3);
-        should(docs[0].children.length).eql(1);
-        should(docs[1].children.length).eql(1);
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await motherRepo.find();
+      // Query count should be 3
+      // - 1 for the initial find query and then 2 for populating relations
+      should(dataSource.queryCount).eql(3);
+      should(docs[0].children.length).eql(1);
+      should(docs[1].children.length).eql(1);
     });
-    it('should filter field fields via filterPrivateFields option', function (done){
+    it('should filter field fields via filterPrivateFields option', async () => {
       var data = {
         user: [
           {_id: '1', name: 'Alison', password: 'Abc'},
@@ -903,17 +816,13 @@ describe('Repo', function () {
       });
       repo.dataSource = dataSource;
 
-      repo.find({}, {filterPrivate: true}).then(function(docs){
-        should(docs[0].name).eql('Alison');
-        should(docs[0].password).eql(undefined);
-        should(docs[1].name).eql('Gina');
-        should(docs[1].password).eql(undefined);
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await repo.find({}, {filterPrivate: true});
+      should(docs[0].name).eql('Alison');
+      should(docs[0].password).eql(undefined);
+      should(docs[1].name).eql('Gina');
+      should(docs[1].password).eql(undefined);
     });
-    it('should not filter fields byt default', function (done){
+    it('should not filter fields byt default', async () => {
       var data = {
         user: [
           {_id: '1', name: 'Alison', password: 'Abc'}
@@ -927,13 +836,9 @@ describe('Repo', function () {
       });
       repo.dataSource = dataSource;
 
-      repo.find({}).then(function(docs){
-        should(docs[0].name).eql('Alison');
-        should(docs[0].password).eql('Abc');
-        done();
-      }).catch(function(err){
-        done(err);
-      });
+      var docs = await repo.find();
+      should(docs[0].name).eql('Alison');
+      should(docs[0].password).eql('Abc');
     });
   });
 });

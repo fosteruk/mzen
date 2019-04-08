@@ -79,9 +79,9 @@ describe('Repo', function(){
         name: 'userTimezone'
       });
       userTimezoneRepo.dataSource = new MockDataSource(data);
-      userRepo.repos['userTimezone'] = userTimezoneRepo;
+      userRepo.repos.userTimezone = userTimezoneRepo;
 
-      var docs = await userRepo.find({});
+      var docs = await userRepo.find();
       should(docs[0]).eql({
         _id: '1',
         name: 'Kevin Foster',
@@ -125,9 +125,9 @@ describe('Repo', function(){
         name: 'userTimezone'
       });
       userTimezoneRepo.dataSource = new MockDataSource(data);
-      userRepo.repos['userTimezone'] = userTimezoneRepo;
+      userRepo.repos.userTimezone = userTimezoneRepo;
 
-      var docs = await userRepo.find({});
+      var docs = await userRepo.find();
       should(docs[0]).eql({
         _id: '1',
         name: 'Kevin Foster',
@@ -169,9 +169,9 @@ describe('Repo', function(){
         name: 'userTimezone'
       });
       userTimezoneRepo.dataSource = new MockDataSource(data);
-      userRepo.repos['userTimezone'] = userTimezoneRepo;
+      userRepo.repos.userTimezone = userTimezoneRepo;
 
-      var docs = await userRepo.find({});
+      var docs = await userRepo.find();
       should(docs[0]).eql({
         _id: '1',
         name: 'Kevin Foster',
