@@ -333,7 +333,7 @@ export class Repo
     return this.dataSource.aggregate(this.config.collectionName, pipeline, options);
   }
   
-  findQueryOptions(findArguments)
+  private findQueryOptions(findArguments)
   {
     // This method parses query options for finder methods and compiles into an array that is easier to consunme
 
@@ -375,7 +375,7 @@ export class Repo
     return findOptions;
   }
   
-  async findPopulate(objects: any, findOptions: any)
+  private async findPopulate(objects: any, findOptions: any)
   {
     if (findOptions.options.filterPrivate) {
       this.schema.filterPrivate(objects, 'read');
@@ -384,7 +384,7 @@ export class Repo
     return (findOptions.options.populate === false) ? objects : this.populateAll(objects, findOptions.options);
   }
   
-  getFlattenedRelations(options: any)
+  private getFlattenedRelations(options: any)
   {
     // In order to populate a relation at a given depth its parent relation must have already been populated
     // To ensure parent relations are populate first we populate in order of relation depth
@@ -406,7 +406,7 @@ export class Repo
     return flattenedRelations;
   }
   
-  getFlattenedRelationsRecursive(options: any, flatRelations?: Array<any>, basePath?: string)
+  private getFlattenedRelationsRecursive(options: any, flatRelations?: Array<any>, basePath?: string)
   {
     flatRelations = flatRelations ? flatRelations : [];
     basePath = basePath ? basePath : null;
