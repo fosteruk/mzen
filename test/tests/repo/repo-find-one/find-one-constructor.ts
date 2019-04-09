@@ -72,6 +72,68 @@ describe('constructor', function(){
     should(doc.userTimezone.getName).be.type('function');
     should(doc.userTimezone.getName()).eql('Europe/London');
   });
+  it('should return entity objects if constructor specified by relation of relation schema', async () => {
+    var data = {
+      country: [
+        {_id: '1', name: 'United Kingdom'}
+      ],
+      timezone: [
+        {_id: '1', name: 'Europe/London', countryId: '1'}
+      ],
+      user: [
+        {_id: '1', name: 'Kevin Foster', timeZoneId: '1'}
+      ]
+    };
+    var dataSource = new MockDataSource(data);
+
+    var userRepo = new Repo({
+      name: 'user',
+        relations: {
+        userTimezone: {
+          type: 'belongsTo',
+          repo: 'timezone',
+          key: 'timeZoneId',
+          alias: 'timezone',
+          autoPopulate: true
+        }
+      }
+    });
+    userRepo.dataSource = dataSource;
+
+    var timezoneRepo = new Repo({
+      name: 'timezone',
+      relations: {
+        country: {
+          type: 'belongsTo',
+          repo: 'country',
+          key: 'countryId',
+          alias: 'country',
+          autoPopulate: true
+        }
+      }
+    });
+    timezoneRepo.dataSource = dataSource;
+    userRepo.repos.timezone = timezoneRepo;
+
+    var Country = class {
+      name: string;
+      getName(){
+        return this.name + ' Country';
+      }
+    };
+    var countryRepo = new Repo({
+      name: 'country',
+      schema: {$construct: 'Country'},
+      constructors: [Country]
+    });
+    countryRepo.dataSource = dataSource;
+    timezoneRepo.repos.country = countryRepo;
+    userRepo.repos.country = countryRepo;
+
+    var doc = await userRepo.findOne();
+    should(doc.timezone.country.getName).be.type('function');
+    should(doc.timezone.country.getName()).eql('United Kingdom Country');
+  });
   it('should return embedded entity when embedded constructor specified in repo schema', async () => {
     var data = {
       user: [
