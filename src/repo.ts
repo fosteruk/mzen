@@ -493,22 +493,22 @@ export class Repo
     options.populate = false; // Dont populate recursively - we already flattened the relations
 
     for (let depth in flattenedRelations) {
+      if (!flattenedRelations[depth]) continue;
+
       let populatePromises = [];
-      if (flattenedRelations[depth]) {
-        for (let x in flattenedRelations[depth]) {
-          let relation = flattenedRelations[depth][x];
-          if (Array.isArray(objects) && relation.limit) {
-            // This relation is using the limit option so we can not populate a collection of objects in a single query
-            // - as it would produce in unexpcetd results.
-            // We must populate each document individually with a seperate query
-            objects.forEach(object => {
-              populatePromises.push(this.populate(relation, object, options));
-            });
-          } else {
-            populatePromises.push(this.populate(relation, objects, options));
-          }
+      flattenedRelations[depth].forEach(relation => {
+        if (Array.isArray(objects) && relation.limit) {
+          // This relation is using the limit option so we can not populate a collection of objects in a single query
+          // - as it would produce in unexpcetd results.
+          // We must populate each document individually with a seperate query
+          objects.forEach(object => {
+            populatePromises.push(this.populate(relation, object, options));
+          });
+        } else {
+          populatePromises.push(this.populate(relation, objects, options));
         }
-      }
+      });
+
       await Promise.all(populatePromises);
     }
 
