@@ -9,7 +9,7 @@
     "prepublishOnly": "npm test",
     "build": "npm run clean && tsc",
     "clean": "rm -fr ./lib/*",
-    "test": "mocha -r test/tests/ts-node-hooks.js test/tests/*.ts test/tests/**/*.ts",
+    "test": "mocha -r test/tests/ts-node-hooks.js $(find ./test/tests -type f \\( -iname '*.test.ts' \\))",
     "test-fixtures-build": "cd ./test/fixtures && tsc",
     "test-fixtures-clean": "find ./test/fixtures -type f \\( -name '*.js' -or -name '*.js.map' -or -name '*.d.ts' \\) -delete"
   },
