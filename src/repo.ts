@@ -79,11 +79,6 @@ export interface RepoRelationConfig extends RepoQueryOptions
   autoPopulate?: boolean;
 }
 
-export interface RepoPopulateOptions
-{
-  populate?: {[key: string]: boolean} | boolean;
-}
-
 export class Repo
 {
   config: RepoConfig;
@@ -500,7 +495,7 @@ export class Repo
     return flatRelations;
   }
   
-  async populateAll(objects: any, options?: RepoPopulateOptions)
+  async populateAll(objects: any, options?: RepoQueryOptions)
   {
     const flattenedRelations = this.getFlattenedRelations(options);
     options.populate = false; // Dont populate recursively - we already flattened the relations
@@ -536,23 +531,12 @@ export class Repo
     relation = (typeof relation == 'string') ? this.config.relations[relation] : relation;
 
     // Clone the options because we dont want changes to the options object to change the original object
-    var relationOptions = options ? clone(options) : {};
-    relationOptions.repo = relation.repo;
-    relationOptions.type = relation.type;
-    relationOptions.docPath = relation.docPath ? relation.docPath : '';
-    relationOptions.docPathRelated = relation.docPathRelated ? relation.docPathRelated : '';
-    relationOptions.key = relation.key;
-    relationOptions.alias = relation.alias;
-    relationOptions.query = relation.query;
-    relationOptions.sort = options.sort ? options.sort : relation.sort;
-    relationOptions.limit = options.limit ? options.limit : relation.limit;
-    relationOptions.skip = options.skip ? options.skip : relation.skip;
-    relationOptions.populate = options.populate;
+    var opts = options ? clone({...relation, ...options}): clone({...relation});
 
     var repo = this.getRepo(relation.repo);
     var repoPopulate = new RepoPopulate(repo);
 
-    await repoPopulate[relation.type](objects, relationOptions);
+    await repoPopulate[relation.type](objects, opts);
 
     return objects;
   }
