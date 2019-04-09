@@ -476,7 +476,6 @@ describe('relation', function(){
           repo: 'country',
           key: 'countryId',
           alias: 'country',
-          recursion: 1,
           autoPopulate: false // important - initialy the relation is configured not to populate
         }
       }
@@ -531,7 +530,6 @@ describe('relation', function(){
           repo: 'country',
           key: 'countryId',
           alias: 'country',
-          recursion: 1,
           autoPopulate: true // important - initialy the relation is configured to populate
         }
       }
