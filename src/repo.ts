@@ -352,7 +352,7 @@ export class Repo
       break;
     }
 
-    options.populate = (options.populate !== undefined)  ? options.populate : {};
+    //options.populate = (options.populate !== undefined)  ? options.populate : true;
     options.filterPrivate = (options.filterPrivate !== undefined)  ? options.filterPrivate : false;
 
     var findOptions = {query, fields, options, queryOptions: {}};
@@ -406,23 +406,19 @@ export class Repo
     return flattenedRelations;
   }
   
-  getFlattenedRelationsRecursive(options: any, meta?)
+  getFlattenedRelationsRecursive(options: any, flatRelations?: Array<any>, basePath?: string[])
   {
     // parentRepo?, basePath?: Array<string>, flatRelations?: Array<any>
-    meta = meta ? meta : {};
+    flatRelations = flatRelations ? flatRelations : [];
+    basePath = basePath ? basePath : [];
 
-    let parentRepo = meta.parentRepo ? meta.parentRepo : this.config.name;
-    let basePath = meta.basePath ? meta.basePath : [];
-    let flatRelations = meta.flatRelations ? meta.flatRelations : [];
-
-    for (var alias in this.config.relations) {
+    for (var x in this.config.relations) {
+      const relation = clone(this.config.relations[x]); // copy the relation we dont want to modify the original
       const depth = basePath.length;
-      const relation = clone(this.config.relations[alias]); // copy the relation we dont want to modify the original
       const recursion = relation.recursion ? relation.recursion : 0;
       const autoPopulate = relation.autoPopulate != undefined ? relation.autoPopulate : false;
       const populate = relation.populate != undefined ? relation.populate : true;
       const queryPopulate = options.populate != undefined ? options.populate : true;
-
 
       // Append base path
       relation.docPath = (relation.docPath)
@@ -447,7 +443,7 @@ export class Repo
       }
 
       const flatRelation = {
-        id: parentRepo + '.' + relation.alias,
+        id: this.name + '.' + relation.alias,
         depth,
         path,
         relation,
@@ -471,24 +467,19 @@ export class Repo
       // hasManyCountRelation does not require recursive populations since its data is just a number
       if (relation.type == 'hasManyCount') continue;
 
-      let newBasePath = basePath.slice();
-      newBasePath.push(relation.alias);
-
-      if (relation.type == 'hasMany' || relation.type == 'belongsToMany') {
-        newBasePath.push('*');
-      }
-
       // Recurse into this relation only if populate is true or is populate relation path is true
       if (populate) {
-        flatRelations.concat(this.getRepo(relation.repo).getFlattenedRelationsRecursive(options, {
-          parentRepo: relation.repo, 
-          basePath: newBasePath, 
-          flatRelations
-        }));
+        let nextBasePath = basePath.slice();
+        nextBasePath.push(relation.alias);
+        if (relation.type == 'hasMany' || relation.type == 'belongsToMany') {
+          nextBasePath.push('*');
+        }
+
+        this.getRepo(relation.repo).getFlattenedRelationsRecursive(options, flatRelations, nextBasePath);
       }
     }
     // sort by document path length
-    flatRelations = flatRelations.sort(function(a, b) {
+    flatRelations.sort(function(a, b) {
       return a.depth != b.depth ? a.depth - b.depth : ((a.path > b.path) ? 1 : 0);
     });
 
