@@ -145,6 +145,7 @@ describe('relation', function(){
     userRepo.repos.userTimezone = userTimezoneRepo;
 
     var docs = await userRepo.find();
+    should(docs.length).eql(1);
     should(docs[0].name).eql('Kevin Foster');
     should(docs[0].userTimezone.name).eql('Europe/London');
     should(docs[0].userTimezone.deleted).eql(0);

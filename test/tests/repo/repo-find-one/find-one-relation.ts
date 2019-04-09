@@ -142,7 +142,7 @@ describe('relation', function(){
     should(doc.referred[1].name).eql('Sarah');
     should(doc.referred[1].referer).eql(undefined);
   });
-  it('should allow relation to to be enabled via populate option', async () => {
+  it('should allow relation to be enabled via populate option', async () => {
     var data = {
       userTimezone: [
         {_id: '1', name: 'Europe/London'}
@@ -176,7 +176,7 @@ describe('relation', function(){
     var doc = await userRepo.findOne({}, {populate: {userTimezone: true}});
     should(doc.userTimezone.name).eql('Europe/London');
   });
-  it('should allow relation to to be disabled via populate option', async () => {
+  it('should allow relation to be disabled via populate option', async () => {
     var data = {
       userTimezone: [
         {_id: '1', name: 'Europe/London'}
@@ -210,7 +210,7 @@ describe('relation', function(){
     var doc = await userRepo.findOne({}, {populate: {userTimezone: false}});
     should(doc.userTimezone).be.type('undefined');
   });
-  it('should allow nested relation to be disabled via populate option', async () => {
+  it('should allow nested relation to be enabled via populate option', async () => {
     var data = {
       country: [
         {_id: '1', name: 'UK'}
