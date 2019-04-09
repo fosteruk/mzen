@@ -496,7 +496,7 @@ export class Repo
       if (flattenedRelations[depth]) {
         for (let x in flattenedRelations[depth]) {
           let relation = flattenedRelations[depth][x];
-          if ((Array.isArray(objects) && relation.limit)) {
+          if (Array.isArray(objects) && relation.limit) {
             // This relation is using the limit option so we can not populate a collection of objects in a single query
             // - as it would produce in unexpcetd results.
             // We must populate each document individually with a seperate query
