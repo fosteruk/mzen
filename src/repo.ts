@@ -406,15 +406,16 @@ export class Repo
     return flattenedRelations;
   }
   
-  getFlattenedRelationsRecursive(options: any, flatRelations?: Array<any>, basePath?: string[])
+  getFlattenedRelationsRecursive(options: any, flatRelations?: Array<any>, basePath?: string)
   {
-    // parentRepo?, basePath?: Array<string>, flatRelations?: Array<any>
     flatRelations = flatRelations ? flatRelations : [];
-    basePath = basePath ? basePath : [];
+    basePath = basePath ? basePath : null;
+
+    var basePathParts = basePath ? basePath.split('.') : [];
 
     for (var x in this.config.relations) {
       const relation = clone(this.config.relations[x]); // copy the relation we dont want to modify the original
-      const depth = basePath.length;
+      const depth = basePathParts.length;
       const recursion = relation.recursion ? relation.recursion : 0;
       const autoPopulate = relation.autoPopulate != undefined ? relation.autoPopulate : false;
       const populate = relation.populate != undefined ? relation.populate : true;
@@ -422,13 +423,13 @@ export class Repo
 
       // Append base path
       relation.docPath = (relation.docPath)
-                         ? (basePath && basePath.length ? basePath.join('.') + '.' + relation.docPath : relation.docPath)
-                         : (basePath && basePath.length ? basePath.join('.') : '');
+                         ? (basePath ? basePath + '.' + relation.docPath : relation.docPath)
+                         : basePath;
 
       // Append base path
       relation.docPathRelated = (relation.docPathRelated)
-                                ? (basePath && basePath.length ? basePath.join('.') + '.' + relation.docPathRelated : relation.docPathRelated)
-                                : (basePath && basePath.length ? basePath.join('.') : '');
+                                ? (basePath ? basePath + '.' + relation.docPathRelated : relation.docPathRelated)
+                                : basePath;
 
       const path = relation.docPath ? relation.docPath + '.' + relation.alias : relation.alias;
 
@@ -469,19 +470,19 @@ export class Repo
 
       // Recurse into this relation only if populate is true or is populate relation path is true
       if (populate) {
-        let nextBasePath = basePath.slice();
-        nextBasePath.push(relation.alias);
+        let newbasePathParts = [...basePathParts];
+        newbasePathParts.push(relation.alias);
         if (relation.type == 'hasMany' || relation.type == 'belongsToMany') {
-          nextBasePath.push('*');
+          newbasePathParts.push('*');
         }
 
-        this.getRepo(relation.repo).getFlattenedRelationsRecursive(options, flatRelations, nextBasePath);
+        this.getRepo(relation.repo).getFlattenedRelationsRecursive(options, flatRelations, newbasePathParts.join('.'));
       }
     }
     // sort by document path length
-    flatRelations.sort(function(a, b) {
-      return a.depth != b.depth ? a.depth - b.depth : ((a.path > b.path) ? 1 : 0);
-    });
+    flatRelations.sort(
+      (a, b) => (a.depth != b.depth ? a.depth - b.depth : ((a.path > b.path) ? 1 : 0))
+    );
 
     return flatRelations;
   }
