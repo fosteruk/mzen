@@ -1,290 +1,163 @@
-import Repo from './repo';
-import { ObjectPathAccessor } from 'mzen-schema';
+import { Repo, RepoQueryOptions, RepoRelationConfig } from './repo';
+import RepoPopulateRelation from './repo-populate-relation';
+import clone = require('clone');
 
 export class RepoPopulate
 {
-  relationRepo: Repo;
+  repo: Repo;
   
-  constructor(relationRepo: Repo)
+  constructor(repo: Repo)
   {
-    this.relationRepo = relationRepo;
+    this.repo = repo;
   }
   
-  hasMany(docs, options)
+  async populateAll(objects: any, options?: RepoQueryOptions)
   {
-    options.relation = 'hasMany';
-    return this.has(docs, options);
-  }
-  
-  hasOne(docs, options)
-  {
-    options.relation = 'hasOne';
-    return this.has(docs, options);
-  }
-  
-  async has(docs, options)
-  {
-    this.normalizeOptions(options);
+    const flattenedRelations = this.getFlattenedRelations(options);
+    options.populate = false; // Dont populate recursively - we already flattened the relations
 
-    const relationIds = RepoPopulate.prototype.getRelationIds(docs, options);
+    for (let depth in flattenedRelations) {
+      if (!flattenedRelations[depth]) continue;
 
-    // Use query option if provided - allows results to be further filtered in addition to relation id
-    options.query[options.key] = {$in: relationIds};
-    // @ts-ignore - Expected 0 arguments, but got 2 - variable method arguments
-    var relatedDocs = await this.relationRepo.find(options.query, options);
-    // Group related docs by parent key
-    var values = {};
-    relatedDocs.forEach(function(relatedDoc){
-      if (values[relatedDoc[options.key]] == undefined) values[relatedDoc[options.key]] = [];
-      values[relatedDoc[options.key]].push(relatedDoc);
-    });
-
-    return this.populate(docs, options, values);
-  }
-  
-  async hasManyCount(docs, options)
-  {
-    this.normalizeOptions(options);
-
-    const relationIds = RepoPopulate.prototype.getRelationIds(docs, options);
-
-    // Use query option if provided - allows results to be further filtered in addition to relation id
-    options.query[options.key] = {$in: relationIds};
-
-    var aggregateId = {};
-    aggregateId[options.key] = '$' + options.key;
-    var results = await this.relationRepo.aggregate([
-      {$match: options.query},
-      {
-        $group : {
-           _id : aggregateId,
-           count: { $sum: 1 }
-        }
-      }
-    ]);
-
-    // Group related docs by parent key
-    var values = {};
-    results.forEach(function(result){
-      if (values[result['_id'][options.key]] == undefined) values[result['_id'][options.key]] = 0;
-      values[result['_id'][options.key]] = result['count'];
-    });
-
-    return this.populate(docs, options, values);
-  }
-  
-  embeddedHasOne(docs, options)
-  {
-    options.relation = 'embeddedHasOne';
-    return this.embeddedHas(docs, options);
-  }
-  
-  embeddedHasMany(docs, options)
-  {
-    options.relation = 'embeddedHasMany';
-    return this.embeddedHas(docs, options);
-  }
-  
-  embeddedHas(docs, options)
-  {
-    this.normalizeOptions(options);
-
-    const relationIds = RepoPopulate.prototype.getRelationIds(docs, options);
-    const embeddedDocs = this.getEmebedRelations(options.docPathRelated, docs);
-
-    var values = {};
-    embeddedDocs.forEach(function(embeddedDoc){
-      if (relationIds.indexOf(embeddedDoc[options.key]) != -1) {
-        if (values[embeddedDoc[options.key]] == undefined) values[embeddedDoc[options.key]] = [];
-        values[embeddedDoc[options.key]].push(embeddedDoc);
-      }
-    });
-
-    // Use query option if provided - allows results to be further filtered in addition to relation id
-    return Promise.resolve(this.populate(docs, options, values));
-  }
-  
-  belongsToOne(docs, options)
-  {
-    options.relation = 'belongsToOne';
-    return this.belongsTo(docs, options);
-  }
-  
-  belongsToMany(docs, options)
-  {
-    options.relation = 'belongsToMany';
-    return this.belongsTo(docs, options);
-  }
-  
-  async belongsTo(docs, options)
-  {
-    this.normalizeOptions(options);
-
-    const relationIds = RepoPopulate.prototype.getRelationIds(docs, options);
-    // Use query option if provided - allows results to be further filtered in addition to relation id
-    options.query[options.pkey] = {$in: relationIds};
-    // @ts-ignore - Expected 0 arguments, but got 2 - variable method arguments
-    var relatedDocs = await this.relationRepo.find(options.query, options);
-    // Group related docs by parent key
-    let values = {};
-    
-    relatedDocs.forEach(function(relatedDoc, x){
-      values[relatedDoc[options.pkey]] = relatedDocs[x];
-    });
-
-    return this.populate(docs, options, values);
-  }
-  
-  embeddedBelongsToMany(docs, options)
-  {
-    options.relation = 'embeddedBelongsToMany';
-    return this.embeddedBelongsTo(docs, options);
-  }
-  
-  embeddedBelongsToOne(docs, options)
-  {
-    options.relation = 'embeddedBelongsToOne';
-    return this.embeddedBelongsTo(docs, options);
-  }
-  
-  embeddedBelongsTo(docs, options)
-  {
-    this.normalizeOptions(options);
-
-    const relationIds = RepoPopulate.prototype.getRelationIds(docs, options);
-    const embeddedDocs = this.getEmebedRelations(options.docPathRelated, docs);
-
-    var values = {};
-    embeddedDocs.forEach((embeddedDoc) => {
-      // We must store the id as a primitive so we can use it as a object field name in our lookup values object
-      // - complex types can not be used as object field names
-      let id = String(embeddedDoc[options.pkey]);
-      if (relationIds.indexOf(id) != -1) {
-        // Group related docs by parent key
-        values[id] = embeddedDoc;
-      }
-    });
-
-    // Use query option if provided - allows results to be further filtered in addition to relation id
-    return Promise.resolve(this.populate(docs, options, values));
-  }
-  
-  getRelationIds(docs, options)
-  {
-    this.normalizeOptions(options);
-
-    // We may be passed an array of docs or a single doc
-    // - we want to deal with both situations uniformly
-    // - if we are passed a single object we make it an array
-    docs = Array.isArray(docs) ? docs : [docs];
-    var relationIds = [];
-    // If we were given a document path, the path is relative to the object not to the array of objects
-    // - prefix the document path with '*' so it will pull all elements from the array
-    const docPath = options.docPath ? '*.' + options.docPath : '*';
-    const embeddedDocs = ObjectPathAccessor.getPath(docPath, docs);
-
-    embeddedDocs.forEach(function(doc){
-      if (doc) {
-        let id = doc[options.sourceKey];
-        if (Array.isArray(id)) {
-          // Only belongsToMany relation supports an array of source keys
-          id.forEach((anId) => {
-            // We must store the id as a primitive as they are referenced as by lookup object
-            // - complex types can not be used as object field names
-            anId = String(anId);
-            if (relationIds.indexOf(anId) == -1) {
-              relationIds.push(anId);
-            }
+      let populatePromises = [];
+      flattenedRelations[depth].forEach(relation => {
+        if (Array.isArray(objects) && relation.limit) {
+          // This relation is using the limit option so we can not populate a collection of objects in a single query
+          // - as it would produce in unexpcetd results.
+          // We must populate each document individually with a seperate query
+          objects.forEach(object => {
+            populatePromises.push(this.populate(relation, object, options));
           });
         } else {
-          // We must store the id as a primitive as they are referenced as by lookup object
-          // - complex types can not be used as object field names
-          relationIds.push(String(id));
+          populatePromises.push(this.populate(relation, objects, options));
         }
-      }
+      });
+
+      await Promise.all(populatePromises);
+    }
+
+    return objects;
+  }
+
+  async populate(relation: RepoRelationConfig | string, objects?: any, options?: RepoQueryOptions)
+  {
+    // If relation is passed as string relation name, lookup the relation config
+    relation = (typeof relation == 'string') ? this.repo.config.relations[relation] : relation;
+
+    // Clone the options because we dont want changes to the options object to change the original object
+    var opts = options ? clone({...relation, ...options}): clone({...relation});
+
+    var relationRepo = this.repo.getRepo(relation.repo);
+    var repoPopulate = new RepoPopulateRelation(relationRepo);
+
+    await repoPopulate[relation.type](objects, opts);
+
+    return objects;
+  }
+
+  private getFlattenedRelations(options: any)
+  {
+    // In order to populate a relation at a given depth its parent relation must have already been populated
+    // To ensure parent relations are populate first we populate in order of relation depth
+    // This method returns an array of arrays - were each child is an array of relation configs for a given relation depth
+    // [
+    //  [relationConfigA, relationConfigB], // depth 1 to be populated first
+    //  [relationConfigB, relationConfigC] // depth 2 to be populated second
+    // ]
+    const flattenedRelationsRecursive = this.getFlattenedRelationsRecursive(options);
+
+    var flattenedRelations = [];
+    flattenedRelationsRecursive.forEach(relationConfig => {
+      const { depth, relation } = relationConfig;
+      // Sort into depth arrays
+      if (flattenedRelations[depth] == undefined) flattenedRelations[depth] = [];
+      flattenedRelations[depth].push(relation);
     });
 
-    return relationIds;
+    return flattenedRelations;
   }
   
-  getEmebedRelations(path, docs)
+  private getFlattenedRelationsRecursive(options: any, flatRelations?: Array<any>, basePath?: string)
   {
-    // We may be passed an array of docs or a single doc
-    // - we want to deal with both situations uniformly
-    // - if we are passed a single object we make it an array
-    docs = Array.isArray(docs) ? docs : [docs];
-    // If we were given a document path, the path is relative to the object not to the array of objects
-    // - prefix the document path with '*' so it will pull all elements from the array
-    const docPath = path ? '*.' + path : '*';
-    const embeddedDocs = ObjectPathAccessor.getPath(docPath, docs);
-    return embeddedDocs;
-  }
-  
-  populate(docs, options, values)
-  {
-    this.normalizeOptions(options);
+    flatRelations = flatRelations ? flatRelations : [];
+    basePath = basePath ? basePath : null;
 
-    // We may be passed an array of docs or a single doc
-    // - we want to deal with both situations uniformly
-    // - if we are passed a single object we make it an array
-    docs = Array.isArray(docs) ? docs : [docs];
-    // If we were given a document path, the path is relative to the object not to the array of objects
-    // - prefix the document path with '*' so it will pull all elements from the array
-    const docPath = options.docPath ? '*.' + options.docPath : '*';
-    const embeddedDocs = ObjectPathAccessor.getPath(docPath, docs);
+    var basePathParts = basePath ? basePath.split('.') : [];
 
-    embeddedDocs.forEach(function(doc){
-      if (doc !== Object(doc)) return;
-      var sourceKey = doc[options.sourceKey];
-      if (sourceKey) {
-        if (Array.isArray(sourceKey)) {
-          // The source key is an array of keys so we need to look up each value and append
-          // - this must be a belongsToMany relation since that is the only relation type that supports
-          // - an array of source keys
-          doc[options.alias] = [];
-          sourceKey.forEach(function(sk){
-            if (values[sk] !== undefined) doc[options.alias].push(values[sk]);
-          });
-        } else {
-          let isHasOne = (options.relation.toLowerCase().indexOf('hasone') != -1);
-          if (values[sourceKey] !== undefined) doc[options.alias] = isHasOne ? values[sourceKey][0] : values[sourceKey];
-        }
+    for (var x in this.repo.config.relations) {
+      const relation = clone(this.repo.config.relations[x]); // copy the relation we dont want to modify the original
+      const depth = basePathParts.length;
+      const recursion = relation.recursion ? relation.recursion : 0;
+      const autoPopulate = relation.autoPopulate != undefined ? relation.autoPopulate : false;
+      const populate = relation.populate != undefined ? relation.populate : true;
+      const queryPopulate = options.populate != undefined ? options.populate : true;
+
+      // Append base path
+      relation.docPath = (relation.docPath)
+                         ? (basePath ? basePath + '.' + relation.docPath : relation.docPath)
+                         : basePath;
+
+      // Append base path
+      relation.docPathRelated = (relation.docPathRelated)
+                                ? (basePath ? basePath + '.' + relation.docPathRelated : relation.docPathRelated)
+                                : basePath;
+
+      const path = relation.docPath ? relation.docPath + '.' + relation.alias : relation.alias;
+
+
+      if (
+        !queryPopulate || // query said dont populate any relations
+        (queryPopulate[path] !== undefined && !queryPopulate[path]) || // query said dont populate this path
+        (queryPopulate[path] === undefined && !autoPopulate) // query didnt specificaly enable population and relation auto population is disabled
+      ) {
+        // relation should not populate - continue to next relation
+        continue;
       }
-    });
 
-    return docs;
-  }
-  
-  normalizeOptions(options)
-  {
-    // pkey is the primary key name to use when looking up relations
-    // - the primary key is the key of the source document on has* type relations
-    // - the primary key is the key of the related document on blongsTo* type relations
-    options.pkey = options.pkey ? options.pkey : '_id';
-    // Key is the field where the relation id is stored in the related document
-    // - for all except belongsTo type relations where the key is on the source document
-    options.key = options.key ? options.key : '';
+      const flatRelation = {
+        id: this.repo.name + '.' + relation.alias,
+        depth,
+        path,
+        relation,
+        recursionCount: 0
+      };
 
-    // relation type name
-    options.relation = options.relation ? options.relation : '';
+      // How many parents of this relation are the same relation?
+      let realtionDepths = [];
+      flatRelations.forEach(existingFlatRelation => {
+        if (existingFlatRelation.id == flatRelation.id && existingFlatRelation.depth < depth) {
+          realtionDepths[existingFlatRelation.depth] =  true;
+        }
+      });
+      flatRelation.recursionCount = realtionDepths.length;
 
-    // sourceKey is an internal option which refers to either the key or the pkey depending on relation type
-    // - sourceKey is the same as key value on belongsTo* type relations
-    // - sourceKey is the same as pkey value on has* type relations
-    let isBelongsTo = (options.relation.toLowerCase().indexOf('belongsto') != -1);
-    options.sourceKey = isBelongsTo ? options.key : options.pkey;
+      // If we have reached the recursion count skip this relation
+      if (flatRelation.recursionCount > recursion) continue;
 
-    // alias is the field name used to store the compiled relations
-    options.alias = options.alias ? options.alias : '';
-    // docPath is path to the object(s) where the relation should be populated
-    options.docPath = options.docPath ? options.docPath : false;
-    // docPathRelated is the path to the related objects
-    options.docPathRelated = options.docPathRelated ? options.docPathRelated : false;
+      flatRelations.push(flatRelation);
 
-    // query is query object used to further filter related objects
-    options.query = options.query ? options.query : {};
+      // hasManyCountRelation does not require recursive populations since its data is just a number
+      if (relation.type == 'hasManyCount') continue;
 
-    options.populate = options.populate !== false;
+      // Recurse into this relation only if populate is true or is populate relation path is true
+      if (populate) {
+        let newbasePathParts = [...basePathParts];
+        newbasePathParts.push(relation.alias);
+        if (relation.type == 'hasMany' || relation.type == 'belongsToMany') {
+          newbasePathParts.push('*');
+        }
+
+        new RepoPopulate(
+          this.repo.getRepo(relation.repo)
+        ).getFlattenedRelationsRecursive(options, flatRelations, newbasePathParts.join('.'));
+      }
+    }
+    // sort by document path length
+    flatRelations.sort(
+      (a, b) => (a.depth != b.depth ? a.depth - b.depth : ((a.path > b.path) ? 1 : 0))
+    );
+
+    return flatRelations;
   }
 }
 

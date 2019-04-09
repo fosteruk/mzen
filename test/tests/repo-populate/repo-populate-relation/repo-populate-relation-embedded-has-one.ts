@@ -1,7 +1,7 @@
 import should = require('should');
-import RepoPopulate from '../../../lib/repo-populate';
-import Repo from '../../../lib/repo';
-import MockDataSource from '../../../lib/data-source/mock';
+import RepoPopulateRelation from '../../../../lib/repo-populate-relation';
+import Repo from '../../../../lib/repo';
+import MockDataSource from '../../../../lib/data-source/mock';
 
 describe('embeddedHasOne()', function(){
   it('should populate', async () => {
@@ -22,9 +22,9 @@ describe('embeddedHasOne()', function(){
       name: 'docs'
     });
     doc.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(doc);
+    var repoPopulate = new RepoPopulateRelation(doc);
 
-    // See RepoPopulate.normalizeOptions() comments for descrption of relation options
+    // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
     var docs = await repoPopulate.embeddedHasOne(data.docs, {
       docPath: 'user.*',
       docPathRelated: 'userTimezone.*',
@@ -60,9 +60,9 @@ describe('embeddedHasOne()', function(){
       name: 'docs'
     });
     doc.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(doc);
+    var repoPopulate = new RepoPopulateRelation(doc);
 
-    // See RepoPopulate.normalizeOptions() comments for descrption of relation options
+    // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
     var docs = await repoPopulate.embeddedHasOne(data.docs, {
       docPath: 'user.*',
       docPathRelated: 'userTimezone.*',

@@ -1,7 +1,7 @@
 import should = require('should');
-import RepoPopulate from '../../../lib/repo-populate';
-import Repo from '../../../lib/repo';
-import MockDataSource from '../../../lib/data-source/mock';
+import RepoPopulateRelation from '../../../../lib/repo-populate-relation';
+import Repo from '../../../../lib/repo';
+import MockDataSource from '../../../../lib/data-source/mock';
 
 describe('belongsToOne()', function(){
   it('should populate', async () => {
@@ -18,7 +18,7 @@ describe('belongsToOne()', function(){
       name: 'user'
     });
     user.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(user);
+    var repoPopulate = new RepoPopulateRelation(user);
 
     var docs = await repoPopulate.belongsToOne(data.artist, {
       key: 'createdByUserId',
@@ -49,7 +49,7 @@ describe('belongsToOne()', function(){
       name: 'user'
     });
     user.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(user);
+    var repoPopulate = new RepoPopulateRelation(user);
 
     var docs = await repoPopulate.belongsToOne(data.product, {
       docPath: 'detail.more',
@@ -84,7 +84,7 @@ describe('belongsToOne()', function(){
       name: 'user'
     });
     user.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(user);
+    var repoPopulate = new RepoPopulateRelation(user);
 
     var docs = await repoPopulate.belongsToOne(data.product, {
       docPath: 'detail.more.*',
@@ -117,7 +117,7 @@ describe('belongsToOne()', function(){
       name: 'user'
     });
     user.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(user);
+    var repoPopulate = new RepoPopulateRelation(user);
 
     var docs = await repoPopulate.belongsToOne(data.product, {
       docPath: '*.*.*.detail.more',

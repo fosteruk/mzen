@@ -1,7 +1,7 @@
 import should = require('should');
-import RepoPopulate from '../../../lib/repo-populate';
-import Repo from '../../../lib/repo';
-import MockDataSource from '../../../lib/data-source/mock';
+import RepoPopulateRelation from '../../../../lib/repo-populate-relation';
+import Repo from '../../../../lib/repo';
+import MockDataSource from '../../../../lib/data-source/mock';
 
 describe('embeddedBelongsToMany()', function(){
   it('should populate', async () => {
@@ -27,9 +27,9 @@ describe('embeddedBelongsToMany()', function(){
       name: 'recordCompany'
     });
     recordCompany.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(recordCompany);
+    var repoPopulate = new RepoPopulateRelation(recordCompany);
 
-    // See RepoPopulate.normalizeOptions() comments for descrption of relation options
+    // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
     var docs = await repoPopulate.embeddedBelongsToMany(data.recordCompany, {
       docPath: 'artists.*',
       docPathRelated: 'albums.*',
@@ -84,9 +84,9 @@ describe('embeddedBelongsToMany()', function(){
       name: 'recordCompany'
     });
     recordCompany.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(recordCompany);
+    var repoPopulate = new RepoPopulateRelation(recordCompany);
 
-    // See RepoPopulate.normalizeOptions() comments for descrption of relation options
+    // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
     var docs = await repoPopulate.embeddedBelongsToMany(data.recordCompany, {
       docPath: 'artists.*',
       docPathRelated: 'albums.*',

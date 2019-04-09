@@ -1,7 +1,7 @@
 import should = require('should');
-import RepoPopulate from '../../../lib/repo-populate';
-import Repo from '../../../lib/repo';
-import MockDataSource from '../../../lib/data-source/mock';
+import RepoPopulateRelation from '../../../../lib/repo-populate-relation';
+import Repo from '../../../../lib/repo';
+import MockDataSource from '../../../../lib/data-source/mock';
 
 describe('belongsToMany()', function(){
   it('should populate', async () => {
@@ -22,7 +22,7 @@ describe('belongsToMany()', function(){
       name: 'color'
     });
     color.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(color);
+    var repoPopulate = new RepoPopulateRelation(color);
 
     var docs = await repoPopulate.belongsToMany(data.person, {
       key: 'favouriteColorIds',
@@ -51,7 +51,7 @@ describe('belongsToMany()', function(){
     });
     color.dataSource = new MockDataSource(data);
 
-    var repoPopulate = new RepoPopulate(color);
+    var repoPopulate = new RepoPopulateRelation(color);
 
     var docs = await repoPopulate.belongsToMany(data.person, {
       docPath: 'about.trivia',
@@ -84,7 +84,7 @@ describe('belongsToMany()', function(){
     });
     color.dataSource = new MockDataSource(data);
     
-    var repoPopulate = new RepoPopulate(color);
+    var repoPopulate = new RepoPopulateRelation(color);
 
     var docs = await repoPopulate.belongsToMany(data.person, {
       docPath: 'about.trivia.*',
@@ -116,7 +116,7 @@ describe('belongsToMany()', function(){
     });
     color.dataSource = new MockDataSource(data);
     
-    var repoPopulate = new RepoPopulate(color);
+    var repoPopulate = new RepoPopulateRelation(color);
 
     var docs = await repoPopulate.belongsToMany(data.person, {
       docPath: 'about.*.*.trivia',

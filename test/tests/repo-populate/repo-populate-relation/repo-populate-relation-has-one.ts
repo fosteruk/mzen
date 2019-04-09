@@ -1,7 +1,7 @@
 import should = require('should');
-import RepoPopulate from '../../../lib/repo-populate';
-import Repo from '../../../lib/repo';
-import MockDataSource from '../../../lib/data-source/mock';
+import RepoPopulateRelation from '../../../../lib/repo-populate-relation';
+import Repo from '../../../../lib/repo';
+import MockDataSource from '../../../../lib/data-source/mock';
 
 describe('hasOne()', function () {
   it('should populate', async () => {
@@ -18,7 +18,7 @@ describe('hasOne()', function () {
       name: 'userTimezone'
     });
     userTimezone.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(userTimezone);
+    var repoPopulate = new RepoPopulateRelation(userTimezone);
 
     var docs = await repoPopulate.hasOne(data.user, {
       key: 'userId',
@@ -43,7 +43,7 @@ describe('hasOne()', function () {
       name: 'userTimezone'
     });
     userTimezone.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(userTimezone);
+    var repoPopulate = new RepoPopulateRelation(userTimezone);
 
     var docs = await repoPopulate.hasOne(data.forum, {
       docPath: 'detail.topPoster',
@@ -71,7 +71,7 @@ describe('hasOne()', function () {
       name: 'userTimezone'
     });
     userTimezone.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(userTimezone);
+    var repoPopulate = new RepoPopulateRelation(userTimezone);
 
     var docs = await repoPopulate.hasOne(data.forum, {
       docPath: 'detail.topPosters.*',
@@ -98,7 +98,7 @@ describe('hasOne()', function () {
       name: 'userTimezone'
     });
     userTimezone.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(userTimezone);
+    var repoPopulate = new RepoPopulateRelation(userTimezone);
 
     var docs = await repoPopulate.hasOne(data.forum, {
       docPath: '*.*.*.detail.topPoster',

@@ -1,7 +1,7 @@
 import should = require('should');
-import RepoPopulate from '../../../lib/repo-populate';
-import Repo from '../../../lib/repo';
-import MockDataSource from '../../../lib/data-source/mock';
+import RepoPopulateRelation from '../../../../lib/repo-populate-relation';
+import Repo from '../../../../lib/repo';
+import MockDataSource from '../../../../lib/data-source/mock';
 
 describe('hasMany()', function(){
   it('should populate', async () => {
@@ -21,7 +21,7 @@ describe('hasMany()', function(){
       name: 'album'
     });
     album.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(album);
+    var repoPopulate = new RepoPopulateRelation(album);
 
     var docs = await repoPopulate.hasMany(data.artist, {
       key: 'artistId',
@@ -52,7 +52,7 @@ describe('hasMany()', function(){
       name: 'album'
     });
     album.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(album);
+    var repoPopulate = new RepoPopulateRelation(album);
 
     var docs = await repoPopulate.hasMany(data.recordCompanies, {
       docPath: 'detail.topArtist',
@@ -90,7 +90,7 @@ describe('hasMany()', function(){
       name: 'album'
     });
     album.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(album);
+    var repoPopulate = new RepoPopulateRelation(album);
 
     var docs = await repoPopulate.hasMany(data.recordCompanies,{
       docPath: 'detail.topArtists.*',
@@ -127,7 +127,7 @@ describe('hasMany()', function(){
       name: 'album'
     });
     album.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(album);
+    var repoPopulate = new RepoPopulateRelation(album);
 
     var docs = await repoPopulate.hasMany(data.recordCompanies,{
       docPath: '*.*.*.detail.topArtist',

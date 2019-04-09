@@ -1,8 +1,8 @@
 import clone = require('clone');
-import RepoPopulate from './repo-populate';
 import { ModelManagerConfig } from './model-manager';
 import Schema, { SchemaValidationResult, SchemaSpec, ObjectPathAccessor } from 'mzen-schema';
 import Service from './service';
+import RepoPopulate from './repo-populate';
 
 export class RepoErrorValidation extends Error
 {
@@ -330,6 +330,7 @@ export class Repo
   
   async aggregate(pipeline, options?)
   {
+    this.initSchema();
     return this.dataSource.aggregate(this.config.collectionName, pipeline, options);
   }
   
@@ -384,153 +385,14 @@ export class Repo
     return (findOptions.options.populate === false) ? objects : this.populateAll(objects, findOptions.options);
   }
   
-  private getFlattenedRelations(options: any)
-  {
-    // In order to populate a relation at a given depth its parent relation must have already been populated
-    // To ensure parent relations are populate first we populate in order of relation depth
-    // This method returns an array of arrays - were each child is an array of relation configs for a given relation depth
-    // [
-    //  [relationConfigA, relationConfigB], // depth 1 to be populated first
-    //  [relationConfigB, relationConfigC] // depth 2 to be populated second
-    // ]
-    const flattenedRelationsRecursive = this.getFlattenedRelationsRecursive(options);
-
-    var flattenedRelations = [];
-    flattenedRelationsRecursive.forEach(relationConfig => {
-      const { depth, relation } = relationConfig;
-      // Sort into depth arrays
-      if (flattenedRelations[depth] == undefined) flattenedRelations[depth] = [];
-      flattenedRelations[depth].push(relation);
-    });
-
-    return flattenedRelations;
-  }
-  
-  private getFlattenedRelationsRecursive(options: any, flatRelations?: Array<any>, basePath?: string)
-  {
-    flatRelations = flatRelations ? flatRelations : [];
-    basePath = basePath ? basePath : null;
-
-    var basePathParts = basePath ? basePath.split('.') : [];
-
-    for (var x in this.config.relations) {
-      const relation = clone(this.config.relations[x]); // copy the relation we dont want to modify the original
-      const depth = basePathParts.length;
-      const recursion = relation.recursion ? relation.recursion : 0;
-      const autoPopulate = relation.autoPopulate != undefined ? relation.autoPopulate : false;
-      const populate = relation.populate != undefined ? relation.populate : true;
-      const queryPopulate = options.populate != undefined ? options.populate : true;
-
-      // Append base path
-      relation.docPath = (relation.docPath)
-                         ? (basePath ? basePath + '.' + relation.docPath : relation.docPath)
-                         : basePath;
-
-      // Append base path
-      relation.docPathRelated = (relation.docPathRelated)
-                                ? (basePath ? basePath + '.' + relation.docPathRelated : relation.docPathRelated)
-                                : basePath;
-
-      const path = relation.docPath ? relation.docPath + '.' + relation.alias : relation.alias;
-
-
-      if (
-        !queryPopulate || // query said dont populate any relations
-        (queryPopulate[path] !== undefined && !queryPopulate[path]) || // query said dont populate this path
-        (queryPopulate[path] === undefined && !autoPopulate) // query didnt specificaly enable population and relation auto population is disabled
-      ) {
-        // relation should not populate - continue to next relation
-        continue;
-      }
-
-      const flatRelation = {
-        id: this.name + '.' + relation.alias,
-        depth,
-        path,
-        relation,
-        recursionCount: 0
-      };
-
-      // How many parents of this relation are the same relation?
-      let realtionDepths = [];
-      flatRelations.forEach(existingFlatRelation => {
-        if (existingFlatRelation.id == flatRelation.id && existingFlatRelation.depth < depth) {
-          realtionDepths[existingFlatRelation.depth] =  true;
-        }
-      });
-      flatRelation.recursionCount = realtionDepths.length;
-
-      // If we have reached the recursion count skip this relation
-      if (flatRelation.recursionCount > recursion) continue;
-
-      flatRelations.push(flatRelation);
-
-      // hasManyCountRelation does not require recursive populations since its data is just a number
-      if (relation.type == 'hasManyCount') continue;
-
-      // Recurse into this relation only if populate is true or is populate relation path is true
-      if (populate) {
-        let newbasePathParts = [...basePathParts];
-        newbasePathParts.push(relation.alias);
-        if (relation.type == 'hasMany' || relation.type == 'belongsToMany') {
-          newbasePathParts.push('*');
-        }
-
-        this.getRepo(relation.repo).getFlattenedRelationsRecursive(options, flatRelations, newbasePathParts.join('.'));
-      }
-    }
-    // sort by document path length
-    flatRelations.sort(
-      (a, b) => (a.depth != b.depth ? a.depth - b.depth : ((a.path > b.path) ? 1 : 0))
-    );
-
-    return flatRelations;
-  }
-  
   async populateAll(objects: any, options?: RepoQueryOptions)
   {
-    const flattenedRelations = this.getFlattenedRelations(options);
-    options.populate = false; // Dont populate recursively - we already flattened the relations
-
-    for (let depth in flattenedRelations) {
-      if (!flattenedRelations[depth]) continue;
-
-      let populatePromises = [];
-      flattenedRelations[depth].forEach(relation => {
-        if (Array.isArray(objects) && relation.limit) {
-          // This relation is using the limit option so we can not populate a collection of objects in a single query
-          // - as it would produce in unexpcetd results.
-          // We must populate each document individually with a seperate query
-          objects.forEach(object => {
-            populatePromises.push(this.populate(relation, object, options));
-          });
-        } else {
-          populatePromises.push(this.populate(relation, objects, options));
-        }
-      });
-
-      await Promise.all(populatePromises);
-    }
-
-    return objects;
+    return (new RepoPopulate(this)).populateAll(objects, options);
   }
   
   async populate(relation: RepoRelationConfig | string, objects?: any, options?: RepoQueryOptions)
   {
-    this.initSchema();
-
-    // If relation is passed as string relation name, lookup the relation config
-    relation = (typeof relation == 'string') ? this.config.relations[relation] : relation;
-
-    // Clone the options because we dont want changes to the options object to change the original object
-    var opts = options ? clone({...relation, ...options}): clone({...relation});
-
-    var repo = this.getRepo(relation.repo);
-    var repoPopulate = new RepoPopulate(repo);
-
-    await repoPopulate[relation.type](objects, opts);
-
-    return objects;
+    return (new RepoPopulate(this)).populate(relation, objects, options);
   }
   
   async insertMany(objects, options?)

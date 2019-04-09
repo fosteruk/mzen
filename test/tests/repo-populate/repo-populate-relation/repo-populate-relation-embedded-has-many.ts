@@ -1,7 +1,7 @@
 import should = require('should');
-import RepoPopulate from '../../../lib/repo-populate';
-import Repo from '../../../lib/repo';
-import MockDataSource from '../../../lib/data-source/mock';
+import RepoPopulateRelation from '../../../../lib/repo-populate-relation';
+import Repo from '../../../../lib/repo';
+import MockDataSource from '../../../../lib/data-source/mock';
 
 describe('embeddedHasMany()', function(){
   it('should populate', async () => {
@@ -26,9 +26,9 @@ describe('embeddedHasMany()', function(){
       name: 'recordCompany'
     });
     recordCompany.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(recordCompany);
+    var repoPopulate = new RepoPopulateRelation(recordCompany);
 
-    // See RepoPopulate.normalizeOptions() comments for descrption of relation options
+    // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
     var docs = await repoPopulate.embeddedHasMany(data.recordCompany, {
       docPath: 'artists.*', 
       docPathRelated: 'albums.*', 
@@ -79,9 +79,9 @@ describe('embeddedHasMany()', function(){
       name: 'recordCompany'
     });
     recordCompany.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulate(recordCompany);
+    var repoPopulate = new RepoPopulateRelation(recordCompany);
 
-    // See RepoPopulate.normalizeOptions() comments for descrption of relation options
+    // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
     var docs = await repoPopulate.embeddedHasMany(data.recordCompany, {
       docPath: 'artists.*', 
       docPathRelated: 'albums.*', 
