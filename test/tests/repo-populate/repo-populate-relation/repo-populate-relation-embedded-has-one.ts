@@ -25,12 +25,12 @@ describe('embeddedHasOne()', function(){
     var repoPopulate = new RepoPopulateRelation(doc);
 
     // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
-    var docs = await repoPopulate.embeddedHasOne(data.docs, {
+    var docs = await repoPopulate.embeddedHasOne({
       docPath: 'user.*',
       docPathRelated: 'userTimezone.*',
       key: 'userId',
       alias: 'timezone'
-    });
+    }, data.docs);
     
     should(docs[0].user[0].timezone.name).eql('Europe/London');
   });
@@ -63,12 +63,12 @@ describe('embeddedHasOne()', function(){
     var repoPopulate = new RepoPopulateRelation(doc);
 
     // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
-    var docs = await repoPopulate.embeddedHasOne(data.docs, {
+    var docs = await repoPopulate.embeddedHasOne({
       docPath: 'user.*',
       docPathRelated: 'userTimezone.*',
       key: 'userId',
       alias: 'timezone'
-    });
+    }, data.docs);
     
     should(docs[0].user[0].timezone.name).eql('Europe/London');
     should(docs[1].user[0].timezone.name).eql('Asia/Kuala_Lumpur');

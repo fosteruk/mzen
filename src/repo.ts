@@ -70,10 +70,11 @@ export interface RepoRelationConfig extends RepoQueryOptions
 {
   repo?: string;
   type?: string;
+  key?: string;
+  pkey?: string; // defaults to '_id'
+  alias?: string;
   docPath?: string;
   docPathRelated?: string;
-  key?: string;
-  alias?: string;
   query?: any;
   recursion?: number;
   autoPopulate?: boolean;
@@ -122,7 +123,7 @@ export class Repo
     if (this.config.constructors) this.addConstructors(this.config.constructors);
     if (this.config.services) this.addServices(this.config.services);
 
-    // Compile an array of relation aliases which can be used to strip relations of populated objects before saving
+    // Compile an array of relation aliases which can be used to strip relations of populated docs before saving
     this.relationPaths = [];
     Object.keys(this.config.relations).forEach(alias => {
       let relation = this.config.relations[alias];
@@ -206,7 +207,7 @@ export class Repo
   
   addSchemas(schemas: Array<Schema> | {[key:string]: Schema})
   {
-    // could be an array of schema objects functions or a object map
+    // could be an array of schema docs functions or a object map
     var schemasArray = Array.isArray(schemas) ? schemas : Object.values(schemas);
     schemasArray.forEach(schema => this.addSchema(schema));
   }
@@ -223,7 +224,7 @@ export class Repo
   
   addRepos(repos: Array<Repo> | {[key:string]: Repo})
   {
-    // could be an array of repo objects or a object map
+    // could be an array of repo docs or a object map
     var reopsArray = Array.isArray(repos) ? repos : Object.values(repos);
     reopsArray.forEach(repo => this.addRepo(repo));
   }
@@ -240,7 +241,7 @@ export class Repo
   
   addServices(services: Array<Service> | {[key: string]: Service})
   {
-    // could be an array of repo objects or a object map
+    // could be an array of repo docs or a object map
     var servicesArray = Array.isArray(services) ? services : Object.values(services);
     servicesArray.forEach(service => this.addService(service));
   }
@@ -300,8 +301,8 @@ export class Repo
       throw new RepoErrorValidation(validateResult.errors)
     }
     // @ts-ignore - Expected 0 arguments, but got 2 - variable method arguments
-    var objects = await this.dataSource.find(this.config.collectionName, findOptions.query, findOptions.fields, findOptions.queryOptions);
-    return this.findPopulate(objects, findOptions);
+    var docs = await this.dataSource.find(this.config.collectionName, findOptions.query, findOptions.fields, findOptions.queryOptions);
+    return this.findPopulate(docs, findOptions);
   }
   
   // @ts-ignore 'args' is declared but its value is never read.
@@ -314,8 +315,8 @@ export class Repo
       throw new RepoErrorValidation(validateResult.errors);
     }
     // @ts-ignore - Expected 0 arguments, but got 2 - variable method arguments
-    var objects = await this.dataSource.findOne(this.config.collectionName, findOptions.query, findOptions.fields, findOptions.queryOptions);
-    return this.findPopulate(objects, findOptions);
+    var docs = await this.dataSource.findOne(this.config.collectionName, findOptions.query, findOptions.fields, findOptions.queryOptions);
+    return this.findPopulate(docs, findOptions);
   }
   
   async count(query, options?)
@@ -376,30 +377,30 @@ export class Repo
     return findOptions;
   }
   
-  private async findPopulate(objects: any, findOptions: any)
+  private async findPopulate(docs: any, findOptions: any)
   {
     if (findOptions.options.filterPrivate) {
-      this.schema.filterPrivate(objects, 'read');
+      this.schema.filterPrivate(docs, 'read');
     }
-    objects = objects ? this.schema.applyTransients(objects) : objects;
-    return (findOptions.options.populate === false) ? objects : this.populateAll(objects, findOptions.options);
+    docs = docs ? this.schema.applyTransients(docs) : docs;
+    return (findOptions.options.populate === false) ? docs : this.populateAll(docs, findOptions.options);
   }
   
-  async populateAll(objects: any, options?: RepoQueryOptions)
+  async populateAll(docs: any, options?: RepoQueryOptions)
   {
-    return (new RepoPopulate(this)).populateAll(objects, options);
+    return (new RepoPopulate(this)).populateAll(docs, options);
   }
   
-  async populate(relation: RepoRelationConfig | string, objects?: any, options?: RepoQueryOptions)
+  async populate(relation: RepoRelationConfig | string, docs?: any, options?: RepoQueryOptions)
   {
-    return (new RepoPopulate(this)).populate(relation, objects, options);
+    return (new RepoPopulate(this)).populate(relation, docs, options);
   }
   
-  async insertMany(objects, options?)
+  async insertMany(docs, options?)
   {
     this.initSchema();
     var args = Array.prototype.slice.call(arguments); // We use Array.slice() to make a copy of the original args
-    args[0] = this.stripTransients(objects);
+    args[0] = this.stripTransients(docs);
 
     if (options && options.filterPrivate) {
       this.schema.filterPrivate(args[0], 'write');
@@ -414,11 +415,11 @@ export class Repo
     return this.dataSource.insertMany.apply(this.dataSource, args);
   }
   
-  async insertOne(object, options?)
+  async insertOne(doc, options?)
   {
     this.initSchema();
     var args = Array.prototype.slice.call(arguments); // We use Array.slice() to make a copy of the original args
-    args[0] = this.stripTransients(object);
+    args[0] = this.stripTransients(doc);
 
     if (options && options.filterPrivate) {
       this.schema.filterPrivate(args[0], 'write');
@@ -530,21 +531,21 @@ export class Repo
     return this.dataSource.deleteOne.apply(this.dataSource, args);
   }
   
-  stripTransients(objects: any)
+  stripTransients(docs: any)
   {
     this.initSchema();
 
-    var newObjects = clone(objects); // We will be deleting relations so we need to work on a copy
-    var isArray = Array.isArray(newObjects);
-    var newObjects = isArray ? newObjects : [newObjects];
+    var newdocs = clone(docs); // We will be deleting relations so we need to work on a copy
+    var isArray = Array.isArray(newdocs);
+    var newdocs = isArray ? newdocs : [newdocs];
 
     this.relationPaths.forEach(function(relationPath){
-      ObjectPathAccessor.unsetPath('*.' + relationPath, newObjects);
+      ObjectPathAccessor.unsetPath('*.' + relationPath, newdocs);
     });
 
-    this.schema.stripTransients(newObjects);
+    this.schema.stripTransients(newdocs);
 
-    var result = isArray ? newObjects : newObjects.pop();
+    var result = isArray ? newdocs : newdocs.pop();
     return result;
   }
 }

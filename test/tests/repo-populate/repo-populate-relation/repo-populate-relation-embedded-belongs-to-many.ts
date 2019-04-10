@@ -30,12 +30,12 @@ describe('embeddedBelongsToMany()', function(){
     var repoPopulate = new RepoPopulateRelation(recordCompany);
 
     // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
-    var docs = await repoPopulate.embeddedBelongsToMany(data.recordCompany, {
+    var docs = await repoPopulate.embeddedBelongsToMany({
       docPath: 'artists.*',
       docPathRelated: 'albums.*',
       key: 'albumIds',
       alias: 'albums'
-    });
+    }, data.recordCompany);
 
     //console.log(JSON.stringify(docs, null, 2));
     should(docs[0].artists[0].albums[0].name).eql('Pablo Honey');
@@ -87,12 +87,12 @@ describe('embeddedBelongsToMany()', function(){
     var repoPopulate = new RepoPopulateRelation(recordCompany);
 
     // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
-    var docs = await repoPopulate.embeddedBelongsToMany(data.recordCompany, {
+    var docs = await repoPopulate.embeddedBelongsToMany({
       docPath: 'artists.*',
       docPathRelated: 'albums.*',
       key: 'albumIds',
       alias: 'albums'
-    });
+    }, data.recordCompany);
     
     should(docs[0].artists[0].albums.length).eql(4);
     should(docs[0].artists[0].albums[0].name).eql('Pablo Honey');

@@ -23,10 +23,10 @@ describe('hasMany()', function(){
     album.dataSource = new MockDataSource(data);
     var repoPopulate = new RepoPopulateRelation(album);
 
-    var docs = await repoPopulate.hasMany(data.artist, {
+    var docs = await repoPopulate.hasMany({
       key: 'artistId',
       alias: 'albums'
-    });
+    }, data.artist);
     
     should(docs[0].albums[0].name).eql('Pablo Honey');
     should(docs[0].albums[1].name).eql('The Bends');
@@ -54,11 +54,11 @@ describe('hasMany()', function(){
     album.dataSource = new MockDataSource(data);
     var repoPopulate = new RepoPopulateRelation(album);
 
-    var docs = await repoPopulate.hasMany(data.recordCompanies, {
+    var docs = await repoPopulate.hasMany({
       docPath: 'detail.topArtist',
       key: 'artistId',
       alias: 'albums'
-    });
+    }, data.recordCompanies);
 
     should(docs[0].detail.topArtist.albums[0].name).eql('Pablo Honey');
     should(docs[0].detail.topArtist.albums[1].name).eql('The Bends');
@@ -92,11 +92,11 @@ describe('hasMany()', function(){
     album.dataSource = new MockDataSource(data);
     var repoPopulate = new RepoPopulateRelation(album);
 
-    var docs = await repoPopulate.hasMany(data.recordCompanies,{
+    var docs = await repoPopulate.hasMany({
       docPath: 'detail.topArtists.*',
       key: 'artistId',
       alias: 'albums'
-    });
+    }, data.recordCompanies);
     
     should(docs[0].detail.topArtists[0].albums[0].name).eql('Pablo Honey');
     should(docs[0].detail.topArtists[0].albums[1].name).eql('The Bends');
@@ -129,11 +129,11 @@ describe('hasMany()', function(){
     album.dataSource = new MockDataSource(data);
     var repoPopulate = new RepoPopulateRelation(album);
 
-    var docs = await repoPopulate.hasMany(data.recordCompanies,{
+    var docs = await repoPopulate.hasMany({
       docPath: '*.*.*.detail.topArtist',
       key: 'artistId',
       alias: 'albums'
-    });
+    }, data.recordCompanies);
 
     should(docs[0].some.unknown.path.detail.topArtist.albums[0].name).eql('Pablo Honey');
     should(docs[0].some.unknown.path.detail.topArtist.albums[1].name).eql('The Bends');

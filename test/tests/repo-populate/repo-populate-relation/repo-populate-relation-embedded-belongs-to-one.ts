@@ -30,12 +30,12 @@ describe('embeddedBelongsToOne()', function(){
     var repoPopulate = new RepoPopulateRelation(recordCompany);
 
     // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
-    var docs = await repoPopulate.embeddedBelongsToOne(data.recordCompany, {
+    var docs = await repoPopulate.embeddedBelongsToOne({
       docPath: 'artists.*',
       docPathRelated: 'albums.*',
       key: 'topAlbumId',
       alias: 'topAlbum'
-    });
+    }, data.recordCompany);
 
     should(docs[0].artists[0].topAlbum.name).eql('OK Computer');
   });
@@ -83,12 +83,12 @@ describe('embeddedBelongsToOne()', function(){
     var repoPopulate = new RepoPopulateRelation(recordCompany);
 
     // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
-    var docs = await repoPopulate.embeddedBelongsToOne(data.recordCompany, {
+    var docs = await repoPopulate.embeddedBelongsToOne({
       docPath: 'artists.*',
       docPathRelated: 'albums.*',
       key: 'topAlbumId',
       alias: 'topAlbum'
-    });
+    }, data.recordCompany);
 
     should(docs[0].artists[0].topAlbum.name).eql('OK Computer');
     should(docs[1].artists[0].topAlbum.name).eql('Amputechture');

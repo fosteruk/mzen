@@ -20,10 +20,10 @@ describe('belongsToOne()', function(){
     user.dataSource = new MockDataSource(data);
     var repoPopulate = new RepoPopulateRelation(user);
 
-    var docs = await repoPopulate.belongsToOne(data.artist, {
+    var docs = await repoPopulate.belongsToOne({
       key: 'createdByUserId',
       alias: 'createdByUser'
-    });
+    }, data.artist);
   
     should(docs[0].createdByUser.name).eql('Kevin Foster');
   });
@@ -51,11 +51,11 @@ describe('belongsToOne()', function(){
     user.dataSource = new MockDataSource(data);
     var repoPopulate = new RepoPopulateRelation(user);
 
-    var docs = await repoPopulate.belongsToOne(data.product, {
+    var docs = await repoPopulate.belongsToOne({
       docPath: 'detail.more',
       key: 'createdByUserId',
       alias: 'createdByUser'
-    });
+    }, data.product);
   
     should(docs[0].detail.more.createdByUser.name).eql('Kevin Foster');
     should(docs[1].detail.more.createdByUser.name).eql('Tom Murphy');
@@ -86,11 +86,11 @@ describe('belongsToOne()', function(){
     user.dataSource = new MockDataSource(data);
     var repoPopulate = new RepoPopulateRelation(user);
 
-    var docs = await repoPopulate.belongsToOne(data.product, {
+    var docs = await repoPopulate.belongsToOne({
       docPath: 'detail.more.*',
       key: 'createdByUserId',
       alias: 'createdByUser'
-    });
+    }, data.product);
     
     should(docs[0].detail.more[0].createdByUser.name).eql('Kevin Foster');
     should(docs[0].detail.more[1].createdByUser.name).eql('Tom Murphy');
@@ -119,11 +119,11 @@ describe('belongsToOne()', function(){
     user.dataSource = new MockDataSource(data);
     var repoPopulate = new RepoPopulateRelation(user);
 
-    var docs = await repoPopulate.belongsToOne(data.product, {
+    var docs = await repoPopulate.belongsToOne({
       docPath: '*.*.*.detail.more',
       key: 'createdByUserId',
       alias: 'createdByUser'
-    });
+    }, data.product);
     
     should(docs[0].some.unknown.path.detail.more.createdByUser.name).eql('Kevin Foster');
     should(docs[1].some.unknown.path.detail.more.createdByUser.name).eql('Tom Murphy');

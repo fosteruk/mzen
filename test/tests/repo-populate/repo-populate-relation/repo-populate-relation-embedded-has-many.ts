@@ -29,12 +29,12 @@ describe('embeddedHasMany()', function(){
     var repoPopulate = new RepoPopulateRelation(recordCompany);
 
     // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
-    var docs = await repoPopulate.embeddedHasMany(data.recordCompany, {
+    var docs = await repoPopulate.embeddedHasMany({
       docPath: 'artists.*', 
       docPathRelated: 'albums.*', 
       key: 'artistId',
       alias: 'albums' 
-    });
+    }, data.recordCompany);
     
     should(docs[0].artists[0].albums[0].name).eql('Pablo Honey');
     should(docs[0].artists[0].albums[1].name).eql('The Bends');
@@ -82,12 +82,12 @@ describe('embeddedHasMany()', function(){
     var repoPopulate = new RepoPopulateRelation(recordCompany);
 
     // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
-    var docs = await repoPopulate.embeddedHasMany(data.recordCompany, {
+    var docs = await repoPopulate.embeddedHasMany({
       docPath: 'artists.*', 
       docPathRelated: 'albums.*', 
       key: 'artistId',
       alias: 'albums' 
-    });
+    }, data.recordCompany);
     
     should(docs[0].artists[0].albums.length).eql(4);
     should(docs[0].artists[0].albums[0].name).eql('Pablo Honey');

@@ -24,10 +24,10 @@ describe('belongsToMany()', function(){
     color.dataSource = new MockDataSource(data);
     var repoPopulate = new RepoPopulateRelation(color);
 
-    var docs = await repoPopulate.belongsToMany(data.person, {
+    var docs = await repoPopulate.belongsToMany({
       key: 'favouriteColorIds',
       alias: 'favouriteColors'
-    });
+    }, data.person);
 
     should(docs[0].favouriteColors[0].name).eql('Red');
     should(docs[0].favouriteColors[1].name).eql('Green');
@@ -53,11 +53,11 @@ describe('belongsToMany()', function(){
 
     var repoPopulate = new RepoPopulateRelation(color);
 
-    var docs = await repoPopulate.belongsToMany(data.person, {
+    var docs = await repoPopulate.belongsToMany({
       docPath: 'about.trivia',
       key: 'favouriteColorIds',
       alias: 'favouriteColors'
-    });
+    }, data.person);
     
     should(docs[0].about.trivia.favouriteColors[0].name).eql('Red');
     should(docs[0].about.trivia.favouriteColors[1].name).eql('Green');
@@ -86,11 +86,11 @@ describe('belongsToMany()', function(){
     
     var repoPopulate = new RepoPopulateRelation(color);
 
-    var docs = await repoPopulate.belongsToMany(data.person, {
+    var docs = await repoPopulate.belongsToMany({
       docPath: 'about.trivia.*',
       key: 'favouriteColorIds',
       alias: 'favouriteColors'
-    });
+    }, data.person);
 
     should(docs[0].about.trivia[0].favouriteColors[0].name).eql('Red');
     should(docs[0].about.trivia[0].favouriteColors[1].name).eql('Green');
@@ -118,11 +118,11 @@ describe('belongsToMany()', function(){
     
     var repoPopulate = new RepoPopulateRelation(color);
 
-    var docs = await repoPopulate.belongsToMany(data.person, {
+    var docs = await repoPopulate.belongsToMany({
       docPath: 'about.*.*.trivia',
       key: 'favouriteColorIds',
       alias: 'favouriteColors'
-    });
+    }, data.person);
     
     should(docs[0].about.unknown.path.trivia.favouriteColors[0].name).eql('Red');
     should(docs[0].about.unknown.path.trivia.favouriteColors[1].name).eql('Green');

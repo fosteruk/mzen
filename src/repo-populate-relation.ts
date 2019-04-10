@@ -1,5 +1,11 @@
-import Repo from './repo';
+import { Repo, RepoQueryOptions, RepoRelationConfig } from './repo';
 import { ObjectPathAccessor } from 'mzen-schema';
+
+export interface RepoPopulateRelationConfig extends RepoQueryOptions, RepoRelationConfig
+{
+  relation?: string;
+  sourceKey?: string;
+}
 
 export class RepoPopulateRelation
 {
@@ -10,51 +16,51 @@ export class RepoPopulateRelation
     this.relationRepo = relationRepo;
   }
   
-  async hasMany(docs, options)
+  async hasMany(config: RepoPopulateRelationConfig, docs)
   {
-    options.relation = 'hasMany';
-    return this.has(docs, options);
+    config.relation = 'hasMany';
+    return this.has(config, docs);
   }
   
-  async hasOne(docs, options)
+  async hasOne(config: RepoPopulateRelationConfig, docs)
   {
-    options.relation = 'hasOne';
-    return this.has(docs, options);
+    config.relation = 'hasOne';
+    return this.has(config, docs);
   }
   
-  async has(docs, options)
+  async has(config: RepoPopulateRelationConfig, docs)
   {
-    RepoPopulateRelation.normalizeOptions(options);
+    RepoPopulateRelation.normalizeConfig(config);
 
-    const relationIds = RepoPopulateRelation.getRelationIds(docs, options);
+    const relationIds = RepoPopulateRelation.getRelationIds(config, docs);
 
     // Use query option if provided - allows results to be further filtered in addition to relation id
-    options.query[options.key] = {$in: relationIds};
+    config.query[config.key] = {$in: relationIds};
     // @ts-ignore - Expected 0 arguments, but got 2 - variable method arguments
-    var relatedDocs = await this.relationRepo.find(options.query, options);
+    var relatedDocs = await this.relationRepo.find(config.query, config);
     // Group related docs by parent key
     var values = {};
-    relatedDocs.forEach(function(relatedDoc){
-      if (values[relatedDoc[options.key]] == undefined) values[relatedDoc[options.key]] = [];
-      values[relatedDoc[options.key]].push(relatedDoc);
+    relatedDocs.forEach(relatedDoc => {
+      if (values[relatedDoc[config.key]] == undefined) values[relatedDoc[config.key]] = [];
+      values[relatedDoc[config.key]].push(relatedDoc);
     });
 
-    return RepoPopulateRelation.populate(docs, options, values);
+    return RepoPopulateRelation.populate(config, docs, values);
   }
   
-  async hasManyCount(docs, options)
+  async hasManyCount(config: RepoPopulateRelationConfig, docs)
   {
-    RepoPopulateRelation.normalizeOptions(options);
+    RepoPopulateRelation.normalizeConfig(config);
 
-    const relationIds = RepoPopulateRelation.getRelationIds(docs, options);
+    const relationIds = RepoPopulateRelation.getRelationIds(config, docs);
 
     // Use query option if provided - allows results to be further filtered in addition to relation id
-    options.query[options.key] = {$in: relationIds};
+    config.query[config.key] = {$in: relationIds};
 
     var aggregateId = {};
-    aggregateId[options.key] = '$' + options.key;
+    aggregateId[config.key] = '$' + config.key;
     var results = await this.relationRepo.aggregate([
-      {$match: options.query},
+      {$match: config.query},
       {
         $group : {
            _id : aggregateId,
@@ -65,111 +71,111 @@ export class RepoPopulateRelation
 
     // Group related docs by parent key
     var values = {};
-    results.forEach(function(result){
-      if (values[result['_id'][options.key]] == undefined) values[result['_id'][options.key]] = 0;
-      values[result['_id'][options.key]] = result['count'];
+    results.forEach(result => {
+      if (values[result['_id'][config.key]] == undefined) values[result['_id'][config.key]] = 0;
+      values[result['_id'][config.key]] = result['count'];
     });
 
-    return RepoPopulateRelation.populate(docs, options, values);
+    return RepoPopulateRelation.populate(config, docs, values);
   }
   
-  async embeddedHasOne(docs, options)
+  async embeddedHasOne(config: RepoPopulateRelationConfig, docs)
   {
-    options.relation = 'embeddedHasOne';
-    return this.embeddedHas(docs, options);
+    config.relation = 'embeddedHasOne';
+    return this.embeddedHas(config, docs);
   }
   
-  async embeddedHasMany(docs, options)
+  async embeddedHasMany(config: RepoPopulateRelationConfig, docs)
   {
-    options.relation = 'embeddedHasMany';
-    return this.embeddedHas(docs, options);
+    config.relation = 'embeddedHasMany';
+    return this.embeddedHas(config, docs);
   }
   
-  async embeddedHas(docs, options)
+  async embeddedHas(config: RepoPopulateRelationConfig, docs)
   {
-    RepoPopulateRelation.normalizeOptions(options);
+    RepoPopulateRelation.normalizeConfig(config);
 
-    const relationIds = RepoPopulateRelation.getRelationIds(docs, options);
-    const embeddedDocs = RepoPopulateRelation.getEmebedRelations(options.docPathRelated, docs);
+    const relationIds = RepoPopulateRelation.getRelationIds(config, docs);
+    const embeddedDocs = RepoPopulateRelation.getEmebedRelations(config.docPathRelated, docs);
 
     var values = {};
     embeddedDocs.forEach(function(embeddedDoc){
-      if (relationIds.indexOf(embeddedDoc[options.key]) != -1) {
-        if (values[embeddedDoc[options.key]] == undefined) values[embeddedDoc[options.key]] = [];
-        values[embeddedDoc[options.key]].push(embeddedDoc);
+      if (relationIds.indexOf(embeddedDoc[config.key]) != -1) {
+        if (values[embeddedDoc[config.key]] == undefined) values[embeddedDoc[config.key]] = [];
+        values[embeddedDoc[config.key]].push(embeddedDoc);
       }
     });
 
-    return RepoPopulateRelation.populate(docs, options, values);
+    return RepoPopulateRelation.populate(config, docs, values);
   }
   
-  async belongsToOne(docs, options)
+  async belongsToOne(config: RepoPopulateRelationConfig, docs)
   {
-    options.relation = 'belongsToOne';
-    return this.belongsTo(docs, options);
+    config.relation = 'belongsToOne';
+    return this.belongsTo(config, docs);
   }
   
-  async belongsToMany(docs, options)
+  async belongsToMany(config: RepoPopulateRelationConfig, docs)
   {
-    options.relation = 'belongsToMany';
-    return this.belongsTo(docs, options);
+    config.relation = 'belongsToMany';
+    return this.belongsTo(config, docs);
   }
   
-  async belongsTo(docs, options)
+  async belongsTo(config: RepoPopulateRelationConfig, docs)
   {
-    RepoPopulateRelation.normalizeOptions(options);
+    RepoPopulateRelation.normalizeConfig(config);
 
-    const relationIds = RepoPopulateRelation.getRelationIds(docs, options);
+    const relationIds = RepoPopulateRelation.getRelationIds(config, docs);
     // Use query option if provided - allows results to be further filtered in addition to relation id
-    options.query[options.pkey] = {$in: relationIds};
+    config.query[config.pkey] = {$in: relationIds};
     // @ts-ignore - Expected 0 arguments, but got 2 - variable method arguments
-    var relatedDocs = await this.relationRepo.find(options.query, options);
+    var relatedDocs = await this.relationRepo.find(config.query, config);
     // Group related docs by parent key
     let values = {};
     
-    relatedDocs.forEach(function(relatedDoc, x){
-      values[relatedDoc[options.pkey]] = relatedDocs[x];
+    relatedDocs.forEach((relatedDoc, x) => {
+      values[relatedDoc[config.pkey]] = relatedDocs[x];
     });
 
-    return RepoPopulateRelation.populate(docs, options, values);
+    return RepoPopulateRelation.populate(config, docs, values);
   }
   
-  async embeddedBelongsToMany(docs, options)
+  async embeddedBelongsToMany(config: RepoPopulateRelationConfig, docs)
   {
-    options.relation = 'embeddedBelongsToMany';
-    return this.embeddedBelongsTo(docs, options);
+    config.relation = 'embeddedBelongsToMany';
+    return this.embeddedBelongsTo(config, docs);
   }
   
-  async embeddedBelongsToOne(docs, options)
+  async embeddedBelongsToOne(config: RepoPopulateRelationConfig, docs)
   {
-    options.relation = 'embeddedBelongsToOne';
-    return this.embeddedBelongsTo(docs, options);
+    config.relation = 'embeddedBelongsToOne';
+    return this.embeddedBelongsTo(config, docs);
   }
   
-  async embeddedBelongsTo(docs, options)
+  async embeddedBelongsTo(config: RepoPopulateRelationConfig, docs)
   {
-    RepoPopulateRelation.normalizeOptions(options);
+    RepoPopulateRelation.normalizeConfig(config);
 
-    const relationIds = RepoPopulateRelation.getRelationIds(docs, options);
-    const embeddedDocs = RepoPopulateRelation.getEmebedRelations(options.docPathRelated, docs);
+    const relationIds = RepoPopulateRelation.getRelationIds(config, docs);
+    const embeddedDocs = RepoPopulateRelation.getEmebedRelations(config.docPathRelated, docs);
 
     var values = {};
-    embeddedDocs.forEach((embeddedDoc) => {
+    embeddedDocs.forEach(embeddedDoc => {
       // We must store the id as a primitive so we can use it as a object field name in our lookup values object
       // - complex types can not be used as object field names
-      let id = String(embeddedDoc[options.pkey]);
+      let id = String(embeddedDoc[config.pkey]);
       if (relationIds.indexOf(id) != -1) {
         // Group related docs by parent key
         values[id] = embeddedDoc;
       }
     });
 
-    return RepoPopulateRelation.populate(docs, options, values);
+    return RepoPopulateRelation.populate(config, docs, values);
   }
   
-  static getRelationIds(docs, options)
+  static getRelationIds(config: RepoPopulateRelationConfig, docs)
   {
-    RepoPopulateRelation.normalizeOptions(options);
+    RepoPopulateRelation.normalizeConfig(config);
 
     // We may be passed an array of docs or a single doc
     // - we want to deal with both situations uniformly
@@ -178,12 +184,12 @@ export class RepoPopulateRelation
     var relationIds = [];
     // If we were given a document path, the path is relative to the object not to the array of objects
     // - prefix the document path with '*' so it will pull all elements from the array
-    const docPath = options.docPath ? '*.' + options.docPath : '*';
+    const docPath = config.docPath ? '*.' + config.docPath : '*';
     const embeddedDocs = ObjectPathAccessor.getPath(docPath, docs);
 
-    embeddedDocs.forEach(function(doc){
+    embeddedDocs.forEach(doc => {
       if (doc) {
-        let id = doc[options.sourceKey];
+        let id = doc[config.sourceKey];
         if (Array.isArray(id)) {
           // Only belongsToMany relation supports an array of source keys
           id.forEach((anId) => {
@@ -218,9 +224,9 @@ export class RepoPopulateRelation
     return embeddedDocs;
   }
   
-  static populate(docs, options, values)
+  static populate(config: RepoPopulateRelationConfig, docs, values)
   {
-    RepoPopulateRelation.normalizeOptions(options);
+    RepoPopulateRelation.normalizeConfig(config);
 
     // We may be passed an array of docs or a single doc
     // - we want to deal with both situations uniformly
@@ -228,24 +234,24 @@ export class RepoPopulateRelation
     docs = Array.isArray(docs) ? docs : [docs];
     // If we were given a document path, the path is relative to the object not to the array of objects
     // - prefix the document path with '*' so it will pull all elements from the array
-    const docPath = options.docPath ? '*.' + options.docPath : '*';
+    const docPath = config.docPath ? '*.' + config.docPath : '*';
     const embeddedDocs = ObjectPathAccessor.getPath(docPath, docs);
 
-    embeddedDocs.forEach(function(doc){
+    embeddedDocs.forEach(doc => {
       if (doc !== Object(doc)) return;
-      var sourceKey = doc[options.sourceKey];
+      var sourceKey = doc[config.sourceKey];
       if (sourceKey) {
         if (Array.isArray(sourceKey)) {
           // The source key is an array of keys so we need to look up each value and append
           // - this must be a belongsToMany relation since that is the only relation type that supports
           // - an array of source keys
-          doc[options.alias] = [];
+          doc[config.alias] = [];
           sourceKey.forEach(function(sk){
-            if (values[sk] !== undefined) doc[options.alias].push(values[sk]);
+            if (values[sk] !== undefined) doc[config.alias].push(values[sk]);
           });
         } else {
-          let isHasOne = (options.relation.toLowerCase().indexOf('hasone') != -1);
-          if (values[sourceKey] !== undefined) doc[options.alias] = isHasOne ? values[sourceKey][0] : values[sourceKey];
+          let isHasOne = (config.relation.toLowerCase().indexOf('hasone') != -1);
+          if (values[sourceKey] !== undefined) doc[config.alias] = isHasOne ? values[sourceKey][0] : values[sourceKey];
         }
       }
     });
@@ -253,36 +259,37 @@ export class RepoPopulateRelation
     return docs;
   }
   
-  static normalizeOptions(options)
+  static normalizeConfig(config: RepoPopulateRelationConfig)
   {
     // pkey is the primary key name to use when looking up relations
     // - the primary key is the key of the source document on has* type relations
     // - the primary key is the key of the related document on blongsTo* type relations
-    options.pkey = options.pkey ? options.pkey : '_id';
+    config.pkey = config.pkey ? config.pkey : '_id';
     // Key is the field where the relation id is stored in the related document
     // - for all except belongsTo type relations where the key is on the source document
-    options.key = options.key ? options.key : '';
+    config.key = config.key ? config.key : '';
 
     // relation type name
-    options.relation = options.relation ? options.relation : '';
+    config.relation = config.relation ? config.relation : '';
 
-    // sourceKey is an internal option which refers to either the key or the pkey depending on relation type
+    // sourceKey is an internal option (not specified by the user but set for internal handling) 
+    // - which refers to either the key or the pkey depending on relation type
     // - sourceKey is the same as key value on belongsTo* type relations
     // - sourceKey is the same as pkey value on has* type relations
-    let isBelongsTo = (options.relation.toLowerCase().indexOf('belongsto') != -1);
-    options.sourceKey = isBelongsTo ? options.key : options.pkey;
+    let isBelongsTo = (config.relation.toLowerCase().indexOf('belongsto') != -1);
+    config.sourceKey = isBelongsTo ? config.key : config.pkey;
 
     // alias is the field name used to store the compiled relations
-    options.alias = options.alias ? options.alias : '';
+    config.alias = config.alias ? config.alias : '';
     // docPath is path to the object(s) where the relation should be populated
-    options.docPath = options.docPath ? options.docPath : false;
+    config.docPath = config.docPath ? config.docPath : null;
     // docPathRelated is the path to the related objects
-    options.docPathRelated = options.docPathRelated ? options.docPathRelated : false;
+    config.docPathRelated = config.docPathRelated ? config.docPathRelated : null;
 
     // query is query object used to further filter related objects
-    options.query = options.query ? options.query : {};
+    config.query = config.query ? config.query : {};
 
-    options.populate = options.populate !== false;
+    config.populate = config.populate !== false;
   }
 }
 

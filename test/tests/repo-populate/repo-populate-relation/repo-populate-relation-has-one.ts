@@ -20,10 +20,10 @@ describe('hasOne()', function () {
     userTimezone.dataSource = new MockDataSource(data);
     var repoPopulate = new RepoPopulateRelation(userTimezone);
 
-    var docs = await repoPopulate.hasOne(data.user, {
+    var docs = await repoPopulate.hasOne({
       key: 'userId',
       alias: 'timezone'
-    });
+    }, data.user);
 
     should(docs[0].timezone.name).eql('Europe/London');
   });
@@ -45,11 +45,11 @@ describe('hasOne()', function () {
     userTimezone.dataSource = new MockDataSource(data);
     var repoPopulate = new RepoPopulateRelation(userTimezone);
 
-    var docs = await repoPopulate.hasOne(data.forum, {
+    var docs = await repoPopulate.hasOne({
       docPath: 'detail.topPoster',
       key: 'userId',
       alias: 'timezone'
-    });
+    }, data.forum);
 
     should(docs[0].detail.topPoster.timezone.name).eql('Europe/London');
   });
@@ -73,11 +73,11 @@ describe('hasOne()', function () {
     userTimezone.dataSource = new MockDataSource(data);
     var repoPopulate = new RepoPopulateRelation(userTimezone);
 
-    var docs = await repoPopulate.hasOne(data.forum, {
+    var docs = await repoPopulate.hasOne({
       docPath: 'detail.topPosters.*',
       key: 'userId',
       alias: 'timezone'
-    });
+    }, data.forum);
     
     should(docs[0].detail.topPosters[0].timezone.name).eql('Europe/London');
     should(docs[0].detail.topPosters[1].timezone.name).eql('America/Toronto');
@@ -100,11 +100,11 @@ describe('hasOne()', function () {
     userTimezone.dataSource = new MockDataSource(data);
     var repoPopulate = new RepoPopulateRelation(userTimezone);
 
-    var docs = await repoPopulate.hasOne(data.forum, {
+    var docs = await repoPopulate.hasOne({
       docPath: '*.*.*.detail.topPoster',
       key: 'userId',
       alias: 'timezone'
-    });
+    }, data.forum);
 
     should(docs[0].some.unknown.path.detail.topPoster.timezone.name).eql('Europe/London');
   });

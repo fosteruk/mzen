@@ -1,4 +1,4 @@
-import { Repo, RepoQueryOptions, RepoRelationConfig } from './repo';
+import { Repo, RepoRelationConfig, RepoQueryOptions } from './repo';
 import RepoPopulateRelation from './repo-populate-relation';
 import clone = require('clone');
 
@@ -11,7 +11,7 @@ export class RepoPopulate
     this.repo = repo;
   }
   
-  async populateAll(objects: any, options?: RepoQueryOptions)
+  async populateAll(docs: any, options?: RepoQueryOptions)
   {
     const flattenedRelations = this.getFlattenedRelations(options);
     options.populate = false; // Dont populate recursively - we already flattened the relations
@@ -21,38 +21,38 @@ export class RepoPopulate
 
       let populatePromises = [];
       flattenedRelations[depth].forEach(relation => {
-        if (Array.isArray(objects) && relation.limit) {
-          // This relation is using the limit option so we can not populate a collection of objects in a single query
+        if (Array.isArray(docs) && relation.limit) {
+          // This relation is using the limit option so we can not populate a collection of docs in a single query
           // - as it would produce in unexpcetd results.
           // We must populate each document individually with a seperate query
-          objects.forEach(object => {
-            populatePromises.push(this.populate(relation, object, options));
+          docs.forEach(doc => {
+            populatePromises.push(this.populate(relation, doc, options));
           });
         } else {
-          populatePromises.push(this.populate(relation, objects, options));
+          populatePromises.push(this.populate(relation, docs, options));
         }
       });
 
       await Promise.all(populatePromises);
     }
 
-    return objects;
+    return docs;
   }
 
-  async populate(relation: RepoRelationConfig | string, objects?: any, options?: RepoQueryOptions)
+  async populate(relation: RepoRelationConfig | string, docs?: any, options?: RepoQueryOptions)
   {
     // If relation is passed as string relation name, lookup the relation config
     relation = (typeof relation == 'string') ? this.repo.config.relations[relation] : relation;
 
-    // Clone the options because we dont want changes to the options object to change the original object
-    var opts = options ? clone({...relation, ...options}): clone({...relation});
+    // Clone the options because we dont want changes to the options doc to change the original doc
+    var relationPopulateConfig = options ? clone({...relation, ...options}): clone({...relation});
 
     var relationRepo = this.repo.getRepo(relation.repo);
     var repoPopulate = new RepoPopulateRelation(relationRepo);
 
-    await repoPopulate[relation.type](objects, opts);
+    await repoPopulate[relation.type](relationPopulateConfig, docs);
 
-    return objects;
+    return docs;
   }
 
   private getFlattenedRelations(options: any)
