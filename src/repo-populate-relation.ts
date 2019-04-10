@@ -1,7 +1,7 @@
-import { Repo, RepoQueryOptions, RepoRelationConfig } from './repo';
+import { Repo, RepoRelationConfig } from './repo';
 import { ObjectPathAccessor } from 'mzen-schema';
 
-export interface RepoPopulateRelationConfig extends RepoQueryOptions, RepoRelationConfig
+export interface RepoPopulateRelationConfig extends RepoRelationConfig
 {
   relation?: string;
   sourceKey?: string;
