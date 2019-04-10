@@ -25,32 +25,40 @@ export class RepoPopulate
           // This relation is using the limit option so we can not populate a collection of docs in a single query
           // - as it would produce in unexpcetd results.
           // We must populate each document individually with a seperate query
-          docs.forEach(doc => {
-            populatePromises.push(this.populate(relation, doc, options));
-          });
+          for (var x in docs) {
+            populatePromises.push(this.populate(relation, docs[x], options));
+          }
         } else {
           populatePromises.push(this.populate(relation, docs, options));
         }
       });
-
       await Promise.all(populatePromises);
     }
 
     return docs;
   }
 
-  async populate(relation: RepoRelationConfig | string, docs?: any, options?: RepoQueryOptions)
+  async populate(relationConfig: RepoRelationConfig | string, docs?: any, options?: RepoQueryOptions)
   {
     // If relation is passed as string relation name, lookup the relation config
-    relation = (typeof relation == 'string') ? this.repo.config.relations[relation] : relation;
+    const relation: RepoRelationConfig = (typeof relationConfig == 'string') ? this.repo.config.relations[relationConfig] : relationConfig;
 
     // Clone the options because we dont want changes to the options doc to change the original doc
     var relationPopulateConfig = options ? clone({...relation, ...options}): clone({...relation});
+    var repoPopulate = new RepoPopulateRelation(this.repo.getRepo(relation.repo));
 
-    var relationRepo = this.repo.getRepo(relation.repo);
-    var repoPopulate = new RepoPopulateRelation(relationRepo);
-
-    await repoPopulate[relation.type](relationPopulateConfig, docs);
+    if (Array.isArray(docs) && relation.limit) {
+       // This relation is using the limit option so we can not populate a collection of docs in a single query
+      // - as it would produce in unexpcetd results.
+      // We must populate each document individually with a seperate query
+      let populatePromises = [];
+      for (var x in docs) {
+        populatePromises.push(repoPopulate[relation.type](relationPopulateConfig, docs[x]));
+      }
+      await Promise.all(populatePromises);
+    } else {
+      await repoPopulate[relation.type](relationPopulateConfig, docs);
+    }
 
     return docs;
   }
