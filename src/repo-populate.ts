@@ -21,16 +21,7 @@ export class RepoPopulate
 
       let populatePromises = [];
       flattenedRelations[depth].forEach(relation => {
-        if (Array.isArray(docs) && relation.limit) {
-          // This relation is using the limit option so we can not populate a collection of docs in a single query
-          // - as it would produce in unexpcetd results.
-          // We must populate each document individually with a seperate query
-          for (var x in docs) {
-            populatePromises.push(this.populate(relation, docs[x], options));
-          }
-        } else {
-          populatePromises.push(this.populate(relation, docs, options));
-        }
+        populatePromises.push(this.populate(relation, docs, options));
       });
       await Promise.all(populatePromises);
     }
@@ -47,10 +38,15 @@ export class RepoPopulate
     var relationPopulateConfig = options ? {...relationConfig, ...options} : relationConfig;
     var repoPopulate = new RepoPopulateRelation(this.repo.getRepo(relationConfig.repo));
 
-    docs = Array.isArray(docs) ? docs : [docs];
-
-    for (var x in docs) {
-      await repoPopulate[relationConfig.type](relationPopulateConfig, docs[x]);
+    if (Array.isArray(docs) && relationConfig.limit) {
+      // This relation is using the limit option so we can not populate a collection of docs in a single query
+      // - as it would produce in unexpcetd results.
+      // We must populate each document individually with a seperate query
+      for (var x in docs) {
+        await repoPopulate[relationConfig.type](relationPopulateConfig, docs[x]);
+      }
+    } else {
+      await repoPopulate[relationConfig.type](relationPopulateConfig, docs);
     }
 
     return docs;
