@@ -96,6 +96,7 @@ export class RepoPopulateRelation
     return this.embeddedHas(config, docs);
   }
   
+  // An embedded relation relates objects embedded within the same document
   async embeddedHas(config: RepoPopulateRelationConfig, docs)
   {
     config = RepoPopulateRelation.normalizeConfig(config);
@@ -161,6 +162,7 @@ export class RepoPopulateRelation
     return this.embeddedBelongsTo(config, docs);
   }
   
+  // An embedded relation relates objects embedded within the same document
   async embeddedBelongsTo(config: RepoPopulateRelationConfig, docs)
   {
     config = RepoPopulateRelation.normalizeConfig(config);
