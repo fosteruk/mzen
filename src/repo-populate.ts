@@ -38,26 +38,19 @@ export class RepoPopulate
     return docs;
   }
 
-  async populate(relationConfig: RepoRelationConfig | string, docs?: any, options?: RepoQueryOptions)
+  async populate(relation: RepoRelationConfig | string, docs?: any, options?: RepoQueryOptions)
   {
     // If relation is passed as string relation name, lookup the relation config
-    const relation: RepoRelationConfig = (typeof relationConfig == 'string') ? this.repo.config.relations[relationConfig] : relationConfig;
+    const relationConfig: RepoRelationConfig = (typeof relation == 'string') ? this.repo.config.relations[relation] : relation;
 
     // Clone the options because we dont want changes to the options doc to change the original doc
-    var relationPopulateConfig = options ? clone({...relation, ...options}): clone({...relation});
-    var repoPopulate = new RepoPopulateRelation(this.repo.getRepo(relation.repo));
+    var relationPopulateConfig = options ? {...relationConfig, ...options} : relationConfig;
+    var repoPopulate = new RepoPopulateRelation(this.repo.getRepo(relationConfig.repo));
 
-    if (Array.isArray(docs) && relation.limit) {
-       // This relation is using the limit option so we can not populate a collection of docs in a single query
-      // - as it would produce in unexpcetd results.
-      // We must populate each document individually with a seperate query
-      let populatePromises = [];
-      for (var x in docs) {
-        populatePromises.push(repoPopulate[relation.type](relationPopulateConfig, docs[x]));
-      }
-      await Promise.all(populatePromises);
-    } else {
-      await repoPopulate[relation.type](relationPopulateConfig, docs);
+    docs = Array.isArray(docs) ? docs : [docs];
+
+    for (var x in docs) {
+      await repoPopulate[relationConfig.type](relationPopulateConfig, docs[x]);
     }
 
     return docs;

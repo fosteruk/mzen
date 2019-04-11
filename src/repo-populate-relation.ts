@@ -1,5 +1,6 @@
 import { Repo, RepoRelationConfig } from './repo';
 import { ObjectPathAccessor } from 'mzen-schema';
+import clone = require('clone');
 
 export interface RepoPopulateRelationConfig extends RepoRelationConfig
 {
@@ -18,19 +19,21 @@ export class RepoPopulateRelation
   
   async hasMany(config: RepoPopulateRelationConfig, docs)
   {
+    config = RepoPopulateRelation.normalizeConfig(config);
     config.relation = 'hasMany';
     return this.has(config, docs);
   }
   
   async hasOne(config: RepoPopulateRelationConfig, docs)
   {
+    config = RepoPopulateRelation.normalizeConfig(config);
     config.relation = 'hasOne';
     return this.has(config, docs);
   }
   
   async has(config: RepoPopulateRelationConfig, docs)
   {
-    RepoPopulateRelation.normalizeConfig(config);
+    config = RepoPopulateRelation.normalizeConfig(config);
 
     const relationIds = RepoPopulateRelation.getRelationIds(config, docs);
 
@@ -50,7 +53,7 @@ export class RepoPopulateRelation
   
   async hasManyCount(config: RepoPopulateRelationConfig, docs)
   {
-    RepoPopulateRelation.normalizeConfig(config);
+    config = RepoPopulateRelation.normalizeConfig(config);
 
     const relationIds = RepoPopulateRelation.getRelationIds(config, docs);
 
@@ -81,19 +84,21 @@ export class RepoPopulateRelation
   
   async embeddedHasOne(config: RepoPopulateRelationConfig, docs)
   {
+    config = RepoPopulateRelation.normalizeConfig(config);
     config.relation = 'embeddedHasOne';
     return this.embeddedHas(config, docs);
   }
   
   async embeddedHasMany(config: RepoPopulateRelationConfig, docs)
   {
+    config = RepoPopulateRelation.normalizeConfig(config);
     config.relation = 'embeddedHasMany';
     return this.embeddedHas(config, docs);
   }
   
   async embeddedHas(config: RepoPopulateRelationConfig, docs)
   {
-    RepoPopulateRelation.normalizeConfig(config);
+    config = RepoPopulateRelation.normalizeConfig(config);
 
     const relationIds = RepoPopulateRelation.getRelationIds(config, docs);
     const embeddedDocs = RepoPopulateRelation.getEmebedRelations(config.docPathRelated, docs);
@@ -111,19 +116,21 @@ export class RepoPopulateRelation
   
   async belongsToOne(config: RepoPopulateRelationConfig, docs)
   {
+    config = RepoPopulateRelation.normalizeConfig(config);
     config.relation = 'belongsToOne';
     return this.belongsTo(config, docs);
   }
   
   async belongsToMany(config: RepoPopulateRelationConfig, docs)
   {
+    config = RepoPopulateRelation.normalizeConfig(config);
     config.relation = 'belongsToMany';
     return this.belongsTo(config, docs);
   }
   
   async belongsTo(config: RepoPopulateRelationConfig, docs)
   {
-    RepoPopulateRelation.normalizeConfig(config);
+    config = RepoPopulateRelation.normalizeConfig(config);
 
     const relationIds = RepoPopulateRelation.getRelationIds(config, docs);
     // Use query option if provided - allows results to be further filtered in addition to relation id
@@ -142,19 +149,21 @@ export class RepoPopulateRelation
   
   async embeddedBelongsToMany(config: RepoPopulateRelationConfig, docs)
   {
+    config = RepoPopulateRelation.normalizeConfig(config);
     config.relation = 'embeddedBelongsToMany';
     return this.embeddedBelongsTo(config, docs);
   }
   
   async embeddedBelongsToOne(config: RepoPopulateRelationConfig, docs)
   {
+    config = RepoPopulateRelation.normalizeConfig(config);
     config.relation = 'embeddedBelongsToOne';
     return this.embeddedBelongsTo(config, docs);
   }
   
   async embeddedBelongsTo(config: RepoPopulateRelationConfig, docs)
   {
-    RepoPopulateRelation.normalizeConfig(config);
+    config = RepoPopulateRelation.normalizeConfig(config);
 
     const relationIds = RepoPopulateRelation.getRelationIds(config, docs);
     const embeddedDocs = RepoPopulateRelation.getEmebedRelations(config.docPathRelated, docs);
@@ -175,7 +184,7 @@ export class RepoPopulateRelation
   
   static getRelationIds(config: RepoPopulateRelationConfig, docs)
   {
-    RepoPopulateRelation.normalizeConfig(config);
+    config = RepoPopulateRelation.normalizeConfig(config);
 
     // We may be passed an array of docs or a single doc
     // - we want to deal with both situations uniformly
@@ -226,7 +235,7 @@ export class RepoPopulateRelation
   
   static populate(config: RepoPopulateRelationConfig, docs, values)
   {
-    RepoPopulateRelation.normalizeConfig(config);
+    config = RepoPopulateRelation.normalizeConfig(config);
 
     // We may be passed an array of docs or a single doc
     // - we want to deal with both situations uniformly
@@ -259,8 +268,9 @@ export class RepoPopulateRelation
     return docs;
   }
   
-  static normalizeConfig(config: RepoPopulateRelationConfig)
+  static normalizeConfig(relationConfig: RepoPopulateRelationConfig)
   {
+    var config = clone(relationConfig);
     // pkey is the primary key name to use when looking up relations
     // - the primary key is the key of the source document on has* type relations
     // - the primary key is the key of the related document on blongsTo* type relations
@@ -290,6 +300,8 @@ export class RepoPopulateRelation
     config.query = config.query ? config.query : {};
 
     config.populate = config.populate !== false;
+
+    return config;
   }
 }
 

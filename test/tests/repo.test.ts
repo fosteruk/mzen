@@ -96,6 +96,53 @@ describe('Repo', function(){
         userTimezone: {_id: '1', name: 'Europe/London'}
       });
     });
+    it('should load relation by performing one query per document if limit option was specified', async () => {
+      var data = {
+        mother: [
+          {_id: '5', name: 'Alison'},
+          {_id: '6', name: 'Gina'}
+        ],
+        child: [
+          {_id: '1', motherId: '5', name: 'Kevin'},
+          {_id: '2', motherId: '5', name: 'Lisa'},
+          {_id: '3', motherId: '5', name: 'Claire'},
+          {_id: '4', motherId: '6', name: 'Ian'},
+          {_id: '5', motherId: '6', name: 'Brenda'},
+          {_id: '6', motherId: '6', name: 'Alison'},
+        ],
+      };
+      var dataSource = new MockDataSource(data);
+  
+      var motherRepo = new Repo({
+        name: 'mother',
+        relations: {
+          children: {
+            type: 'hasMany',
+            repo: 'child',
+            key: 'motherId',
+            alias: 'children',
+            limit: 1,
+            autoPopulate: false
+          }
+        }
+      });
+      motherRepo.dataSource = dataSource;
+  
+      var childRepo = new Repo({
+        name: 'child'
+      });
+      childRepo.dataSource = dataSource;
+      motherRepo.repos.child = childRepo;
+  
+      var docs = await motherRepo.find();
+
+      await motherRepo.populateAll(docs, {populate: {children: true}});
+      // Query count should be 3
+      // - 1 for the initial find query and then 2 for populating relations
+      should(dataSource.queryCount).eql(3);
+      should(docs[0].children.length).eql(1);
+      should(docs[1].children.length).eql(1);
+    });
   });
   describe('populate()', function(){
     it('should populate single relation by name', async () => {
@@ -185,6 +232,53 @@ describe('Repo', function(){
         userTimezoneId: '1',
         userTimezone: {_id: '1',  name: 'Europe/London'}
       });
+    });
+    it('should load relation by performing one query per document if limit option was specified', async () => {
+      var data = {
+        mother: [
+          {_id: '5', name: 'Alison'},
+          {_id: '6', name: 'Gina'}
+        ],
+        child: [
+          {_id: '1', motherId: '5', name: 'Kevin'},
+          {_id: '2', motherId: '5', name: 'Lisa'},
+          {_id: '3', motherId: '5', name: 'Claire'},
+          {_id: '4', motherId: '6', name: 'Ian'},
+          {_id: '5', motherId: '6', name: 'Brenda'},
+          {_id: '6', motherId: '6', name: 'Alison'},
+        ],
+      };
+      var dataSource = new MockDataSource(data);
+  
+      var motherRepo = new Repo({
+        name: 'mother',
+        relations: {
+          children: {
+            type: 'hasMany',
+            repo: 'child',
+            key: 'motherId',
+            alias: 'children',
+            limit: 1,
+            autoPopulate: false
+          }
+        }
+      });
+      motherRepo.dataSource = dataSource;
+  
+      var childRepo = new Repo({
+        name: 'child'
+      });
+      childRepo.dataSource = dataSource;
+      motherRepo.repos.child = childRepo;
+  
+      var docs = await motherRepo.find();
+
+      await motherRepo.populate('children', docs);
+      // Query count should be 3
+      // - 1 for the initial find query and then 2 for populating relations
+      should(dataSource.queryCount).eql(3);
+      should(docs[0].children.length).eql(1);
+      should(docs[1].children.length).eql(1);
     });
   });
   describe('stripTransients()', function(){
