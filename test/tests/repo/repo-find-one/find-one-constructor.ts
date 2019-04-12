@@ -90,7 +90,7 @@ describe('constructor', function(){
       name: 'user',
         relations: {
         userTimezone: {
-          type: 'belongsTo',
+          type: 'belongsToOne',
           repo: 'timezone',
           key: 'timeZoneId',
           alias: 'timezone',
@@ -104,7 +104,7 @@ describe('constructor', function(){
       name: 'timezone',
       relations: {
         country: {
-          type: 'belongsTo',
+          type: 'belongsToOne',
           repo: 'country',
           key: 'countryId',
           alias: 'country',

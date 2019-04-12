@@ -2,7 +2,7 @@ import { Repo } from '../repo';
 import { RepoPopulateRelationConfig } from './relation-abstract';
 import { RepoPopulateRelationHasAbstract } from './relation-has-abstract';
 
-export abstract class RepoPopulateRelationAbstractHasOne extends RepoPopulateRelationHasAbstract
+export  class RepoPopulateRelationAbstractHasOne extends RepoPopulateRelationHasAbstract
 {
   async populate(relationRepo: Repo, config: RepoPopulateRelationConfig, docs)
   {

@@ -1,9 +1,8 @@
-import { Repo } from '../repo';
 import { RepoPopulateRelationAbstract, RepoPopulateRelationConfig } from './relation-abstract';
 
 export abstract class RepoPopulateRelationEmbeddedHasAbstract extends RepoPopulateRelationAbstract
 {
-  async embeddedHas(relationRepo: Repo, config: RepoPopulateRelationConfig, docs)
+  async embeddedHas(config: RepoPopulateRelationConfig, docs)
   {
     config = this.normalizeConfig(config);
 
@@ -18,8 +17,8 @@ export abstract class RepoPopulateRelationEmbeddedHasAbstract extends RepoPopula
       }
     });
 
-    return this.populate(relationRepo, config, docs, values);
+    return this.populateValues(config, docs, values);
   }
 }
 
-export default RepoPopulateRelationAbstractEmbeddedHas;
+export default RepoPopulateRelationEmbeddedHasAbstract;

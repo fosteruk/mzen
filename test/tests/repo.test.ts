@@ -66,7 +66,7 @@ describe('Repo', function(){
         name: 'user',
         relations: {
           userTimezone: {
-            type: 'belongsTo',
+            type: 'belongsToOne',
             repo: 'userTimezone',
             key: 'userTimezoneId',
             autoPopulate: false

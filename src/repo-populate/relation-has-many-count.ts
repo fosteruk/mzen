@@ -2,7 +2,7 @@ import { Repo } from '../repo';
 import { RepoPopulateRelationConfig } from './relation-abstract';
 import { RepoPopulateRelationAbstract } from './relation-abstract';
 
-export abstract class RepoPopulateRelationAbstractHasManyCount extends RepoPopulateRelationAbstract
+export class RepoPopulateRelationAbstractHasManyCount extends RepoPopulateRelationAbstract
 {
   async populate(relationRepo: Repo, config: RepoPopulateRelationConfig, docs)
   {
@@ -32,7 +32,7 @@ export abstract class RepoPopulateRelationAbstractHasManyCount extends RepoPopul
       values[result['_id'][config.key]] = result['count'];
     });
 
-    return this.populateValues(relationRepo, config, docs, values);
+    return this.populateValues(config, docs, values);
   }
 }
 
