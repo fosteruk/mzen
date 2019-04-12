@@ -2,7 +2,7 @@ import clone = require('clone');
 import { ModelManagerConfig } from './model-manager';
 import Schema, { SchemaValidationResult, SchemaSpec, ObjectPathAccessor } from 'mzen-schema';
 import Service from './service';
-import RepoPopulate from './repo-populate';
+import RepoPopulator from './repo-populator';
 
 export class RepoErrorValidation extends Error
 {
@@ -86,7 +86,7 @@ export class Repo
   name: string;
   dataSource: any;
   schema: Schema;
-  populator: RepoPopulate;
+  populator: RepoPopulator;
   schemas: {[key: string]: Schema | any};
   repos: {[key: string]: Repo | any}; // we allow any because the actual object may be of a class that extends Repo
   constructors: {[key: string]: any};
@@ -183,7 +183,7 @@ export class Repo
 
   getPopulator()
   {
-    return this.populator ? this.populator : this.populator = new RepoPopulate();
+    return this.populator ? this.populator : this.populator = new RepoPopulator;
   }
   
   addConstructor(value)
