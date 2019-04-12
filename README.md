@@ -1,7 +1,7 @@
-# mZen
-## NodeJS application model with MongoDB
+# mzen
+## NodeJS application model
 
-Application model using MongoDB for persistence.
+NodeJS Application Model 
 
 - Model elements are defined by Schemas, Services and Repositories
   - Schemas define data structures and validation rules
@@ -17,6 +17,8 @@ Application model using MongoDB for persistence.
 - Object Document Mapping (ODM)
   - Populate documents into constructor instances
   - Populate document relations
+- Data sources
+  - Currently only supports MongoDB
 
 - Document relation population
   - Common relations supported
@@ -25,8 +27,11 @@ Application model using MongoDB for persistence.
     - hasManyCount (count of the number of matching related documents)
     - belongsToOne
     - belongsToMany (many-to-many using an embedded reference array)
-  - Optimised to minimise queries. One query per relation. Even when populating a collection
-    - When the populate query uses the limit option, population is performed with one query per document to ensure results are as expected
+    - embeddedHasOne (an embedded relation joins on data within the same document)
+    - embeddedHasMany 
+    - embeddedBelongsToOne
+    - embeddedBelongsToMany
+  - Basic query optimisation
   - Relations may be configured to auto-populate allowing a complex reference tree to be loaded with minimum code
     - Population of relations (and nested relations) may be enabled/disabled in query options
   - Relations may be auto-populated from initial query or manually populated on to an existing result set

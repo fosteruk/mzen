@@ -1,19 +1,52 @@
 import { Repo, RepoRelationConfig, RepoQueryOptions } from './repo';
-import RepoPopulateRelation from './repo-populate-relation';
+import { RelationAbstract } from './repo-populator/relation-abstract';
+import { RelationHasOne } from './repo-populator/relation-has-one';
+import { RelationHasMany } from './repo-populator/relation-has-many';
+import { RelationBelongsToOne } from './repo-populator/relation-belongs-to-one';
+import { RelationBelongsToMany } from './repo-populator/relation-belongs-to-many';
+import { RelationHasManyCount } from './repo-populator/relation-has-many-count';
+import { RelationEmbeddedBelongsToOne } from './repo-populator/relation-embedded-belongs-to-one';
+import { RelationEmbeddedBelongsToMany } from './repo-populator/relation-embedded-belongs-to-many';
+import { RelationEmbeddedHasOne } from './repo-populator/relation-embedded-has-one';
+import { RelationEmbeddedHasMany } from './repo-populator/relation-embedded-has-many';
 import clone = require('clone');
 
-export class RepoPopulate
+export class RepoPopulator
 {
-  repo: Repo;
-  
-  constructor(repo: Repo)
+  relationHandler: {[key: string]: RelationAbstract};
+
+  constructor()
   {
-    this.repo = repo;
+    this.relationHandler = {};
+    this.setDefaultRelationHandlers();
   }
-  
-  async populateAll(docs: any, options?: RepoQueryOptions)
+
+  setDefaultRelationHandlers()
   {
-    const flattenedRelations = this.getFlattenedRelations(options);
+    this.setRelationHandler('hasOne', new RelationHasOne);
+    this.setRelationHandler('hasMany', new RelationHasMany);
+    this.setRelationHandler('hasManyCount', new RelationHasManyCount);
+    this.setRelationHandler('belongsToOne', new RelationBelongsToOne);
+    this.setRelationHandler('belongsToMany', new RelationBelongsToMany);
+    this.setRelationHandler('embeddedBelongsToOne', new RelationEmbeddedBelongsToOne);
+    this.setRelationHandler('embeddedBelongsToMany', new RelationEmbeddedBelongsToMany);
+    this.setRelationHandler('embeddedHasOne', new RelationEmbeddedHasOne);
+    this.setRelationHandler('embeddedHasMany', new RelationEmbeddedHasMany);
+  }
+
+  setRelationHandler(relationType: string, relationHandler: RelationAbstract)
+  {
+    this.relationHandler[relationType] = relationHandler;
+  }
+
+  getRelationHandler(relationType: string)
+  {
+    return this.relationHandler[relationType];
+  }
+
+  async populateAll(repo: Repo, docs: any, options?: RepoQueryOptions)
+  {
+    const flattenedRelations = this.getFlattenedRelations(repo, options);
     options.populate = false; // Dont populate recursively - we already flattened the relations
 
     for (let depth in flattenedRelations) {
@@ -21,7 +54,7 @@ export class RepoPopulate
 
       let populatePromises = [];
       flattenedRelations[depth].forEach(relation => {
-        populatePromises.push(this.populate(relation, docs, options));
+        populatePromises.push(this.populate(repo, relation, docs, options));
       });
       await Promise.all(populatePromises);
     }
@@ -29,30 +62,31 @@ export class RepoPopulate
     return docs;
   }
 
-  async populate(relation: RepoRelationConfig | string, docs?: any, options?: RepoQueryOptions)
+  async populate(repo: Repo, relation: RepoRelationConfig | string, docs?: any, options?: RepoQueryOptions)
   {
     // If relation is passed as string relation name, lookup the relation config
-    const relationConfig: RepoRelationConfig = (typeof relation == 'string') ? this.repo.config.relations[relation] : relation;
+    const relationConfig: RepoRelationConfig = (typeof relation == 'string') ? repo.config.relations[relation] : relation;
 
     // Clone the options because we dont want changes to the options doc to change the original doc
     var relationPopulateConfig = options ? {...relationConfig, ...options} : relationConfig;
-    var repoPopulate = new RepoPopulateRelation(this.repo.getRepo(relationConfig.repo));
+    var realtionHandler = this.getRelationHandler(relationConfig.type);
+    var relationRepo = repo.getRepo(relationConfig.repo);
 
     if (Array.isArray(docs) && relationConfig.limit) {
       // This relation is using the limit option so we can not populate a collection of docs in a single query
       // - as it would produce in unexpcetd results.
       // We must populate each document individually with a seperate query
       for (var x in docs) {
-        await repoPopulate[relationConfig.type](relationPopulateConfig, docs[x]);
+        await realtionHandler.populate(relationRepo, relationPopulateConfig, docs[x]);
       }
     } else {
-      await repoPopulate[relationConfig.type](relationPopulateConfig, docs);
+      await realtionHandler.populate(relationRepo, relationPopulateConfig, docs);
     }
 
     return docs;
   }
 
-  private getFlattenedRelations(options: any)
+  private getFlattenedRelations(repo: Repo, options: any)
   {
     // In order to populate a relation at a given depth its parent relation must have already been populated
     // To ensure parent relations are populate first we populate in order of relation depth
@@ -61,7 +95,7 @@ export class RepoPopulate
     //  [relationConfigA, relationConfigB], // depth 1 to be populated first
     //  [relationConfigB, relationConfigC] // depth 2 to be populated second
     // ]
-    const flattenedRelationsRecursive = this.getFlattenedRelationsRecursive(options);
+    const flattenedRelationsRecursive = this.getFlattenedRelationsRecursive(repo, options);
 
     var flattenedRelations = [];
     flattenedRelationsRecursive.forEach(relationConfig => {
@@ -74,15 +108,15 @@ export class RepoPopulate
     return flattenedRelations;
   }
   
-  private getFlattenedRelationsRecursive(options: any, flatRelations?: Array<any>, basePath?: string)
+  private getFlattenedRelationsRecursive(repo: Repo, options: any, flatRelations?: Array<any>, basePath?: string)
   {
     flatRelations = flatRelations ? flatRelations : [];
     basePath = basePath ? basePath : null;
 
     var basePathParts = basePath ? basePath.split('.') : [];
 
-    for (var x in this.repo.config.relations) {
-      const relation = clone(this.repo.config.relations[x]); // copy the relation we dont want to modify the original
+    for (var x in repo.config.relations) {
+      const relation = clone(repo.config.relations[x]); // copy the relation we dont want to modify the original
       const depth = basePathParts.length;
       const recursion = relation.recursion ? relation.recursion : 0;
       const autoPopulate = relation.autoPopulate != undefined ? relation.autoPopulate : false;
@@ -112,7 +146,7 @@ export class RepoPopulate
       }
 
       const flatRelation = {
-        id: this.repo.name + '.' + relation.alias,
+        id: repo.name + '.' + relation.alias,
         depth,
         path,
         relation,
@@ -144,9 +178,12 @@ export class RepoPopulate
           newbasePathParts.push('*');
         }
 
-        new RepoPopulate(
-          this.repo.getRepo(relation.repo)
-        ).getFlattenedRelationsRecursive(options, flatRelations, newbasePathParts.join('.'));
+        this.getFlattenedRelationsRecursive(
+          repo.getRepo(relation.repo),
+          options, 
+          flatRelations, 
+          newbasePathParts.join('.')
+        );
       }
     }
     // sort by document path length
@@ -158,4 +195,4 @@ export class RepoPopulate
   }
 }
 
-export default RepoPopulate;
+export default RepoPopulator;

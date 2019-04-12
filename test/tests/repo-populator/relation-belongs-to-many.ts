@@ -1,9 +1,9 @@
 import should = require('should');
-import RepoPopulateRelation from '../../../../lib/repo-populate-relation';
-import Repo from '../../../../lib/repo';
-import MockDataSource from '../../../../lib/data-source/mock';
+import { RelationBelongsToMany } from '../../../lib/repo-populator/relation-belongs-to-many';
+import Repo from '../../../lib/repo';
+import MockDataSource from '../../../lib/data-source/mock';
 
-describe('belongsToMany()', function(){
+describe('RelationBelongsToMany', function(){
   it('should populate', async () => {
     var data = {
       person: [
@@ -22,9 +22,9 @@ describe('belongsToMany()', function(){
       name: 'color'
     });
     color.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulateRelation(color);
 
-    var docs = await repoPopulate.belongsToMany({
+    var repoPopulator = new RelationBelongsToMany;
+    var docs = await repoPopulator.populate(color, {
       key: 'favouriteColorIds',
       alias: 'favouriteColors'
     }, data.person);
@@ -51,9 +51,8 @@ describe('belongsToMany()', function(){
     });
     color.dataSource = new MockDataSource(data);
 
-    var repoPopulate = new RepoPopulateRelation(color);
-
-    var docs = await repoPopulate.belongsToMany({
+    var repoPopulator = new RelationBelongsToMany;
+    var docs = await repoPopulator.populate(color, {
       docPath: 'about.trivia',
       key: 'favouriteColorIds',
       alias: 'favouriteColors'
@@ -84,9 +83,8 @@ describe('belongsToMany()', function(){
     });
     color.dataSource = new MockDataSource(data);
     
-    var repoPopulate = new RepoPopulateRelation(color);
-
-    var docs = await repoPopulate.belongsToMany({
+    var repoPopulator = new RelationBelongsToMany;
+    var docs = await repoPopulator.populate(color, {
       docPath: 'about.trivia.*',
       key: 'favouriteColorIds',
       alias: 'favouriteColors'
@@ -116,9 +114,8 @@ describe('belongsToMany()', function(){
     });
     color.dataSource = new MockDataSource(data);
     
-    var repoPopulate = new RepoPopulateRelation(color);
-
-    var docs = await repoPopulate.belongsToMany({
+    var repoPopulator = new RelationBelongsToMany;
+    var docs = await repoPopulator.populate(color, {
       docPath: 'about.*.*.trivia',
       key: 'favouriteColorIds',
       alias: 'favouriteColors'

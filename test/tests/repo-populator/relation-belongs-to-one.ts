@@ -1,9 +1,9 @@
 import should = require('should');
-import RepoPopulateRelation from '../../../../lib/repo-populate-relation';
-import Repo from '../../../../lib/repo';
-import MockDataSource from '../../../../lib/data-source/mock';
+import { RelationBelongsToOne } from '../../../lib/repo-populator/relation-belongs-to-one';
+import Repo from '../../../lib/repo';
+import MockDataSource from '../../../lib/data-source/mock';
 
-describe('belongsToOne()', function(){
+describe('RelationBelongsToOne', function(){
   it('should populate', async () => {
     var data = {
       artist: [
@@ -18,9 +18,9 @@ describe('belongsToOne()', function(){
       name: 'user'
     });
     user.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulateRelation(user);
 
-    var docs = await repoPopulate.belongsToOne({
+    var repoPopulator = new RelationBelongsToOne;
+    var docs = await repoPopulator.populate(user, {
       key: 'createdByUserId',
       alias: 'createdByUser'
     }, data.artist);
@@ -49,9 +49,9 @@ describe('belongsToOne()', function(){
       name: 'user'
     });
     user.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulateRelation(user);
 
-    var docs = await repoPopulate.belongsToOne({
+    var repoPopulator = new RelationBelongsToOne;
+    var docs = await repoPopulator.populate(user, {
       docPath: 'detail.more',
       key: 'createdByUserId',
       alias: 'createdByUser'
@@ -84,9 +84,9 @@ describe('belongsToOne()', function(){
       name: 'user'
     });
     user.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulateRelation(user);
 
-    var docs = await repoPopulate.belongsToOne({
+    var repoPopulator = new RelationBelongsToOne;
+    var docs = await repoPopulator.populate(user, {
       docPath: 'detail.more.*',
       key: 'createdByUserId',
       alias: 'createdByUser'
@@ -117,9 +117,9 @@ describe('belongsToOne()', function(){
       name: 'user'
     });
     user.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulateRelation(user);
 
-    var docs = await repoPopulate.belongsToOne({
+    var repoPopulator = new RelationBelongsToOne;
+    var docs = await repoPopulator.populate(user, {
       docPath: '*.*.*.detail.more',
       key: 'createdByUserId',
       alias: 'createdByUser'

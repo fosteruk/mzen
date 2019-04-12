@@ -2,7 +2,7 @@ import clone = require('clone');
 import { ModelManagerConfig } from './model-manager';
 import Schema, { SchemaValidationResult, SchemaSpec, ObjectPathAccessor } from 'mzen-schema';
 import Service from './service';
-import RepoPopulate from './repo-populate';
+import RepoPopulator from './repo-populator';
 
 export class RepoErrorValidation extends Error
 {
@@ -86,6 +86,7 @@ export class Repo
   name: string;
   dataSource: any;
   schema: Schema;
+  populator: RepoPopulator;
   schemas: {[key: string]: Schema | any};
   repos: {[key: string]: Repo | any}; // we allow any because the actual object may be of a class that extends Repo
   constructors: {[key: string]: any};
@@ -113,6 +114,8 @@ export class Repo
 
     this.dataSource = null;
     this.schema = null; // constructed in the init() method
+    this.populator = null;
+
     this.schemas = {};
     this.repos = {};
     this.constructors = {};
@@ -176,6 +179,11 @@ export class Repo
     // For this reason we do not permit a repository to be named 'Repo'
     if (this.name == 'Repo') throw new Error('Repo name not configured - you must specify a repo name when using the default repo entityConstructor');
     return this.name;
+  }
+
+  getPopulator()
+  {
+    return this.populator ? this.populator : this.populator = new RepoPopulator;
   }
   
   addConstructor(value)
@@ -388,12 +396,12 @@ export class Repo
   
   async populateAll(docs: any, options?: RepoQueryOptions)
   {
-    return (new RepoPopulate(this)).populateAll(docs, options);
+    return this.getPopulator().populateAll(this, docs, options);
   }
   
   async populate(relation: RepoRelationConfig | string, docs?: any, options?: RepoQueryOptions)
   {
-    return (new RepoPopulate(this)).populate(relation, docs, options);
+    return this.getPopulator().populate(this, relation, docs, options);
   }
   
   async insertMany(docs, options?)
