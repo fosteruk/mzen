@@ -1,9 +1,9 @@
 import { Repo } from '../repo';
-import { RepoPopulateRelationAbstract, RepoPopulateRelationConfig } from './relation-abstract';
+import { RepoPopulatorRelationAbstract, RepoPopulatorRelationConfig } from './relation-abstract';
 
-export abstract class RepoPopulateRelationBelongsToAbstract extends RepoPopulateRelationAbstract
+export abstract class RepoPopulatorRelationBelongsToAbstract extends RepoPopulatorRelationAbstract
 {
-  async belongsTo(relationRepo: Repo, config: RepoPopulateRelationConfig, docs)
+  async belongsTo(relationRepo: Repo, config: RepoPopulatorRelationConfig, docs)
   {
     config = this.normalizeConfig(config);
 
@@ -23,4 +23,4 @@ export abstract class RepoPopulateRelationBelongsToAbstract extends RepoPopulate
   }
 }
 
-export default RepoPopulateRelationBelongsToAbstract;
+export default RepoPopulatorRelationBelongsToAbstract;
