@@ -2,17 +2,17 @@ import { Repo, RepoRelationConfig } from '../repo';
 import { ObjectPathAccessor } from 'mzen-schema';
 import clone = require('clone');
 
-export interface RepoPopulatorRelationConfig extends RepoRelationConfig
+export interface RelationConfig extends RepoRelationConfig
 {
   relation?: string;
   sourceKey?: string;
 }
 
-export abstract class RepoPopulatorRelationAbstract
+export abstract class RelationAbstract
 {
-  abstract populate(relationRepo: Repo, relationConfig: RepoPopulatorRelationConfig, docs);
+  abstract populate(relationRepo: Repo, relationConfig: RelationConfig, docs);
 
-  protected getRelationIds(config: RepoPopulatorRelationConfig, docs)
+  protected getRelationIds(config: RelationConfig, docs)
   {
     config = this.normalizeConfig(config);
 
@@ -63,7 +63,7 @@ export abstract class RepoPopulatorRelationAbstract
     return embeddedDocs;
   }
   
-  protected populateValues(config: RepoPopulatorRelationConfig, docs, values)
+  protected populateValues(config: RelationConfig, docs, values)
   {
     config = this.normalizeConfig(config);
 
@@ -98,7 +98,7 @@ export abstract class RepoPopulatorRelationAbstract
     return docs;
   }
   
-  protected normalizeConfig(relationConfig: RepoPopulatorRelationConfig)
+  protected normalizeConfig(relationConfig: RelationConfig)
   {
     var config = clone(relationConfig);
     // pkey is the primary key name to use when looking up relations
@@ -135,4 +135,4 @@ export abstract class RepoPopulatorRelationAbstract
   }
 }
 
-export default RepoPopulatorRelationAbstract;
+export default RelationAbstract;

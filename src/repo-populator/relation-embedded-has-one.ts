@@ -1,10 +1,10 @@
 import { Repo } from '../repo';
-import { RepoPopulatorRelationConfig } from './relation-abstract';
-import { RepoPopulatorRelationEmbeddedHasAbstract } from './relation-embedded-has-abstract';
+import { RelationConfig } from './relation-abstract';
+import { RelationEmbeddedHasAbstract } from './relation-embedded-has-abstract';
 
-export class RepoPopulatorRelationEmbeddedHasOne extends RepoPopulatorRelationEmbeddedHasAbstract
+export class RelationEmbeddedHasOne extends RelationEmbeddedHasAbstract
 {
-  async populate(_relationRepo: Repo, config: RepoPopulatorRelationConfig, docs)
+  async populate(_relationRepo: Repo, config: RelationConfig, docs)
   {
     config = this.normalizeConfig(config);
     config.relation = 'embeddedHasOne';
@@ -12,4 +12,4 @@ export class RepoPopulatorRelationEmbeddedHasOne extends RepoPopulatorRelationEm
   }
 }
 
-export default RepoPopulatorRelationEmbeddedHasOne;
+export default RelationEmbeddedHasOne;

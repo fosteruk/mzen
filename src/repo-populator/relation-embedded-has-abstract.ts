@@ -1,8 +1,8 @@
-import { RepoPopulatorRelationAbstract, RepoPopulatorRelationConfig } from './relation-abstract';
+import { RelationAbstract, RelationConfig } from './relation-abstract';
 
-export abstract class RepoPopulatorRelationEmbeddedHasAbstract extends RepoPopulatorRelationAbstract
+export abstract class RelationEmbeddedHasAbstract extends RelationAbstract
 {
-  async embeddedHas(config: RepoPopulatorRelationConfig, docs)
+  async embeddedHas(config: RelationConfig, docs)
   {
     config = this.normalizeConfig(config);
 
@@ -21,4 +21,4 @@ export abstract class RepoPopulatorRelationEmbeddedHasAbstract extends RepoPopul
   }
 }
 
-export default RepoPopulatorRelationEmbeddedHasAbstract;
+export default RelationEmbeddedHasAbstract;

@@ -1,10 +1,10 @@
 import { Repo } from '../repo';
-import { RepoPopulatorRelationConfig } from './relation-abstract';
-import { RepoPopulatorRelationBelongsToAbstract } from './relation-belongs-to-abstract';
+import { RelationConfig } from './relation-abstract';
+import { RelationBelongsToAbstract } from './relation-belongs-to-abstract';
 
-export class RepoPopulatorRelationBelongsToOne extends RepoPopulatorRelationBelongsToAbstract
+export class RelationBelongsToOne extends RelationBelongsToAbstract
 {
-  async populate(relationRepo: Repo, config: RepoPopulatorRelationConfig, docs)
+  async populate(relationRepo: Repo, config: RelationConfig, docs)
   {
     config = this.normalizeConfig(config);
     config.relation = 'belongsToOne';
@@ -12,4 +12,4 @@ export class RepoPopulatorRelationBelongsToOne extends RepoPopulatorRelationBelo
   }
 }
 
-export default RepoPopulatorRelationBelongsToOne;
+export default RelationBelongsToOne;

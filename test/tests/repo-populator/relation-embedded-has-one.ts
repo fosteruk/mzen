@@ -1,9 +1,9 @@
 import should = require('should');
-import RepoPopulateRelation from '../../../../lib/repo-populate-relation';
-import Repo from '../../../../lib/repo';
-import MockDataSource from '../../../../lib/data-source/mock';
+import { RelationEmbeddedHasOne } from '../../../lib/repo-populator/relation-embedded-has-one';
+import Repo from '../../../lib/repo';
+import MockDataSource from '../../../lib/data-source/mock';
 
-describe('embeddedHasOne()', function(){
+describe('RelationEmbeddedHasOne', function(){
   it('should populate', async () => {
     var data = {
       docs: [
@@ -22,10 +22,10 @@ describe('embeddedHasOne()', function(){
       name: 'docs'
     });
     doc.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulateRelation(doc);
 
+    var repoPopulator = new RelationEmbeddedHasOne;
     // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
-    var docs = await repoPopulate.embeddedHasOne({
+    var docs = await repoPopulator.populate(doc, {
       docPath: 'user.*',
       docPathRelated: 'userTimezone.*',
       key: 'userId',
@@ -60,10 +60,10 @@ describe('embeddedHasOne()', function(){
       name: 'docs'
     });
     doc.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulateRelation(doc);
 
+    var repoPopulator = new RelationEmbeddedHasOne;
     // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
-    var docs = await repoPopulate.embeddedHasOne({
+    var docs = await repoPopulator.populate(doc, {
       docPath: 'user.*',
       docPathRelated: 'userTimezone.*',
       key: 'userId',

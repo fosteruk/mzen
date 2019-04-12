@@ -1,10 +1,10 @@
 import { Repo } from '../repo';
-import { RepoPopulatorRelationConfig } from './relation-abstract';
-import { RepoPopulatorRelationHasAbstract } from './relation-has-abstract';
+import { RelationConfig } from './relation-abstract';
+import { RelationHasAbstract } from './relation-has-abstract';
 
-export class RepoPopulatorRelationHasMany extends RepoPopulatorRelationHasAbstract
+export class RelationHasMany extends RelationHasAbstract
 {
-  async populate(relationRepo: Repo, config: RepoPopulatorRelationConfig, docs)
+  async populate(relationRepo: Repo, config: RelationConfig, docs)
   {
     config = this.normalizeConfig(config);
     config.relation = 'hasMany';
@@ -12,4 +12,4 @@ export class RepoPopulatorRelationHasMany extends RepoPopulatorRelationHasAbstra
   }
 }
 
-export default RepoPopulatorRelationHasMany;
+export default RelationHasMany;

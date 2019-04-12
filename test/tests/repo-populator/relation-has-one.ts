@@ -1,7 +1,7 @@
 import should = require('should');
-import RepoPopulateRelation from '../../../../lib/repo-populate-relation';
-import Repo from '../../../../lib/repo';
-import MockDataSource from '../../../../lib/data-source/mock';
+import { RelationHasOne } from '../../../lib/repo-populator/relation-has-one';
+import Repo from '../../../lib/repo';
+import MockDataSource from '../../../lib/data-source/mock';
 
 describe('hasOne()', function () {
   it('should populate', async () => {
@@ -18,9 +18,9 @@ describe('hasOne()', function () {
       name: 'userTimezone'
     });
     userTimezone.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulateRelation(userTimezone);
 
-    var docs = await repoPopulate.hasOne({
+    var repoPopulator = new RelationHasOne;
+    var docs = await repoPopulator.populate(userTimezone, {
       key: 'userId',
       alias: 'timezone'
     }, data.user);
@@ -43,9 +43,9 @@ describe('hasOne()', function () {
       name: 'userTimezone'
     });
     userTimezone.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulateRelation(userTimezone);
 
-    var docs = await repoPopulate.hasOne({
+    var repoPopulator = new RelationHasOne;
+    var docs = await repoPopulator.populate(userTimezone, {
       docPath: 'detail.topPoster',
       key: 'userId',
       alias: 'timezone'
@@ -71,9 +71,9 @@ describe('hasOne()', function () {
       name: 'userTimezone'
     });
     userTimezone.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulateRelation(userTimezone);
 
-    var docs = await repoPopulate.hasOne({
+    var repoPopulator = new RelationHasOne;
+    var docs = await repoPopulator.populate(userTimezone, {
       docPath: 'detail.topPosters.*',
       key: 'userId',
       alias: 'timezone'
@@ -98,9 +98,9 @@ describe('hasOne()', function () {
       name: 'userTimezone'
     });
     userTimezone.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulateRelation(userTimezone);
 
-    var docs = await repoPopulate.hasOne({
+    var repoPopulator = new RelationHasOne;
+    var docs = await repoPopulator.populate(userTimezone, {
       docPath: '*.*.*.detail.topPoster',
       key: 'userId',
       alias: 'timezone'

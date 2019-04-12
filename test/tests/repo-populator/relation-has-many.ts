@@ -1,9 +1,9 @@
 import should = require('should');
-import RepoPopulateRelation from '../../../../lib/repo-populate-relation';
-import Repo from '../../../../lib/repo';
-import MockDataSource from '../../../../lib/data-source/mock';
+import { RelationHasMany } from '../../../lib/repo-populator/relation-has-many';
+import Repo from '../../../lib/repo';
+import MockDataSource from '../../../lib/data-source/mock';
 
-describe('hasMany()', function(){
+describe('RelationHasMany', function(){
   it('should populate', async () => {
     var data = {
       artist: [
@@ -21,9 +21,9 @@ describe('hasMany()', function(){
       name: 'album'
     });
     album.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulateRelation(album);
 
-    var docs = await repoPopulate.hasMany({
+    var repoPopulator = new RelationHasMany;
+    var docs = await repoPopulator.populate(album, {
       key: 'artistId',
       alias: 'albums'
     }, data.artist);
@@ -52,9 +52,9 @@ describe('hasMany()', function(){
       name: 'album'
     });
     album.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulateRelation(album);
 
-    var docs = await repoPopulate.hasMany({
+    var repoPopulator = new RelationHasMany;
+    var docs = await repoPopulator.populate(album, {
       docPath: 'detail.topArtist',
       key: 'artistId',
       alias: 'albums'
@@ -90,9 +90,9 @@ describe('hasMany()', function(){
       name: 'album'
     });
     album.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulateRelation(album);
 
-    var docs = await repoPopulate.hasMany({
+    var repoPopulator = new RelationHasMany;
+    var docs = await repoPopulator.populate(album, {
       docPath: 'detail.topArtists.*',
       key: 'artistId',
       alias: 'albums'
@@ -127,9 +127,9 @@ describe('hasMany()', function(){
       name: 'album'
     });
     album.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulateRelation(album);
 
-    var docs = await repoPopulate.hasMany({
+    var repoPopulator = new RelationHasMany;
+    var docs = await repoPopulator.populate(album, {
       docPath: '*.*.*.detail.topArtist',
       key: 'artistId',
       alias: 'albums'

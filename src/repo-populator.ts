@@ -1,17 +1,19 @@
 import { Repo, RepoRelationConfig, RepoQueryOptions } from './repo';
-import { RepoPopulatorRelationAbstract } from './repo-populator/relation-abstract';
-import { RepoPopulatorRelationHasOne } from './repo-populator/relation-has-one';
-import { RepoPopulatorRelationHasMany } from './repo-populator/relation-has-many';
-import { RepoPopulatorRelationBelongsToOne } from './repo-populator/relation-belongs-to-one';
-import { RepoPopulatorRelationBelongsToMany } from './repo-populator/relation-belongs-to-many';
-import { RepoPopulatorRelationHasManyCount } from './repo-populator/relation-has-many-count';
-import { RepoPopulatorRelationEmbeddedHasOne } from './repo-populator/relation-embedded-has-one';
-import { RepoPopulatorRelationEmbeddedHasMany } from './repo-populator/relation-embedded-has-many';
+import { RelationAbstract } from './repo-populator/relation-abstract';
+import { RelationHasOne } from './repo-populator/relation-has-one';
+import { RelationHasMany } from './repo-populator/relation-has-many';
+import { RelationBelongsToOne } from './repo-populator/relation-belongs-to-one';
+import { RelationBelongsToMany } from './repo-populator/relation-belongs-to-many';
+import { RelationHasManyCount } from './repo-populator/relation-has-many-count';
+import { RelationEmbeddedBelongsToOne } from './repo-populator/relation-embedded-belongs-to-one';
+import { RelationEmbeddedBelongsToMany } from './repo-populator/relation-embedded-belongs-to-many';
+import { RelationEmbeddedHasOne } from './repo-populator/relation-embedded-has-one';
+import { RelationEmbeddedHasMany } from './repo-populator/relation-embedded-has-many';
 import clone = require('clone');
 
 export class RepoPopulator
 {
-  relationHandler: {[key: string]: RepoPopulatorRelationAbstract};
+  relationHandler: {[key: string]: RelationAbstract};
 
   constructor()
   {
@@ -21,16 +23,18 @@ export class RepoPopulator
 
   setDefaultRelationHandlers()
   {
-    this.setRelationHandler('hasOne', new RepoPopulatorRelationHasOne);
-    this.setRelationHandler('hasMany', new RepoPopulatorRelationHasMany);
-    this.setRelationHandler('hasManyCount', new RepoPopulatorRelationHasManyCount);
-    this.setRelationHandler('belongsToOne', new RepoPopulatorRelationBelongsToOne);
-    this.setRelationHandler('belongsToMany', new RepoPopulatorRelationBelongsToMany);
-    this.setRelationHandler('embeddedHasOne', new RepoPopulatorRelationEmbeddedHasOne);
-    this.setRelationHandler('embeddedHasMany', new RepoPopulatorRelationEmbeddedHasMany);
+    this.setRelationHandler('hasOne', new RelationHasOne);
+    this.setRelationHandler('hasMany', new RelationHasMany);
+    this.setRelationHandler('hasManyCount', new RelationHasManyCount);
+    this.setRelationHandler('belongsToOne', new RelationBelongsToOne);
+    this.setRelationHandler('belongsToMany', new RelationBelongsToMany);
+    this.setRelationHandler('embeddedBelongsToOne', new RelationEmbeddedBelongsToOne);
+    this.setRelationHandler('embeddedBelongsToMany', new RelationEmbeddedBelongsToMany);
+    this.setRelationHandler('embeddedHasOne', new RelationEmbeddedHasOne);
+    this.setRelationHandler('embeddedHasMany', new RelationEmbeddedHasMany);
   }
 
-  setRelationHandler(relationType: string, relationHandler: RepoPopulatorRelationAbstract)
+  setRelationHandler(relationType: string, relationHandler: RelationAbstract)
   {
     this.relationHandler[relationType] = relationHandler;
   }

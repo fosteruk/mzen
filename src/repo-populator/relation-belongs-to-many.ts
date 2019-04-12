@@ -1,13 +1,13 @@
 import { Repo } from '../repo';
-import { RepoPopulatorRelationConfig } from './relation-abstract';
-import { RepoPopulatorRelationBelongsToAbstract } from './relation-belongs-to-abstract';
+import { RelationConfig } from './relation-abstract';
+import { RelationBelongsToAbstract } from './relation-belongs-to-abstract';
 
 // Belongs-to-many is a many-to-many using an embedded reference array
 // - if a User has many favouriteColors then then an array of favourite 
 // - color ids is stored on the user object
-export class RepoPopulatorRelationBelongsToMany extends RepoPopulatorRelationBelongsToAbstract
+export class RelationBelongsToMany extends RelationBelongsToAbstract
 {
-  async populate(relationRepo: Repo, config: RepoPopulatorRelationConfig, docs)
+  async populate(relationRepo: Repo, config: RelationConfig, docs)
   {
     config = this.normalizeConfig(config);
     config.relation = 'belongsToMany';
@@ -15,4 +15,4 @@ export class RepoPopulatorRelationBelongsToMany extends RepoPopulatorRelationBel
   }
 }
 
-export default RepoPopulatorRelationBelongsToMany;
+export default RelationBelongsToMany;

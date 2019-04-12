@@ -1,9 +1,9 @@
 import should = require('should');
-import RepoPopulateRelation from '../../../../lib/repo-populate-relation';
-import Repo from '../../../../lib/repo';
-import MockDataSource from '../../../../lib/data-source/mock';
+import { RelationEmbeddedBelongsToMany } from '../../../lib/repo-populator/relation-embedded-belongs-to-many';
+import Repo from '../../../lib/repo';
+import MockDataSource from '../../../lib/data-source/mock';
 
-describe('embeddedBelongsToOne()', function(){
+describe('RelationEmbeddedBelongsToMany', function(){
   it('should populate', async () => {
     var data = {
       recordCompany: [{
@@ -11,7 +11,7 @@ describe('embeddedBelongsToOne()', function(){
           {
             _id: '1', 
             name: 'Radiohead',
-            topAlbumId: '3'
+            albumIds: ['1', '2', '3', '4']
           }
         ],
         albums: [
@@ -27,17 +27,21 @@ describe('embeddedBelongsToOne()', function(){
       name: 'recordCompany'
     });
     recordCompany.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulateRelation(recordCompany);
 
+    var repoPopulator = new RelationEmbeddedBelongsToMany;
     // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
-    var docs = await repoPopulate.embeddedBelongsToOne({
+    var docs = await repoPopulator.populate(recordCompany, {
       docPath: 'artists.*',
       docPathRelated: 'albums.*',
-      key: 'topAlbumId',
-      alias: 'topAlbum'
+      key: 'albumIds',
+      alias: 'albums'
     }, data.recordCompany);
 
-    should(docs[0].artists[0].topAlbum.name).eql('OK Computer');
+    //console.log(JSON.stringify(docs, null, 2));
+    should(docs[0].artists[0].albums[0].name).eql('Pablo Honey');
+    should(docs[0].artists[0].albums[1].name).eql('The Bends');
+    should(docs[0].artists[0].albums[2].name).eql('OK Computer');
+    should(docs[0].artists[0].albums[3].name).eql('Kid A');
   });
   it('should populate array of docs', async () => {
     var data = {
@@ -48,7 +52,7 @@ describe('embeddedBelongsToOne()', function(){
             {
               _id: '1', 
               name: 'Radiohead',
-              topAlbumId: '3'
+              albumIds: ['1', '2', '3', '4']
             }
           ],
           albums: [
@@ -63,7 +67,7 @@ describe('embeddedBelongsToOne()', function(){
             {
               _id: '200', 
               name: 'The Mars Volta',
-              topAlbumId: '23'
+              albumIds: ['21', '22', '23', '24']
             }
           ],
           albums: [
@@ -80,17 +84,25 @@ describe('embeddedBelongsToOne()', function(){
       name: 'recordCompany'
     });
     recordCompany.dataSource = new MockDataSource(data);
-    var repoPopulate = new RepoPopulateRelation(recordCompany);
 
+    var repoPopulator = new RelationEmbeddedBelongsToMany;
     // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
-    var docs = await repoPopulate.embeddedBelongsToOne({
+    var docs = await repoPopulator.populate(recordCompany, {
       docPath: 'artists.*',
       docPathRelated: 'albums.*',
-      key: 'topAlbumId',
-      alias: 'topAlbum'
+      key: 'albumIds',
+      alias: 'albums'
     }, data.recordCompany);
-
-    should(docs[0].artists[0].topAlbum.name).eql('OK Computer');
-    should(docs[1].artists[0].topAlbum.name).eql('Amputechture');
+    
+    should(docs[0].artists[0].albums.length).eql(4);
+    should(docs[0].artists[0].albums[0].name).eql('Pablo Honey');
+    should(docs[0].artists[0].albums[1].name).eql('The Bends');
+    should(docs[0].artists[0].albums[2].name).eql('OK Computer');
+    should(docs[0].artists[0].albums[3].name).eql('Kid A');
+    should(docs[1].artists[0].albums.length).eql(4);
+    should(docs[1].artists[0].albums[0].name).eql('De-Loused in the Comatorium');
+    should(docs[1].artists[0].albums[1].name).eql('Frances the Mute');
+    should(docs[1].artists[0].albums[2].name).eql('Amputechture');
+    should(docs[1].artists[0].albums[3].name).eql('The Bedlam in Goliath');
   });
 });
