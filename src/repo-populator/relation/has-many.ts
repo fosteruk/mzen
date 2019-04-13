@@ -1,5 +1,5 @@
 import { Repo } from '../../repo';
-import { RelationConfig } from './abstract';
+import { RelationConfig } from '../../repo-populator';
 import { RelationHasAbstract } from './has-abstract';
 
 export class RelationHasMany extends RelationHasAbstract
@@ -7,7 +7,7 @@ export class RelationHasMany extends RelationHasAbstract
   async populate(relationRepo: Repo, config: RelationConfig, docs)
   {
     config = this.normalizeConfig(config);
-    config.relation = 'hasMany';
+    config.type = 'hasMany';
     return this.has(relationRepo, config, docs);
   }
 }

@@ -1,4 +1,4 @@
-import { RelationConfig } from './abstract';
+import { RelationConfig } from '../../repo-populator';
 import { RelationEmbeddedAbstract } from './embedded-abstract';
 
 export abstract class RelationEmbeddedHasAbstract extends RelationEmbeddedAbstract

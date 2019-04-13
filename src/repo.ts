@@ -2,7 +2,7 @@ import clone = require('clone');
 import { ModelManagerConfig } from './model-manager';
 import Schema, { SchemaValidationResult, SchemaSpec, ObjectPathAccessor } from 'mzen-schema';
 import Service from './service';
-import RepoPopulator from './repo-populator';
+import { RepoPopulator, RelationConfig } from './repo-populator';
 
 export class RepoErrorValidation extends Error
 {
@@ -39,7 +39,7 @@ export interface RepoConfig
   schema?: Schema | SchemaSpec;
   indexes?: {[key: string]: RepoIndexConfig} | Array<RepoIndexConfig>;
   autoIndex?: boolean;
-  relations?: {[key: string]: RepoRelationConfig};
+  relations?: {[key: string]: RelationConfig};
   constructors?: {[key: string]: any} | Array<any>;
   schemas?: {[key: string]: Schema} | Array<Schema>;
   repos?: {[key: string]: Repo} | Array<Repo>;
@@ -64,20 +64,6 @@ export interface RepoQueryOptions
      maxVariable?: string,
      backwards?: boolean
   };
-}
-
-export interface RepoRelationConfig extends RepoQueryOptions
-{
-  repo?: string;
-  type?: string;
-  key?: string;
-  pkey?: string; // defaults to '_id'
-  alias?: string;
-  docPath?: string;
-  docPathRelated?: string;
-  query?: any;
-  recursion?: number;
-  autoPopulate?: boolean;
 }
 
 export class Repo
@@ -399,7 +385,7 @@ export class Repo
     return this.getPopulator().populateAll(this, docs, options);
   }
   
-  async populate(relation: RepoRelationConfig | string, docs?: any, options?: RepoQueryOptions)
+  async populate(relation: RelationConfig | string, docs?: any, options?: RepoQueryOptions)
   {
     return this.getPopulator().populate(this, relation, docs, options);
   }

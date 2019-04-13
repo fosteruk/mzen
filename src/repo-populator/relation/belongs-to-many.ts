@@ -1,5 +1,5 @@
 import { Repo } from '../../repo';
-import { RelationConfig } from './abstract';
+import { RelationConfig } from '../../repo-populator';
 import { RelationBelongsToAbstract } from './belongs-to-abstract';
 
 // Belongs-to-many is a many-to-many using an embedded reference array
@@ -10,7 +10,7 @@ export class RelationBelongsToMany extends RelationBelongsToAbstract
   async populate(relationRepo: Repo, config: RelationConfig, docs)
   {
     config = this.normalizeConfig(config);
-    config.relation = 'belongsToMany';
+    config.type = 'belongsToMany';
     return this.belongsTo(relationRepo, config, docs);
   }
 }

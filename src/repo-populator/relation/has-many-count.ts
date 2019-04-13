@@ -1,5 +1,6 @@
 import { Repo } from '../../repo';
-import { RelationAbstract, RelationConfig } from './abstract';
+import { RelationConfig } from '../../repo-populator';
+import { RelationAbstract } from './abstract';
 
 export class RelationHasManyCount extends RelationAbstract
 {

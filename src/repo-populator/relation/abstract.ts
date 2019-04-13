@@ -1,12 +1,8 @@
-import { Repo, RepoRelationConfig } from '../../repo';
+import { Repo } from '../../repo';
+import { RelationConfig } from '../../repo-populator';
 import { ObjectPathAccessor } from 'mzen-schema';
 import clone = require('clone');
 
-export interface RelationConfig extends RepoRelationConfig
-{
-  relation?: string;
-  sourceKey?: string;
-}
 
 export abstract class RelationAbstract
 {
@@ -76,7 +72,7 @@ export abstract class RelationAbstract
             if (values[sk] !== undefined) doc[config.alias].push(values[sk]);
           });
         } else {
-          let isHasOne = (config.relation.toLowerCase().indexOf('hasone') != -1);
+          let isHasOne = (config.type.toLowerCase().indexOf('hasone') != -1);
           if (values[sourceKey] !== undefined) doc[config.alias] = isHasOne ? values[sourceKey][0] : values[sourceKey];
         }
       }
@@ -97,14 +93,13 @@ export abstract class RelationAbstract
     config.key = config.key ? config.key : '';
 
     // relation type name
-    config.relation = config.relation ? config.relation : '';
+    config.type = config.type ? config.type : '';
 
     // sourceKey is an internal option (not specified by the user but set for internal handling) 
     // - which refers to either the key or the pkey depending on relation type
     // - sourceKey is the same as key value on belongsTo* type relations
     // - sourceKey is the same as pkey value on has* type relations
-    let isBelongsTo = (config.relation.toLowerCase().indexOf('belongsto') != -1);
-    config.sourceKey = isBelongsTo ? config.key : config.pkey;
+    config.sourceKey = (config.type.toLowerCase().indexOf('belongsto') != -1) ? config.key : config.pkey;
 
     // alias is the field name used to store the compiled relations
     config.alias = config.alias ? config.alias : '';

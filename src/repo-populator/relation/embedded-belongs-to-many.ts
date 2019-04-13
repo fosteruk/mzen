@@ -1,5 +1,5 @@
 import { Repo } from '../../repo';
-import { RelationConfig } from './abstract';
+import { RelationConfig } from '../../repo-populator';
 import { RelationEmbeddedBelongsToAbstract } from './embedded-belongs-to-abstract';
 
 export class RelationEmbeddedBelongsToMany extends RelationEmbeddedBelongsToAbstract
@@ -7,7 +7,7 @@ export class RelationEmbeddedBelongsToMany extends RelationEmbeddedBelongsToAbst
   async populate(_relationRepo: Repo, config: RelationConfig, docs)
   {
     config = this.normalizeConfig(config);
-    config.relation = 'embeddedBelongsToMany';
+    config.type = 'embeddedBelongsToMany';
     return this.embeddedBelongsTo(config, docs);
   }
 }

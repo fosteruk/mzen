@@ -1,5 +1,5 @@
 import { Repo } from '../../repo';
-import { RelationConfig } from './abstract';
+import { RelationConfig } from '../../repo-populator';
 import { RelationEmbeddedHasAbstract } from './embedded-has-abstract';
 
 export class RelationEmbeddedHasOne extends RelationEmbeddedHasAbstract
@@ -7,7 +7,7 @@ export class RelationEmbeddedHasOne extends RelationEmbeddedHasAbstract
   async populate(_relationRepo: Repo, config: RelationConfig, docs)
   {
     config = this.normalizeConfig(config);
-    config.relation = 'embeddedHasOne';
+    config.type = 'embeddedHasOne';
     return this.embeddedHas(config, docs);
   }
 }
