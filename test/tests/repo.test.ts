@@ -189,7 +189,7 @@ describe('Repo', function(){
         userTimezone: {_id: '1',  name: 'Europe/London'}
       });
     });
-    it('should populate single relation', async () => {
+    it('should populate single relation by config object', async () => {
       var data = {
         userTimezone: [
           {_id: '1',  name: 'Europe/London'}
