@@ -1,5 +1,5 @@
-import { Repo } from '../repo';
-import { RelationAbstract, RelationConfig } from './relation-abstract';
+import { Repo } from '../../repo';
+import { RelationAbstract, RelationConfig } from './abstract';
 
 export abstract class RelationHasAbstract extends RelationAbstract
 {

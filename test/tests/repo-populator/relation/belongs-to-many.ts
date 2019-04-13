@@ -1,7 +1,7 @@
 import should = require('should');
-import { RelationBelongsToMany } from '../../../lib/repo-populator/relation-belongs-to-many';
-import Repo from '../../../lib/repo';
-import MockDataSource from '../../../lib/data-source/mock';
+import { RelationBelongsToMany } from '../../../../lib/repo-populator/relation/belongs-to-many';
+import Repo from '../../../../lib/repo';
+import MockDataSource from '../../../../lib/data-source/mock';
 
 describe('RelationBelongsToMany', function(){
   it('should populate', async () => {

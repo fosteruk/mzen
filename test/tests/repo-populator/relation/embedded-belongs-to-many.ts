@@ -1,23 +1,24 @@
 import should = require('should');
-import { RelationEmbeddedHasMany } from '../../../lib/repo-populator/relation-embedded-has-many';
-import Repo from '../../../lib/repo';
-import MockDataSource from '../../../lib/data-source/mock';
+import { RelationEmbeddedBelongsToMany } from '../../../../lib/repo-populator/relation/embedded-belongs-to-many';
+import Repo from '../../../../lib/repo';
+import MockDataSource from '../../../../lib/data-source/mock';
 
-describe('RelationEmbeddedHasMany', function(){
+describe('RelationEmbeddedBelongsToMany', function(){
   it('should populate', async () => {
     var data = {
       recordCompany: [{
         artists: [
           {
-            _id: '100', 
-            name: 'Radiohead'
+            _id: '1', 
+            name: 'Radiohead',
+            albumIds: ['1', '2', '3', '4']
           }
         ],
         albums: [
-          {_id: '1', name: 'Pablo Honey', artistId: '100'},
-          {_id: '2', name: 'The Bends', artistId: '100'},
-          {_id: '3', name: 'OK Computer', artistId: '100'},
-          {_id: '4', name: 'Kid A', artistId: '100'}
+          {_id: '1', name: 'Pablo Honey'},
+          {_id: '2', name: 'The Bends'},
+          {_id: '3', name: 'OK Computer'},
+          {_id: '4', name: 'Kid A'}
         ]
       }]
     };
@@ -27,15 +28,16 @@ describe('RelationEmbeddedHasMany', function(){
     });
     recordCompany.dataSource = new MockDataSource(data);
 
-    var repoPopulator = new RelationEmbeddedHasMany;
+    var repoPopulator = new RelationEmbeddedBelongsToMany;
     // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
     var docs = await repoPopulator.populate(recordCompany, {
-      docPath: 'artists.*', 
-      docPathRelated: 'albums.*', 
-      key: 'artistId',
-      alias: 'albums' 
+      docPath: 'artists.*',
+      docPathRelated: 'albums.*',
+      key: 'albumIds',
+      alias: 'albums'
     }, data.recordCompany);
-    
+
+    //console.log(JSON.stringify(docs, null, 2));
     should(docs[0].artists[0].albums[0].name).eql('Pablo Honey');
     should(docs[0].artists[0].albums[1].name).eql('The Bends');
     should(docs[0].artists[0].albums[2].name).eql('OK Computer');
@@ -43,33 +45,36 @@ describe('RelationEmbeddedHasMany', function(){
   });
   it('should populate array of docs', async () => {
     var data = {
-      recordCompany: [
+      recordCompany: 
+      [
         {
           artists: [
             {
-              _id: '100', 
-              name: 'Radiohead'
+              _id: '1', 
+              name: 'Radiohead',
+              albumIds: ['1', '2', '3', '4']
             }
           ],
           albums: [
-            {_id: '1', name: 'Pablo Honey', artistId: '100'},
-            {_id: '2', name: 'The Bends', artistId: '100'},
-            {_id: '3', name: 'OK Computer', artistId: '100'},
-            {_id: '4', name: 'Kid A', artistId: '100'}
+            {_id: '1', name: 'Pablo Honey'},
+            {_id: '2', name: 'The Bends'},
+            {_id: '3', name: 'OK Computer'},
+            {_id: '4', name: 'Kid A'}
           ]
         },
         {
           artists: [
             {
               _id: '200', 
-              name: 'The Mars Volta'
+              name: 'The Mars Volta',
+              albumIds: ['21', '22', '23', '24']
             }
           ],
           albums: [
-            {_id: '21', name: 'De-Loused in the Comatorium', artistId: '200'},
-            {_id: '22', name: 'Frances the Mute', artistId: '200'},
-            {_id: '23', name: 'Amputechture', artistId: '200'},
-            {_id: '24', name: 'The Bedlam in Goliath', artistId: '200'}
+            {_id: '21', name: 'De-Loused in the Comatorium'},
+            {_id: '22', name: 'Frances the Mute'},
+            {_id: '23', name: 'Amputechture'},
+            {_id: '24', name: 'The Bedlam in Goliath'}
           ]
         },
       ]
@@ -80,13 +85,13 @@ describe('RelationEmbeddedHasMany', function(){
     });
     recordCompany.dataSource = new MockDataSource(data);
 
-    var repoPopulator = new RelationEmbeddedHasMany;
+    var repoPopulator = new RelationEmbeddedBelongsToMany;
     // See RepoPopulateRelation.normalizeOptions() comments for descrption of relation options
     var docs = await repoPopulator.populate(recordCompany, {
-      docPath: 'artists.*', 
-      docPathRelated: 'albums.*', 
-      key: 'artistId',
-      alias: 'albums' 
+      docPath: 'artists.*',
+      docPathRelated: 'albums.*',
+      key: 'albumIds',
+      alias: 'albums'
     }, data.recordCompany);
     
     should(docs[0].artists[0].albums.length).eql(4);

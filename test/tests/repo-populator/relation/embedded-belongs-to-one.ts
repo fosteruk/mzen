@@ -1,7 +1,7 @@
 import should = require('should');
-import { RelationEmbeddedBelongsToOne } from '../../../lib/repo-populator/relation-embedded-belongs-to-one';
-import Repo from '../../../lib/repo';
-import MockDataSource from '../../../lib/data-source/mock';
+import { RelationEmbeddedBelongsToOne } from '../../../../lib/repo-populator/relation/embedded-belongs-to-one';
+import Repo from '../../../../lib/repo';
+import MockDataSource from '../../../../lib/data-source/mock';
 
 describe('RelationEmbeddedBelongsToOne', function(){
   it('should populate', async () => {

@@ -1,6 +1,7 @@
-import { RelationAbstract, RelationConfig } from './relation-abstract';
+import { RelationConfig } from './abstract';
+import { RelationEmbeddedAbstract } from './embedded-abstract';
 
-export abstract class RelationEmbeddedHasAbstract extends RelationAbstract
+export abstract class RelationEmbeddedHasAbstract extends RelationEmbeddedAbstract
 {
   async embeddedHas(config: RelationConfig, docs)
   {

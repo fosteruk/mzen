@@ -1,6 +1,5 @@
-import { Repo } from '../repo';
-import { RelationConfig } from './relation-abstract';
-import { RelationAbstract } from './relation-abstract';
+import { Repo } from '../../repo';
+import { RelationAbstract, RelationConfig } from './abstract';
 
 export class RelationHasManyCount extends RelationAbstract
 {

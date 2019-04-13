@@ -1,6 +1,6 @@
-import { Repo } from '../repo';
-import { RelationConfig } from './relation-abstract';
-import { RelationHasAbstract } from './relation-has-abstract';
+import { Repo } from '../../repo';
+import { RelationConfig } from './abstract';
+import { RelationHasAbstract } from './has-abstract';
 
 export class RelationHasMany extends RelationHasAbstract
 {

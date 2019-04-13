@@ -1,6 +1,7 @@
-import { RelationAbstract, RelationConfig } from './relation-abstract';
+import { RelationConfig } from './abstract';
+import { RelationEmbeddedAbstract } from './embedded-abstract';
 
-export abstract class RelationEmbeddedBelongsToAbstract extends RelationAbstract
+export abstract class RelationEmbeddedBelongsToAbstract extends RelationEmbeddedAbstract
 {
   async embeddedBelongsTo(config: RelationConfig, docs)
   {

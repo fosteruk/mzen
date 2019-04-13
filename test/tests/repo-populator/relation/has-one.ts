@@ -1,7 +1,7 @@
 import should = require('should');
-import { RelationHasOne } from '../../../lib/repo-populator/relation-has-one';
-import Repo from '../../../lib/repo';
-import MockDataSource from '../../../lib/data-source/mock';
+import { RelationHasOne } from '../../../../lib/repo-populator/relation/has-one';
+import Repo from '../../../../lib/repo';
+import MockDataSource from '../../../../lib/data-source/mock';
 
 describe('RelationHasOne', function(){
   it('should populate', async () => {

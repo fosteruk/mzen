@@ -1,6 +1,6 @@
-import { Repo } from '../repo';
-import { RelationConfig } from './relation-abstract';
-import { RelationEmbeddedHasAbstract } from './relation-embedded-has-abstract';
+import { Repo } from '../../repo';
+import { RelationConfig } from './abstract';
+import { RelationEmbeddedHasAbstract } from './embedded-has-abstract';
 
 export class RelationEmbeddedHasOne extends RelationEmbeddedHasAbstract
 {

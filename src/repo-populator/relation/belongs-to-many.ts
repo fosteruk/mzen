@@ -1,6 +1,6 @@
-import { Repo } from '../repo';
-import { RelationConfig } from './relation-abstract';
-import { RelationBelongsToAbstract } from './relation-belongs-to-abstract';
+import { Repo } from '../../repo';
+import { RelationConfig } from './abstract';
+import { RelationBelongsToAbstract } from './belongs-to-abstract';
 
 // Belongs-to-many is a many-to-many using an embedded reference array
 // - if a User has many favouriteColors then then an array of favourite 

@@ -1,6 +1,6 @@
-import { Repo } from '../repo';
-import { RelationConfig } from './relation-abstract';
-import { RelationBelongsToAbstract } from './relation-belongs-to-abstract';
+import { Repo } from '../../repo';
+import { RelationConfig } from './abstract';
+import { RelationBelongsToAbstract } from './belongs-to-abstract';
 
 export class RelationBelongsToOne extends RelationBelongsToAbstract
 {

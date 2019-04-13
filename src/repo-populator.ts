@@ -1,14 +1,11 @@
 import { Repo, RepoRelationConfig, RepoQueryOptions } from './repo';
-import { RelationAbstract } from './repo-populator/relation-abstract';
-import { RelationHasOne } from './repo-populator/relation-has-one';
-import { RelationHasMany } from './repo-populator/relation-has-many';
-import { RelationBelongsToOne } from './repo-populator/relation-belongs-to-one';
-import { RelationBelongsToMany } from './repo-populator/relation-belongs-to-many';
-import { RelationHasManyCount } from './repo-populator/relation-has-many-count';
-import { RelationEmbeddedBelongsToOne } from './repo-populator/relation-embedded-belongs-to-one';
-import { RelationEmbeddedBelongsToMany } from './repo-populator/relation-embedded-belongs-to-many';
-import { RelationEmbeddedHasOne } from './repo-populator/relation-embedded-has-one';
-import { RelationEmbeddedHasMany } from './repo-populator/relation-embedded-has-many';
+import { 
+  RelationAbstract, 
+  RelationHasOne, RelationHasMany, 
+  RelationBelongsToOne, RelationBelongsToMany, 
+  RelationEmbeddedBelongsToOne, RelationEmbeddedBelongsToMany,    
+  RelationHasManyCount, RelationEmbeddedHasOne, RelationEmbeddedHasMany
+} from './repo-populator/relation';
 import clone = require('clone');
 
 export class RepoPopulator
