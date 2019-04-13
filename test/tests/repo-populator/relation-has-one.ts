@@ -3,7 +3,7 @@ import { RelationHasOne } from '../../../lib/repo-populator/relation-has-one';
 import Repo from '../../../lib/repo';
 import MockDataSource from '../../../lib/data-source/mock';
 
-describe('hasOne()', function () {
+describe('RelationHasOne', function(){
   it('should populate', async () => {
     var data = {
       userTimezone: [
