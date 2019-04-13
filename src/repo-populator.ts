@@ -101,11 +101,11 @@ export class RepoPopulator
   private getFlattenedRelations(repo: Repo, options: any)
   {
     // In order to populate a relation at a given depth its parent relation must have already been populated
-    // To ensure parent relations are populate first we populate in order of relation depth
-    // This method returns an array of arrays - were each child is an array of relation configs for a given relation depth
+    // To ensure parent relations are populated first we populate in order of relation depth
+    // This method returns an array of arrays -re each child is an array of relation configs for a given relation depth
     // [
     //  [relationConfigA, relationConfigB], // depth 1 to be populated first
-    //  [relationConfigB, relationConfigC] // depth 2 to be populated second
+    //  [relationConfigC, relationConfigD] // depth 2 to be populated second
     // ]
     const flattenedRelationsRecursive = this.getFlattenedRelationsRecursive(repo, options);
 
