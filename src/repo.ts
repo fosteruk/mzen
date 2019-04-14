@@ -58,6 +58,7 @@ export interface RepoQueryOptions extends QuerySelectionOptions
 {
   populate?: {[key: string]: boolean} | boolean;
   filterPrivate?: boolean;
+  [key: string]: any; // allow implementation specific props
 }
 
 export class Repo
@@ -344,16 +345,9 @@ export class Repo
   
   private getQueryOptions(options)
   {
-    options = options ? options : {};
-
-    var queryOptions = {} as QuerySelectionOptions;
-    if (options.sort != undefined) queryOptions.sort = options.sort;
-    delete options.sort;
-    if (options.limit != undefined) queryOptions.limit = options.limit;
-    delete options.limit;
-    if (options.skip != undefined) queryOptions.skip = options.skip;
-    delete options.skip;
-
+    var queryOptions: QuerySelectionOptions = options ? {...options} : {};
+    if (queryOptions.filterPrivate !== undefined) delete queryOptions.filterPrivate;
+    if (queryOptions.populate !== undefined) delete queryOptions.populate;
     return queryOptions;
   }
 
