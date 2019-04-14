@@ -1,5 +1,6 @@
 import ModelManager from './model-manager';
 
+export * from './data-source';
 export * from './model-manager';
 export * from './resource-loader';
 export * from './repo';
