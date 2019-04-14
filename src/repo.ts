@@ -1,5 +1,6 @@
 import clone = require('clone');
 import { ModelManagerConfig } from './model-manager';
+import { QuerySelection, QuerySelectionOptions, QueryUpdate } from './data-source/interface';
 import Schema, { SchemaValidationResult, SchemaSpec, ObjectPathAccessor } from 'mzen-schema';
 import Service from './service';
 import { RepoPopulator, RelationConfig } from './repo-populator';
@@ -46,24 +47,10 @@ export interface RepoConfig
   services?: {[key: string]: Service} | Array<Service>;
 }
 
-export interface RepoQueryOptions
+export interface RepoQueryOptions extends QuerySelectionOptions
 {
-  limit?: number;
-  skip?: number;
-  sort?: {[key: string]: number};
   populate?: {[key: string]: boolean} | boolean;
-  filterPrivate?: boolean; 
-  hint?: string | {[key: string]: number};
-  collation?: {
-     locale?: string,
-     caseLevel?: boolean,
-     caseFirst?: string,
-     strength?: number,
-     numericOrdering?: boolean,
-     alternate?: string,
-     maxVariable?: string,
-     backwards?: boolean
-  };
+  filterPrivate?: boolean;
 }
 
 export class Repo
@@ -285,41 +272,52 @@ export class Repo
     return this.dataSource.dropIndexes(this.config.collectionName);
   }
   
-  // @ts-ignore 'args' is declared but its value is never read.
-  async find(...args: any[])
+  async find(query?: QuerySelection, options?: RepoQueryOptions)
   {
     this.initSchema();
-    const findOptions = this.findQueryOptions(arguments);
-    var validateResult = await this.schema.validateQuery(findOptions.query);
+
+    const optionsAll = this.normalizeFindOptions(options);
+    const optionsPropagate = this.getPropagateOptions(optionsAll);
+    const optionsQuery = this.getQueryOptions(optionsAll);
+    
+    query = query ? query : {};
+    var validateResult = await this.schema.validateQuery(query);
     if (!validateResult.isValid) {
       throw new RepoErrorValidation(validateResult.errors)
     }
-    // @ts-ignore - Expected 0 arguments, but got 2 - variable method arguments
-    var docs = await this.dataSource.find(this.config.collectionName, findOptions.query, findOptions.fields, findOptions.queryOptions);
-    return this.findPopulate(docs, findOptions);
+
+    var docs = await this.dataSource.find(this.config.collectionName, query, optionsQuery);
+    return this.findPopulate(docs, optionsPropagate);
   }
   
-  // @ts-ignore 'args' is declared but its value is never read.
-  async findOne(...args: any[])
+  async findOne(query?: QuerySelection, options?: RepoQueryOptions)
   {
     this.initSchema();
-    const findOptions = this.findQueryOptions(arguments);
-    var validateResult = await this.schema.validateQuery(findOptions.query);
+
+    const optionsAll = this.normalizeFindOptions(options);
+    const optionsPropagate = this.getPropagateOptions(optionsAll);
+    const optionsQuery = this.getQueryOptions(optionsAll);
+
+    query = query ? query : {};
+    const validateResult = await this.schema.validateQuery(query);
     if (!validateResult.isValid) {
       throw new RepoErrorValidation(validateResult.errors);
     }
-    // @ts-ignore - Expected 0 arguments, but got 2 - variable method arguments
-    var docs = await this.dataSource.findOne(this.config.collectionName, findOptions.query, findOptions.fields, findOptions.queryOptions);
-    return this.findPopulate(docs, findOptions);
+
+    var docs = await this.dataSource.findOne(this.config.collectionName, query, optionsQuery);
+    return this.findPopulate(docs, optionsPropagate);
   }
   
-  async count(query, options?)
+  async count(query?: QuerySelection, options?: QuerySelectionOptions)
   {
     this.initSchema();
-    var validateResult = await this.schema.validateQuery(query);
+
+    query = query ? query : {};
+    const validateResult = await this.schema.validateQuery(query);
     if (!validateResult.isValid) {
       throw new RepoErrorValidation(validateResult.errors);
     }
+
     return this.dataSource.count(this.config.collectionName, query, options);
   }
   
@@ -328,56 +326,47 @@ export class Repo
     this.initSchema();
     return this.dataSource.aggregate(this.config.collectionName, pipeline, options);
   }
-  
-  private findQueryOptions(findArguments)
+
+  private normalizeFindOptions(options: RepoQueryOptions)
   {
-    // This method parses query options for finder methods and compiles into an array that is easier to consunme
-
-    var query = {};
-    var fields = {};
-    var options = {} as RepoQueryOptions;
-
-    query = findArguments[0];
-    switch (Object.keys(findArguments).length) {
-      case 2:
-        options = findArguments[1];
-      break;
-      case 3:
-        fields = findArguments[1];
-        options = findArguments[2];
-      break;
-    }
-
-    //options.populate = (options.populate !== undefined)  ? options.populate : true;
+    var options = options ? {...options} : {};
     options.filterPrivate = (options.filterPrivate !== undefined)  ? options.filterPrivate : false;
+    options.populate = (options.populate !== undefined)  ? options.populate : null;
+    return options;
+  }
+  
+  private getQueryOptions(options)
+  {
+    options = options ? options : {};
 
-    var findOptions = {query, fields, options, queryOptions: {}};
-    // Find query options should not be propagated to further calls to find during population
-    // - so we create a seperate options object for the query and remove options we dont want to propagate
-    var queryOptions = {} as RepoQueryOptions;
+    var queryOptions = {} as QuerySelectionOptions;
     if (options.sort != undefined) queryOptions.sort = options.sort;
     delete options.sort;
     if (options.limit != undefined) queryOptions.limit = options.limit;
     delete options.limit;
     if (options.skip != undefined) queryOptions.skip = options.skip;
     delete options.skip;
-    if (options.hint != undefined) queryOptions.hint = options.hint;
-    delete options.hint;
-    if (options.collation != undefined) queryOptions.collation = options.collation;
-    delete options.collation;
 
-    findOptions.queryOptions = queryOptions;
+    return queryOptions;
+  }
 
-    return findOptions;
+  private getPropagateOptions(options)
+  {
+    // Get find options that should propgate (with query options removed)
+    options = options ? options : {};
+    return {
+      filterPrivate: options.filterPrivate,
+      populate: options.populate
+    };
   }
   
-  private async findPopulate(docs: any, findOptions: any)
+  private async findPopulate(docs: any, options: any)
   {
-    if (findOptions.options.filterPrivate) {
+    if (options.filterPrivate) {
       this.schema.filterPrivate(docs, 'read');
     }
     docs = docs ? this.schema.applyTransients(docs) : docs;
-    return (findOptions.options.populate === false) ? docs : this.populateAll(docs, findOptions.options);
+    return (options.populate === false) ? docs : this.populateAll(docs, options);
   }
   
   async populateAll(docs: any, options?: RepoQueryOptions)
@@ -428,7 +417,7 @@ export class Repo
     return this.dataSource.insertOne.apply(this.dataSource, args);
   }
   
-  async updateMany(criteria, update, options?)
+  async updateMany(criteria: QuerySelection, update: QueryUpdate, options?)
   {
     this.initSchema();
     criteria = clone(criteria);
@@ -461,7 +450,7 @@ export class Repo
     return this.dataSource.updateMany(this.config.collectionName, criteria, update, options);
   }
   
-  async updateOne(criteria, update, options?)
+  async updateOne(criteria: QuerySelection, update: QueryUpdate, options?)
   {
     this.initSchema();
     criteria = clone(criteria);
@@ -494,7 +483,7 @@ export class Repo
     return this.dataSource.updateOne(this.config.collectionName, criteria, update, options);
   }
   
-  async deleteMany(filter, options?)
+  async deleteMany(filter: QuerySelection, options?)
   {
     this.initSchema();
     options = options ? options : {};
@@ -510,7 +499,7 @@ export class Repo
     return this.dataSource.deleteMany.apply(this.dataSource, args);
   }
   
-  async deleteOne(filter, options?)
+  async deleteOne(filter: QuerySelection, options?)
   {
     this.initSchema();
     options = options ? options : {};

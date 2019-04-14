@@ -1,6 +1,14 @@
+import { 
+  DataSourceInterface,
+  QuerySelection, 
+  QuerySelectionOptions, 
+  QueryUpdate, 
+  IndexSpec, 
+  IndexOptions
+} from './interface';
 import clone = require('clone');
 
-export class MockDataSource
+export class MockDataSource implements DataSourceInterface
 {
   data: {[key: string]: any};
   dataInsert: Array<any>;
@@ -19,41 +27,38 @@ export class MockDataSource
     this.queryCount = 0;
   }
   
-  connect()
+  async connect(): Promise<DataSourceInterface>
   {
     // This is a in memory data store - there is nothing to connect to 
     // - we can resolve immediately
     return Promise.resolve(this);
   }
   
-  // @ts-ignore - 'fields' is declared but its value is never read
-  find(collectionName, query?, fields?, findOptions?)
+  find(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<any[]>
   {
     this.queryCount++;
-    var data = this.filterData(collectionName, query, findOptions);
+    var data = this.filterData(collectionName, query, options);
     // We must clone the result to prevent circular references
     return Promise.resolve(clone(data));
   }
   
-  // @ts-ignore - 'fields' is declared but its value is never read
-  findOne(collectionName, query?, fields?, findOptions?)
+  findOne(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<any>
   {
     this.queryCount++;
-    var data = this.filterData(collectionName, query, findOptions);
+    var data = this.filterData(collectionName, query, options);
     // We must clone the result to prevent circular references
     return Promise.resolve(clone(data[0]));
   }
   
-  // @ts-ignore - 'fields' is declared but its value is never read
-  count(collectionName, query?, fields?, findOptions?)
+  count(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<any>
   {
     this.queryCount++;
-    var data = this.filterData(collectionName, query, findOptions);
+    var data = this.filterData(collectionName, query, options);
     var count = Array.isArray(data) ? data.length : 0;
     return Promise.resolve(count);
   }
   
-  filterData(collectionName, query?, options?)
+  filterData(collectionName, query?: QuerySelection, options?: QuerySelectionOptions)
   {
     options = options ? options : {};
     var data = this.data[collectionName];
@@ -78,67 +83,70 @@ export class MockDataSource
     return result;
   }
   
-  // @ts-ignore - 'collectionName' is declared but its value is never read
-  insertMany(collectionName, docs)
+  insertMany(_collectionName: string, docs: any[], _options?: any): Promise<any>
   {
     this.queryCount++;
     this.dataInsert = this.dataInsert.concat(docs);
     return Promise.resolve();
   }
   
-  // @ts-ignore - 'collectionName' is declared but its value is never read
-  insertOne(collectionName, doc)
+  insertOne(_collectionName: string, doc: any, _options?: any): Promise<any>
   {
     this.queryCount++;
     this.dataInsert.push(doc);
     return Promise.resolve();
   }
   
-  // @ts-ignore - 'collectionName' is declared but its value is never read
-  updateMany(collectionName, criteria?, update?, options?)
+  updateMany(_collectionName: string, _querySelect: QuerySelection, queryUpdate: QueryUpdate, _options?: any): Promise<any>
   {
     this.queryCount++;
-    this.dataUpdate = this.dataUpdate.concat(update);
+    this.dataUpdate = this.dataUpdate.concat(queryUpdate);
+    return Promise.resolve();
+  }
+  
+  updateOne(_collectionName: string, _querySelect: QuerySelection, queryUpdate: QueryUpdate, _options: any): Promise<any>
+  {
+    this.queryCount++;
+    this.dataUpdate = this.dataUpdate.concat(queryUpdate);
     return Promise.resolve();
   }
   
   // @ts-ignore - 'collectionName' is declared but its value is never read
-  updateOne(collectionName, criteria?, update?, options?)
-  {
-    this.queryCount++;
-    this.dataUpdate = this.dataUpdate.concat(update);
-    return Promise.resolve();
-  }
-  
-  // @ts-ignore - 'collectionName' is declared but its value is never read
-  deleteMany(collectionName, docs)
-  {
-    this.queryCount++;
-    return Promise.resolve();
-  }
-  
-  // @ts-ignore - 'collectionName' is declared but its value is never read
-  deleteOne(collectionName, doc)
+  deleteMany(collectionName: string, query: QuerySelection): Promise<any>
   {
     this.queryCount++;
     return Promise.resolve();
   }
   
-  // @ts-ignore - 'collectionName' is declared but its value is never read
-  drop(collectionName)
+  deleteOne(_collectionName: string, _query: QuerySelection): Promise<any>
   {
     this.queryCount++;
     return Promise.resolve();
   }
   
-  // @ts-ignore - 'collectionName' is declared but its value is never read
-  createIndex(collectionName, spec, options?)
+  drop(_collectionName: string): Promise<any>
   {
     this.queryCount++;
     return Promise.resolve();
   }
   
-  close()
+  createIndex(_collectionName: string, _indexSpec: IndexSpec | string, _options?: IndexOptions): Promise<any>
+  {
+    this.queryCount++;
+    return Promise.resolve();
+  }
+
+  async dropIndex(_collectionName: string, _indexName: string): Promise<any>
+  {
+    return true;
+  }
+  
+  async dropIndexes(_collectionName: string): Promise<any>
+  {
+    return true;
+  }
+  
+  close(): Promise<any>
   {
     this.queryCount++;
     return Promise.resolve(this);

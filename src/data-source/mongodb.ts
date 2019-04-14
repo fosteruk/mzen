@@ -1,10 +1,18 @@
 import { MongoClient, Db } from 'mongodb';
+import { 
+  DataSourceInterface,
+  QuerySelection, 
+  QuerySelectionOptions, 
+  QueryUpdate, 
+  IndexSpec, 
+  IndexOptions
+} from './interface';
 
-export class MongoDb
+export class MongoDb implements DataSourceInterface
 {
-  config: {[key: string]: any};
-  client: MongoClient;
-  db: Db;
+  protected config: {[key: string]: any};
+  private client: MongoClient;
+  private db: Db;
   
   constructor(config) 
   {
@@ -13,7 +21,7 @@ export class MongoDb
     this.db = null;
   }
   
-  async connect()
+  async connect(): Promise<DataSourceInterface>
   {
     const defaultOptions = {ignoreUndefined: true, useNewUrlParser: true};
     const url = this.config.url ? this.config.url : '';
@@ -25,114 +33,104 @@ export class MongoDb
     return this;
   }
   
-  _findOptionsNormalize(options, extra)
+  find(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<any[]>
+  {
+    query = query ? query : {};
+    options = options ? options : {};
+    var collection = this.getCollection(collectionName);
+    return collection.find(query, this._findOptionsNormalize(options)).toArray();
+  }
+  
+  findOne(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<any>
+  {
+    query = query ? query : {};
+    options = options ? options : {};
+    var collection = this.getCollection(collectionName);
+    return collection.findOne(query, this._findOptionsNormalize(options));
+  }
+  
+  count(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<any>
+  {
+    query = query ? query : {};
+    options = options ? options : {};
+    var collection = this.getCollection(collectionName);
+    return collection.count(query, this._findOptionsNormalize(options));
+  }
+  
+  aggregate(collectionName?: string, ...args): Promise<any>
+  {
+    var collection = this.getCollection(collectionName);
+    return collection.aggregate.apply(collection, args).toArray();
+  }
+  
+  insertMany(collectionName: string, objects: any[], options?: any): Promise<any>
   {
     options = options ? options : {};
-    extra = extra ? extra : {};
-    if (extra.fields) options.projection = extra.fields;
-    return options;
-  }
-  
-  find(collectionName, query, fields, options)
-  {
-    var findArgs = [];
-    if (query) findArgs.push(query);
-    if (fields || options) findArgs.push(this._findOptionsNormalize(options, {fields}));
-    
-    var collection = this.getCollection(collectionName);
-    var cursor = collection.find.apply(collection, findArgs);
-    return cursor.toArray();
-  }
-  
-  findOne(collectionName, query, fields, options)
-  {
-    var findArgs = [];
-    if (query) findArgs.push(query);
-    if (fields || options) findArgs.push(this._findOptionsNormalize(options, {fields}));
-      
-    var collection = this.getCollection(collectionName);
-    var cursor = collection.findOne.apply(collection, findArgs);
-    return cursor;
-  }
-  
-  count(collectionName, ...args)
-  {
-    var collection = this.getCollection(collectionName);
-    var count = collection.count.apply(collection, args);
-    return count;
-  }
-  
-  aggregate(collectionName, ...args)
-  {
-    var collection = this.getCollection(collectionName);
-    var cursor = collection.aggregate.apply(collection, args);
-    return cursor.toArray();
-  }
-  
-  insertMany(collectionName, objects, options)
-  {
     var collection = this.getCollection(collectionName);
     return collection.insertMany(objects, options);
   }
   
-  insertOne(collectionName, object, options)
+  insertOne(collectionName: string, object: any, options?: any): Promise<any>
   {
+    options = options ? options : {};
     var collection = this.getCollection(collectionName);
     return collection.insertOne(object, options);
   }
   
-  updateMany(collectionName, ...args)
+  updateMany(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options?: any): Promise<any>
   {
+    options = options ? options : {};
     var collection = this.getCollection(collectionName);
-    return collection.updateMany.apply(collection, args);
+    return collection.updateMany(querySelect, queryUpdate, options);
   }
   
-  updateOne(collectionName, ...args)
+  updateOne(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options: any): Promise<any>
   {
+    options = options ? options : {};
     var collection = this.getCollection(collectionName);
-    return collection.updateOne.apply(collection, args);
+    return collection.updateOne(querySelect, queryUpdate, options);
   }
   
-  deleteMany(collectionName, ...args)
+  deleteMany(collectionName: string, query: QuerySelection): Promise<any>
   {
     var collection = this.getCollection(collectionName);
-    return collection.deleteMany.apply(collection, args);
+    return collection.deleteMany(query);
   }
   
-  deleteOne(collectionName, ...args)
+  deleteOne(collectionName: string, query: QuerySelection): Promise<any>
   {
     var collection = this.getCollection(collectionName);
-    return collection.deleteOne.apply(collection, args);
+    return collection.deleteOne(query);
   }
   
-  drop(collectionName)
+  drop(collectionName: string): Promise<any>
   {
-    return this.getCollection(collectionName).drop().catch((error) => {
+    return this.getCollection(collectionName).drop().catch(error => {
       // Ignore error code 26 'ns not found' 
       // - otherwise re-throw
       if (error.code != 26) throw error;
     });
   }
   
-  createIndex(collectionName, ...args)
+  createIndex(collectionName: string, indexSpec: IndexSpec | string, options?: IndexOptions): Promise<any>
   {
     var collection = this.getCollection(collectionName);
-    return collection.createIndex.apply(collection, args);
+    return collection.createIndex(indexSpec, options);
   }
   
-  dropIndex(collectionName, ...args)
+  dropIndex(collectionName: string, indexName: string): Promise<any>
   {
     var collection = this.getCollection(collectionName);
-    return collection.dropIndex.apply(collection, args);
+    return collection.dropIndex(indexName);
   }
   
-  dropIndexes(collectionName)
+  dropIndexes(collectionName: string): Promise<any>
   {
     var collection = this.getCollection(collectionName);
     return collection.dropIndexes.apply(collection);
   }
   
-  async close()
+  async close(): Promise<any>
   {
     if (this.client) {
       await this.client.close(true);
@@ -140,10 +138,20 @@ export class MongoDb
 
     return this;
   }
-  
-  getCollection(name, options?)
+
+  private _findOptionsNormalize(options)
   {
-    return this.db.collection(name, options);
+    options = options ? options : {};
+    if (options.fields) {
+      options.projection = options.fields;
+      delete options.fields;
+    }
+    return options;
+  }
+  
+  private getCollection(collectionName?: string, options?)
+  {
+    return this.db.collection(collectionName, options);
   }
 }
 
