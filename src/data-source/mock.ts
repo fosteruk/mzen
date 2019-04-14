@@ -4,11 +4,14 @@ import {
   QuerySelectionOptions, 
   QueryUpdate, 
   IndexSpec, 
-  IndexOptions
+  IndexOptions,
+  QueryPersistResult,
+  QueryPersistResultInsertMany,
+  QueryPersistResultInsertOne
 } from './interface';
 import clone = require('clone');
 
-export class MockDataSource implements DataSourceInterface
+export class DataSourceMock implements DataSourceInterface
 {
   data: {[key: string]: any};
   dataInsert: Array<any>;
@@ -34,28 +37,28 @@ export class MockDataSource implements DataSourceInterface
     return Promise.resolve(this);
   }
   
-  find(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<any[]>
+  async find(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<any[]>
   {
     this.queryCount++;
     var data = this.filterData(collectionName, query, options);
     // We must clone the result to prevent circular references
-    return Promise.resolve(clone(data));
+    return clone(data);
   }
   
-  findOne(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<any>
+  async findOne(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<any>
   {
     this.queryCount++;
     var data = this.filterData(collectionName, query, options);
     // We must clone the result to prevent circular references
-    return Promise.resolve(clone(data[0]));
+    return clone(data[0]);
   }
   
-  count(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<any>
+  async count(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<any>
   {
     this.queryCount++;
     var data = this.filterData(collectionName, query, options);
     var count = Array.isArray(data) ? data.length : 0;
-    return Promise.resolve(count);
+    return count;
   }
   
   filterData(collectionName, query?: QuerySelection, options?: QuerySelectionOptions)
@@ -83,45 +86,59 @@ export class MockDataSource implements DataSourceInterface
     return result;
   }
   
-  insertMany(_collectionName: string, docs: any[], _options?: any): Promise<any>
+  async insertMany(_collectionName: string, docs: any[], _options?: any): Promise<QueryPersistResultInsertMany>
   {
     this.queryCount++;
     this.dataInsert = this.dataInsert.concat(docs);
-    return Promise.resolve();
+    return {
+      count: docs.length,
+      ids: docs.map((value, index) => value && value._id ? value._id : index)
+    };
   }
   
-  insertOne(_collectionName: string, doc: any, _options?: any): Promise<any>
+  async insertOne(_collectionName: string, doc: any, _options?: any): Promise<QueryPersistResultInsertOne>
   {
     this.queryCount++;
     this.dataInsert.push(doc);
-    return Promise.resolve();
+    return {
+      count: 1,
+      id: doc && doc._id ? doc._id : 1
+    };
   }
   
-  updateMany(_collectionName: string, _querySelect: QuerySelection, queryUpdate: QueryUpdate, _options?: any): Promise<any>
+  async updateMany(_collectionName: string, _querySelect: QuerySelection, queryUpdate: QueryUpdate, _options?: any): Promise<QueryPersistResult>
   {
     this.queryCount++;
     this.dataUpdate = this.dataUpdate.concat(queryUpdate);
-    return Promise.resolve();
+    return {
+      count: 10
+    };
   }
   
-  updateOne(_collectionName: string, _querySelect: QuerySelection, queryUpdate: QueryUpdate, _options: any): Promise<any>
+  async updateOne(_collectionName: string, _querySelect: QuerySelection, queryUpdate: QueryUpdate, _options: any): Promise<QueryPersistResult>
   {
     this.queryCount++;
     this.dataUpdate = this.dataUpdate.concat(queryUpdate);
-    return Promise.resolve();
+    return {
+      count: 1
+    };
   }
   
   // @ts-ignore - 'collectionName' is declared but its value is never read
-  deleteMany(collectionName: string, query: QuerySelection): Promise<any>
+  async deleteMany(collectionName: string, query: QuerySelection): Promise<QueryPersistResult>
   {
     this.queryCount++;
-    return Promise.resolve();
+    return {
+      count: 10
+    };
   }
   
-  deleteOne(_collectionName: string, _query: QuerySelection): Promise<any>
+  async deleteOne(_collectionName: string, _query: QuerySelection): Promise<QueryPersistResult>
   {
     this.queryCount++;
-    return Promise.resolve();
+    return {
+      count: 1
+    };
   }
   
   drop(_collectionName: string): Promise<any>
@@ -153,4 +170,4 @@ export class MockDataSource implements DataSourceInterface
   }
 }
 
-export default MockDataSource;
+export default DataSourceMock;

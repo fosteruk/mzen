@@ -1,6 +1,13 @@
 import clone = require('clone');
 import { ModelManagerConfig } from './model-manager';
-import { QuerySelection, QuerySelectionOptions, QueryUpdate } from './data-source/interface';
+import { 
+  QuerySelection, 
+  QuerySelectionOptions, 
+  QueryUpdate, 
+  QueryPersistResult, 
+  QueryPersistResultInsertMany, 
+  QueryPersistResultInsertOne 
+} from './data-source/interface';
 import Schema, { SchemaValidationResult, SchemaSpec, ObjectPathAccessor } from 'mzen-schema';
 import Service from './service';
 import { RepoPopulator, RelationConfig } from './repo-populator';
@@ -272,7 +279,7 @@ export class Repo
     return this.dataSource.dropIndexes(this.config.collectionName);
   }
   
-  async find(query?: QuerySelection, options?: RepoQueryOptions)
+  async find(query?: QuerySelection, options?: RepoQueryOptions): Promise<any[]>
   {
     this.initSchema();
 
@@ -290,7 +297,7 @@ export class Repo
     return this.findPopulate(docs, optionsPropagate);
   }
   
-  async findOne(query?: QuerySelection, options?: RepoQueryOptions)
+  async findOne(query?: QuerySelection, options?: RepoQueryOptions): Promise<any>
   {
     this.initSchema();
 
@@ -308,7 +315,7 @@ export class Repo
     return this.findPopulate(docs, optionsPropagate);
   }
   
-  async count(query?: QuerySelection, options?: QuerySelectionOptions)
+  async count(query?: QuerySelection, options?: QuerySelectionOptions): Promise<number>
   {
     this.initSchema();
 
@@ -379,7 +386,7 @@ export class Repo
     return this.getPopulator().populate(this, relation, docs, options);
   }
   
-  async insertMany(docs, options?)
+  async insertMany(docs, options?): Promise<QueryPersistResultInsertMany>
   {
     this.initSchema();
     var args = Array.prototype.slice.call(arguments); // We use Array.slice() to make a copy of the original args
@@ -398,7 +405,7 @@ export class Repo
     return this.dataSource.insertMany.apply(this.dataSource, args);
   }
   
-  async insertOne(doc, options?)
+  async insertOne(doc, options?): Promise<QueryPersistResultInsertOne>
   {
     this.initSchema();
     var args = Array.prototype.slice.call(arguments); // We use Array.slice() to make a copy of the original args
@@ -417,7 +424,7 @@ export class Repo
     return this.dataSource.insertOne.apply(this.dataSource, args);
   }
   
-  async updateMany(criteria: QuerySelection, update: QueryUpdate, options?)
+  async updateMany(criteria: QuerySelection, update: QueryUpdate, options?): Promise<QueryPersistResult>
   {
     this.initSchema();
     criteria = clone(criteria);
@@ -450,7 +457,7 @@ export class Repo
     return this.dataSource.updateMany(this.config.collectionName, criteria, update, options);
   }
   
-  async updateOne(criteria: QuerySelection, update: QueryUpdate, options?)
+  async updateOne(criteria: QuerySelection, update: QueryUpdate, options?): Promise<QueryPersistResult>
   {
     this.initSchema();
     criteria = clone(criteria);
@@ -483,7 +490,7 @@ export class Repo
     return this.dataSource.updateOne(this.config.collectionName, criteria, update, options);
   }
   
-  async deleteMany(filter: QuerySelection, options?)
+  async deleteMany(filter: QuerySelection, options?): Promise<QueryPersistResult>
   {
     this.initSchema();
     options = options ? options : {};
@@ -499,7 +506,7 @@ export class Repo
     return this.dataSource.deleteMany.apply(this.dataSource, args);
   }
   
-  async deleteOne(filter: QuerySelection, options?)
+  async deleteOne(filter: QuerySelection, options?): Promise<QueryPersistResult>
   {
     this.initSchema();
     options = options ? options : {};

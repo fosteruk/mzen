@@ -1,4 +1,4 @@
-import MongoDb from './data-source/mongodb';
+import DataSourceMongodb from './data-source/mongodb';
 import ResourceLoader from './resource-loader';
 import Repo from './repo';
 import Service from './service';
@@ -143,7 +143,7 @@ export class ModelManager
     var dataSource = null;
     switch (options.type) {
       case 'mongodb':
-        dataSource = new MongoDb(options);
+        dataSource = new DataSourceMongodb(options);
       break;
     }
 

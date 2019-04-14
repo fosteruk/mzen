@@ -67,6 +67,21 @@ export interface IndexOptions
   expireAfterSeconds?: number;  // may not be supported by all implementations
 }
 
+export interface QueryPersistResult
+{
+  count: number; // number of documents inserted / updated / deleted
+}
+
+export interface QueryPersistResultInsertMany extends QueryPersistResult
+{
+  ids: {[key: number]: any}; // map of the index of the inserted document to the id of the inserted document
+}
+
+export interface QueryPersistResultInsertOne extends QueryPersistResult
+{
+  id: any; // id of inserted or updated documents if only one doc was inserted / updated or id of the first doc inserted/updated
+}
+
 export interface DataSourceInterface
 {
   connect(): Promise<DataSourceInterface>;
@@ -77,17 +92,17 @@ export interface DataSourceInterface
   
   count(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<number>;
   
-  insertMany(collectionName: string, docs: any[], options?: any): Promise<any>;
+  insertMany(collectionName: string, docs: any[], options?: any): Promise<QueryPersistResultInsertMany>;
   
-  insertOne(collectionName: string, doc: any, options?: any): Promise<any>;
+  insertOne(collectionName: string, doc: any, options?: any): Promise<QueryPersistResultInsertOne>;
   
-  updateMany(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options?: any): Promise<any>;
+  updateMany(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options?: any): Promise<QueryPersistResult>;
   
-  updateOne(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options?: any): Promise<any>;
+  updateOne(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options?: any): Promise<QueryPersistResult>;
   
-  deleteMany(collectionName: string, query: QuerySelection): Promise<any>;
+  deleteMany(collectionName: string, query: QuerySelection): Promise<QueryPersistResult>;
   
-  deleteOne(collectionName: string, query: QuerySelection): Promise<any>;
+  deleteOne(collectionName: string, query: QuerySelection): Promise<QueryPersistResult>;
   
   drop(collectionName: string): Promise<any>;
   

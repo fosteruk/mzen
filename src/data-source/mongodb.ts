@@ -5,10 +5,13 @@ import {
   QuerySelectionOptions, 
   QueryUpdate, 
   IndexSpec, 
-  IndexOptions
+  IndexOptions,
+  QueryPersistResult,
+  QueryPersistResultInsertMany,
+  QueryPersistResultInsertOne
 } from './interface';
 
-export class MongoDb implements DataSourceInterface
+export class DataSourceMongodb implements DataSourceInterface
 {
   protected config: {[key: string]: any};
   private client: MongoClient;
@@ -49,58 +52,71 @@ export class MongoDb implements DataSourceInterface
     return collection.findOne(query, this._findOptionsNormalize(options));
   }
   
-  count(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<any>
+  count(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<number>
   {
     query = query ? query : {};
     options = options ? options : {};
     var collection = this.getCollection(collectionName);
-    return collection.count(query, this._findOptionsNormalize(options));
+    return collection.countDocuments(query, this._findOptionsNormalize(options));
   }
   
+  // This is not part of the common interface and needs to be replaced - repo code should never call this
   aggregate(collectionName?: string, ...args): Promise<any>
   {
     var collection = this.getCollection(collectionName);
     return collection.aggregate.apply(collection, args).toArray();
   }
   
-  insertMany(collectionName: string, objects: any[], options?: any): Promise<any>
+  async insertMany(collectionName: string, objects: any[], options?: any): Promise<QueryPersistResultInsertMany>
   {
     options = options ? options : {};
     var collection = this.getCollection(collectionName);
-    return collection.insertMany(objects, options);
+    var response = await collection.insertMany(objects, options);
+    return {
+      count: response.insertedCount,
+      ids: response.insertedIds
+    };
   }
   
-  insertOne(collectionName: string, object: any, options?: any): Promise<any>
+  async insertOne(collectionName: string, object: any, options?: any): Promise<QueryPersistResultInsertOne>
   {
     options = options ? options : {};
     var collection = this.getCollection(collectionName);
-    return collection.insertOne(object, options);
+    var response = await collection.insertOne(object, options);
+    return {
+      count: response.insertedCount,
+      id: response.insertedId
+    };
   }
   
-  updateMany(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options?: any): Promise<any>
+  async updateMany(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options?: any): Promise<QueryPersistResult>
   {
     options = options ? options : {};
     var collection = this.getCollection(collectionName);
-    return collection.updateMany(querySelect, queryUpdate, options);
+    var response = await collection.updateMany(querySelect, queryUpdate, options);
+    return { count: response.modifiedCount + response.upsertedCount };
   }
   
-  updateOne(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options: any): Promise<any>
+  async updateOne(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options: any): Promise<QueryPersistResult>
   {
     options = options ? options : {};
     var collection = this.getCollection(collectionName);
-    return collection.updateOne(querySelect, queryUpdate, options);
+    var response = await collection.updateOne(querySelect, queryUpdate, options);
+    return { count: response.modifiedCount + response.upsertedCount };
   }
   
-  deleteMany(collectionName: string, query: QuerySelection): Promise<any>
+  async deleteMany(collectionName: string, query: QuerySelection): Promise<QueryPersistResult>
   {
     var collection = this.getCollection(collectionName);
-    return collection.deleteMany(query);
+    var response = await collection.deleteMany(query);
+    return { count: response.deletedCount };
   }
   
-  deleteOne(collectionName: string, query: QuerySelection): Promise<any>
+  async deleteOne(collectionName: string, query: QuerySelection): Promise<QueryPersistResult>
   {
     var collection = this.getCollection(collectionName);
-    return collection.deleteOne(query);
+    var response = await collection.deleteOne(query);
+    return { count: response.deletedCount };
   }
   
   drop(collectionName: string): Promise<any>
@@ -155,4 +171,4 @@ export class MongoDb implements DataSourceInterface
   }
 }
 
-export default MongoDb;
+export default DataSourceMongodb;
