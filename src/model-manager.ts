@@ -1,6 +1,7 @@
 import DataSourceMongodb from './data-source/mongodb';
 import ResourceLoader from './resource-loader';
 import Repo from './repo';
+import RepoPopulator from './repo-populator';
 import Service from './service';
 import Schema from 'mzen-schema';
 
@@ -40,6 +41,7 @@ export class ModelManager
   schemas: {[key: string]: Schema};
   repos: {[key: string]: Repo};
   services: {[key: string]: Service};
+  repoPopulator: RepoPopulator;
   
   constructor(options?: ModelManagerConfig)
   {
@@ -158,6 +160,16 @@ export class ModelManager
             return dataSource;
           });
   }
+
+  getRepoPopulator(): RepoPopulator
+  {
+    return this.repoPopulator ? this.repoPopulator : this.repoPopulator = new RepoPopulator;
+  }
+
+  setRepoPopulator(repoPopulator: RepoPopulator)
+  {
+    this.repoPopulator = repoPopulator;
+  }
   
   getDataSource(name)
   {
@@ -264,6 +276,7 @@ export class ModelManager
     Object.values(this.repos).forEach(async repo => {
       // We inject the main config object into every repo so it can access global config values
       repo.config.model = this.config;
+      repo.setPopulator(this.getRepoPopulator());
       repo.addConstructors(this.constructors);
       repo.addSchemas(this.schemas);
       repo.addRepos(this.repos);

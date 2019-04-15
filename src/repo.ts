@@ -48,6 +48,7 @@ export interface RepoConfig
   indexes?: {[key: string]: RepoIndexConfig} | Array<RepoIndexConfig>;
   autoIndex?: boolean;
   relations?: {[key: string]: RelationConfig};
+  populator?: RepoPopulator;
   constructors?: {[key: string]: any} | Array<any>;
   schemas?: {[key: string]: Schema} | Array<Schema>;
   repos?: {[key: string]: Repo} | Array<Repo>;
@@ -86,6 +87,7 @@ export class Repo
     this.config.indexes = this.config.indexes ? this.config.indexes : [];
     this.config.autoIndex = this.config.autoIndex !== undefined ? this.config.autoIndex : true;
     this.config.relations = this.config.relations ? this.config.relations : {};
+    this.config.populator = this.config.populator ? this.config.populator : null;
     this.config.schemas = this.config.schemas ? this.config.schemas : {};
     this.config.repos = this.config.repos ? this.config.repos : {};
     this.config.constructors = this.config.constructors ? this.config.constructors : {};
@@ -95,7 +97,7 @@ export class Repo
 
     this.dataSource = null;
     this.schema = null; // constructed in the init() method
-    this.populator = null;
+    this.populator = this.config.populator;
 
     this.schemas = {};
     this.repos = {};
@@ -165,6 +167,11 @@ export class Repo
   getPopulator()
   {
     return this.populator ? this.populator : this.populator = new RepoPopulator;
+  }
+
+  setPopulator(populator: RepoPopulator)
+  {
+    this.populator = populator;
   }
   
   addConstructor(value)
