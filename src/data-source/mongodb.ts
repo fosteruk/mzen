@@ -60,7 +60,7 @@ export class DataSourceMongodb implements DataSourceInterface
     return collection.countDocuments(query, this._findOptionsNormalize(options));
   }
 
-  async groupCount(collectionName: string, groupField: string, query?: QuerySelection): Promise<{[key:string]: number}>
+  async groupCount(collectionName: string, groupFields: string[], query?: QuerySelection): Promise<Array<{_id: any, count: number}>>
   {
     query = query ? query : {};
 
@@ -69,32 +69,37 @@ export class DataSourceMongodb implements DataSourceInterface
     // We first find te relation ids which are stored on the base document
     // We then generate a map of each of those ids to its related count
 
-    // var groupField = 'letter';
-    // var docs = [{letter: 'a'},{letter: 'a'},{letter: 'a'},{letter: 'b'},{letter: 'b'}];
-    // var values = {a:3, b:2};
+    /*
+    var groupFields = ['width', 'height'];
+    var docs = [
+      {width: 10, height: 20},
+      {width: 10, height: 20},
+      {width: 10, height: 20},
+      {width: 3, height: 5},
+      {width: 3, height: 5},
+    ];
+    var result = [
+      {_id: {width: 10, height: 20}, count: 3},
+      {_id: {width: 3, height: 5}, count: 2}
+    ];
+    */
 
     var aggregateId = {};
-    aggregateId[groupField] = '$' + groupField;
-    var results = await collection.aggregate([
-      {$match: query},
-      {
-        $group: {
-          _id: aggregateId, 
-          count: {$sum: 1} 
-        }
-      },
-      {$project: {count: 1}}
-    ]).toArray();
-
-    // Group related docs by parent key
-    var values = {};
-    results.forEach(result => {
-      let fieldValue = result._id[groupField];
-      if (values[fieldValue] == undefined) values[fieldValue] = 0;
-      values[fieldValue] = result.count;
+    groupFields.forEach(field => {
+      aggregateId[field] = '$' + field;
     });
 
-    return values;
+    var pipline = [];
+    if (query) pipline.push({$match: query});
+    pipline.push({
+      $group: {
+        _id: aggregateId, 
+        count: {$sum: 1} 
+      }
+    });
+    pipline.push({$project: {count: 1}});
+
+    return await collection.aggregate(pipline).toArray();
   }
   
   async insertMany(collectionName: string, objects: any[], options?: any): Promise<QueryPersistResultInsertMany>

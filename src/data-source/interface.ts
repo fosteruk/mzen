@@ -92,7 +92,7 @@ export interface DataSourceInterface
   
   count(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<number>;
 
-  groupCount(collectionName: string, groupField: string, query?: QuerySelection): Promise<{[key:string]: number}>;
+  groupCount(collectionName: string, groupFields: string[], query?: QuerySelection): Promise<Array<{_id: any, count: number}>>;
   
   insertMany(collectionName: string, docs: any[], options?: any): Promise<QueryPersistResultInsertMany>;
   

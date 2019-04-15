@@ -61,9 +61,9 @@ export class DataSourceMock implements DataSourceInterface
     return count;
   }
 
-  async groupCount(_collectionName: string, _groupField: string, _query?: QuerySelection): Promise<{[key:string]: number}>
+  async groupCount(_collectionName: string, _groupFields: string[], _query?: QuerySelection): Promise<Array<{_id: any, count: number}>>
   {
-    return {test: 10};
+    return [{_id: {name: 'Tom'}, count: 10}];
   }
   
   filterData(collectionName, query?: QuerySelection, options?: QuerySelectionOptions)

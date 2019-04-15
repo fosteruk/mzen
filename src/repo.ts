@@ -336,10 +336,10 @@ export class Repo
     return this.dataSource.count(this.config.collectionName, query, options);
   }
 
-  async groupCount(groupField: string, query?: QuerySelection): Promise<{[key:string]: number}>
+  async groupCount(groupFields: string[], query?: QuerySelection): Promise<Array<{_id: any, count: number}>>
   {
     this.initSchema();
-    return this.dataSource.groupCount(this.config.collectionName, groupField, query);
+    return this.dataSource.groupCount(this.config.collectionName, groupFields, query);
   }
 
   private normalizeFindOptions(options: RepoQueryOptions)
