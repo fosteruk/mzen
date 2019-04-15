@@ -179,7 +179,7 @@ export class RepoPopulator
 
       flatRelations.push(flatRelation);
 
-      // hasManyCountRelation does not require recursive populations since its data is just a number
+      // hasManyCount relation does not require recursive populations since its data is just a number
       if (relation.type == 'hasManyCount') continue;
 
       // Recurse into this relation only if populate is true or is populate relation path is true

@@ -10,6 +10,17 @@ export class RelationHasManyCount extends RelationAbstract
 
     const relationIds = this.getRelationIds(config, docs);
 
+    console.log({config, relationIds});
+
+    // Has many count - counts the number of related documents
+    // We first find te relation ids which are stored on the base document
+    // We then generate a map of each of those ids to its related count
+
+    // var docs = [{_id: 'a'}, {_id: 'b'}];
+    // var relationsIds = [1, 2];
+    // var relatedDocs = [{relationId: 'a'},{relationId: 'a'},{relationId: 'a'},{relationId: 'b'},{relationId: 'b'}];
+    // var values = {a:3, b:2};
+
     // Use query option if provided - allows results to be further filtered in addition to relation id
     config.query[config.key] = {$in: relationIds};
 
@@ -18,11 +29,12 @@ export class RelationHasManyCount extends RelationAbstract
     var results = await relationRepo.aggregate([
       {$match: config.query},
       {
-        $group : {
-           _id : aggregateId,
-           count: { $sum: 1 }
+        $group: {
+          _id: aggregateId, 
+          count: { $sum: 1 } 
         }
-      }
+      },
+      {$project: { count: 1 }}
     ]);
 
     // Group related docs by parent key

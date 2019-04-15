@@ -61,10 +61,10 @@ export class DataSourceMongodb implements DataSourceInterface
   }
   
   // This is not part of the common interface and needs to be replaced - repo code should never call this
-  aggregate(collectionName?: string, ...args): Promise<any>
+  async aggregate(collectionName: string, pipeline: any[], options?): Promise<any>
   {
     var collection = this.getCollection(collectionName);
-    return collection.aggregate.apply(collection, args).toArray();
+    return await collection.aggregate(pipeline, options).toArray();
   }
   
   async insertMany(collectionName: string, objects: any[], options?: any): Promise<QueryPersistResultInsertMany>

@@ -8,6 +8,12 @@ export abstract class RelationAbstract
 {
   abstract populate(relationRepo: Repo, relationConfig: RelationConfig, docs);
 
+  private formatRelationId(id)
+  {
+    // Values such as Date or ObjectID must be cast to a string before referecned in a query
+    return (id && ['string', 'number'].indexOf(typeof id) === -1) ? String(id) : id;
+  }
+
   protected getRelationIds(config: RelationConfig, docs)
   {
     config = this.normalizeConfig(config);
@@ -27,10 +33,11 @@ export abstract class RelationAbstract
         let id = doc[config.sourceKey];
         if (Array.isArray(id)) {
           // Only belongsToMany relation supports an array of source keys
-          id.forEach((anId) => {
+          id.forEach(anId => {
+            anId = this.formatRelationId(anId);
             // We must store the id as a primitive as they are referenced as by lookup object
             // - complex types can not be used as object field names
-            anId = String(anId);
+            //anId = String(anId);
             if (relationIds.indexOf(anId) == -1) {
               relationIds.push(anId);
             }
@@ -38,7 +45,7 @@ export abstract class RelationAbstract
         } else {
           // We must store the id as a primitive as they are referenced as by lookup object
           // - complex types can not be used as object field names
-          relationIds.push(String(id));
+          relationIds.push(this.formatRelationId(id));
         }
       }
     });

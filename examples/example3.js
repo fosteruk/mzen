@@ -85,12 +85,9 @@ class PersonContact {
 var personRepo = new Repo({
   name: 'person',
   dataSource: 'db',
-  entityConstructor: Person,
-  embeddedConstructors: {
-    'contact': PersonContact
-  },
   strict: false,
   schema: {
+    $construct: Person,
     _id: Number,
     bestFriendId: Number,
     workPlaceId: Number,
@@ -106,16 +103,16 @@ var personRepo = new Repo({
   },
   autoIndex: true,
   relations: {
-    isConsideredBestFriendBy: {
-      type: 'hasMany',
+    isConsideredBestFriendByCount: {
+      type: 'hasManyCount',
       repo: 'person',
       key: 'bestFriendId',
       sort: ['name', 'asc'],
-      autoPopulate: true,
-      recursion: 0
+      autoPopulate: true
     },
-    isConsideredBestFriendByCount: {
-      type: 'hasManyCount',
+    /*
+    isConsideredBestFriendBy: {
+      type: 'hasMany',
       repo: 'person',
       key: 'bestFriendId',
       sort: ['name', 'asc'],
@@ -135,7 +132,8 @@ var personRepo = new Repo({
       key: 'workPlaceId',
       autoPopulate: true,
       recursion: 0
-    },
+    }
+    */
   }
 });
 modelManager.addRepo(personRepo);
