@@ -66,9 +66,6 @@ export class DataSourceMongodb implements DataSourceInterface
 
     var collection = this.getCollection(collectionName);
 
-    // We first find te relation ids which are stored on the base document
-    // We then generate a map of each of those ids to its related count
-
     /*
     var groupFields = ['width', 'height'];
     var docs = [
