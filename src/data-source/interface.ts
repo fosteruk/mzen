@@ -91,6 +91,8 @@ export interface DataSourceInterface
   findOne(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<any>;
   
   count(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<number>;
+
+  groupCount(collectionName: string, groupField: string, query?: QuerySelection): Promise<{[key:string]: number}>;
   
   insertMany(collectionName: string, docs: any[], options?: any): Promise<QueryPersistResultInsertMany>;
   

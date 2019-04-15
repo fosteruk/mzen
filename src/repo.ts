@@ -328,11 +328,11 @@ export class Repo
 
     return this.dataSource.count(this.config.collectionName, query, options);
   }
-  
-  async aggregate(pipeline, options?)
+
+  async groupCount(groupField: string, query?: QuerySelection): Promise<{[key:string]: number}>
   {
     this.initSchema();
-    return this.dataSource.aggregate(this.config.collectionName, pipeline, options);
+    return this.dataSource.groupCount(this.config.collectionName, groupField, query);
   }
 
   private normalizeFindOptions(options: RepoQueryOptions)

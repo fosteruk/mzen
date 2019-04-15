@@ -60,6 +60,11 @@ export class DataSourceMock implements DataSourceInterface
     var count = Array.isArray(data) ? data.length : 0;
     return count;
   }
+
+  async groupCount(_collectionName: string, _groupField: string, _query?: QuerySelection): Promise<{[key:string]: number}>
+  {
+    return {test: 10};
+  }
   
   filterData(collectionName, query?: QuerySelection, options?: QuerySelectionOptions)
   {

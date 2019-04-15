@@ -59,13 +59,42 @@ export class DataSourceMongodb implements DataSourceInterface
     var collection = this.getCollection(collectionName);
     return collection.countDocuments(query, this._findOptionsNormalize(options));
   }
-  
-  // This is not part of the common interface and needs to be replaced - repo code should never call this
-  // Replace it with groupCount(collection, groupByField, values?) return {fieldvalue: count} map
-  async aggregate(collectionName: string, pipeline: any[], options?): Promise<any>
+
+  async groupCount(collectionName: string, groupField: string, query?: QuerySelection): Promise<{[key:string]: number}>
   {
+    query = query ? query : {};
+
     var collection = this.getCollection(collectionName);
-    return await collection.aggregate(pipeline, options).toArray();
+
+    // We first find te relation ids which are stored on the base document
+    // We then generate a map of each of those ids to its related count
+
+    // var groupField = 'letter';
+    // var docs = [{letter: 'a'},{letter: 'a'},{letter: 'a'},{letter: 'b'},{letter: 'b'}];
+    // var values = {a:3, b:2};
+
+    var aggregateId = {};
+    aggregateId[groupField] = '$' + groupField;
+    var results = await collection.aggregate([
+      {$match: query},
+      {
+        $group: {
+          _id: aggregateId, 
+          count: {$sum: 1} 
+        }
+      },
+      {$project: {count: 1}}
+    ]).toArray();
+
+    // Group related docs by parent key
+    var values = {};
+    results.forEach(result => {
+      let fieldValue = result._id[groupField];
+      if (values[fieldValue] == undefined) values[fieldValue] = 0;
+      values[fieldValue] = result.count;
+    });
+
+    return values;
   }
   
   async insertMany(collectionName: string, objects: any[], options?: any): Promise<QueryPersistResultInsertMany>
