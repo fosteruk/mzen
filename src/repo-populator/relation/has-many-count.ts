@@ -10,8 +10,6 @@ export class RelationHasManyCount extends RelationAbstract
 
     const relationIds = this.getRelationIds(config, docs);
 
-    console.log({config, relationIds});
-
     // Has many count - counts the number of related documents
     // We first find te relation ids which are stored on the base document
     // We then generate a map of each of those ids to its related count

@@ -61,6 +61,7 @@ export class DataSourceMongodb implements DataSourceInterface
   }
   
   // This is not part of the common interface and needs to be replaced - repo code should never call this
+  // Replace it with groupCount(collection, groupByField, values?) return {fieldvalue: count} map
   async aggregate(collectionName: string, pipeline: any[], options?): Promise<any>
   {
     var collection = this.getCollection(collectionName);

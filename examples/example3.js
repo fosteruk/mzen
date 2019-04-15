@@ -110,7 +110,6 @@ var personRepo = new Repo({
       sort: ['name', 'asc'],
       autoPopulate: true
     },
-    /*
     isConsideredBestFriendBy: {
       type: 'hasMany',
       repo: 'person',
@@ -133,7 +132,6 @@ var personRepo = new Repo({
       autoPopulate: true,
       recursion: 0
     }
-    */
   }
 });
 modelManager.addRepo(personRepo);
