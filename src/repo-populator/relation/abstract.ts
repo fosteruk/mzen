@@ -8,10 +8,13 @@ export abstract class RelationAbstract
 {
   abstract populate(relationRepo: Repo, relationConfig: RelationConfig, docs);
 
-  private formatRelationId(id)
+  private formatKey(key)
   {
-    // Values such as Date or ObjectID must be cast to a string before referecned in a query
-    return (id && ['string', 'number'].indexOf(typeof id) === -1) ? String(id) : id;
+    // Relation keys must be cast to a string during lookup 
+    // Keys such as Date or ObjectID will have been implicitly cast to string when they were set to the
+    // - values object before being passed into populateValues(), so they must but referenced as a string 
+    // - when looking up the related value
+    return (key && typeof key != 'string') ? String(key) : key;
   }
 
   protected getRelationIds(config: RelationConfig, docs)
@@ -34,7 +37,6 @@ export abstract class RelationAbstract
         if (Array.isArray(id)) {
           // Only belongsToMany relation supports an array of source keys
           id.forEach(anId => {
-            anId = this.formatRelationId(anId);
             // We must store the id as a primitive as they are referenced as by lookup object
             // - complex types can not be used as object field names
             //anId = String(anId);
@@ -45,7 +47,7 @@ export abstract class RelationAbstract
         } else {
           // We must store the id as a primitive as they are referenced as by lookup object
           // - complex types can not be used as object field names
-          relationIds.push(this.formatRelationId(id));
+          relationIds.push(id);
         }
       }
     });
@@ -75,10 +77,12 @@ export abstract class RelationAbstract
           // - this must be a belongsToMany relation since that is the only relation type that supports
           // - an array of source keys
           doc[config.alias] = [];
-          sourceKey.forEach(function(sk){
+          sourceKey.forEach(sk => {
+            sk = this.formatKey(sk);
             if (values[sk] !== undefined) doc[config.alias].push(values[sk]);
           });
         } else {
+          sourceKey = this.formatKey(sourceKey);
           let isHasOne = (config.type.toLowerCase().indexOf('hasone') != -1);
           if (values[sourceKey] !== undefined) doc[config.alias] = isHasOne ? values[sourceKey][0] : values[sourceKey];
         }
