@@ -7,7 +7,10 @@ export abstract class RelationEmbeddedBelongsToAbstract extends RelationEmbedded
   {
     config = this.normalizeConfig(config);
 
-    const relationIds = this.getRelationIds(config, docs);
+    // Since this is an embedded relation, we are looking up relations ids using 
+    // - a simple indexOf() rather than a DB query, cast ids to string to esnure objects
+    // - are matched based on value rather than object reference
+    const relationIds = this.getRelationIds(config, docs).map(id => String(id));
     const embeddedDocs = this.getEmebedRelations(config.docPathRelated, docs);
 
     var values = {};
