@@ -34,6 +34,7 @@ export interface RepoIndexConfig
     sparse?: boolean,
     background?: boolean,
     expireAfterSeconds?: number
+    [key: string]: any; // allow implementation specific props
   };
 }
 
