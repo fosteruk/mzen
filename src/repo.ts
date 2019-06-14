@@ -60,6 +60,7 @@ export interface RepoQueryOptions extends QuerySelectionOptions
 {
   populate?: {[key: string]: boolean} | boolean;
   filterPrivate?: boolean;
+  skipValidation?: boolean;
   [key: string]: any; // allow implementation specific props
 }
 
@@ -297,9 +298,11 @@ export class Repo
     const optionsQuery = this.getQueryOptions(optionsAll);
     
     query = query ? query : {};
-    var validateResult = await this.schema.validateQuery(query);
-    if (!validateResult.isValid) {
-      throw new RepoErrorValidation(validateResult.errors)
+    if (!optionsAll.skipValidation) {
+      var validateResult = await this.schema.validateQuery(query);
+      if (!validateResult.isValid) {
+        throw new RepoErrorValidation(validateResult.errors)
+      }
     }
 
     var docs = await this.dataSource.find(this.config.collectionName, query, optionsQuery);
@@ -314,10 +317,11 @@ export class Repo
     const optionsPropagate = this.getPropagateOptions(optionsAll);
     const optionsQuery = this.getQueryOptions(optionsAll);
 
-    query = query ? query : {};
-    const validateResult = await this.schema.validateQuery(query);
-    if (!validateResult.isValid) {
-      throw new RepoErrorValidation(validateResult.errors);
+    if (!optionsAll.skipValidation) {
+      var validateResult = await this.schema.validateQuery(query);
+      if (!validateResult.isValid) {
+        throw new RepoErrorValidation(validateResult.errors)
+      }
     }
 
     var docs = await this.dataSource.findOne(this.config.collectionName, query, optionsQuery);
@@ -346,6 +350,7 @@ export class Repo
   private normalizeFindOptions(options: RepoQueryOptions)
   {
     var options = options ? {...options} : {};
+    options.skipValidation = (options.skipValidation !== undefined)  ? options.skipValidation : false;
     options.filterPrivate = (options.filterPrivate !== undefined)  ? options.filterPrivate : false;
     options.populate = (options.populate !== undefined)  ? options.populate : null;
     return options;
