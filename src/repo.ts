@@ -60,6 +60,8 @@ export interface RepoQueryOptions extends QuerySelectionOptions
 {
   populate?: {[key: string]: boolean} | boolean;
   filterPrivate?: boolean;
+  // mzen query validator can not handle complex queries 
+  // - some times the only option is to skip query validation
   skipValidation?: boolean;
   [key: string]: any; // allow implementation specific props
 }
@@ -298,12 +300,8 @@ export class Repo
     const optionsQuery = this.getQueryOptions(optionsAll);
     
     query = query ? query : {};
-    if (!optionsAll.skipValidation) {
-      var validateResult = await this.schema.validateQuery(query);
-      if (!validateResult.isValid) {
-        throw new RepoErrorValidation(validateResult.errors)
-      }
-    }
+    let errors = await this.validateQuery(query, options);
+    if (errors) throw new RepoErrorValidation(errors);
 
     var docs = await this.dataSource.find(this.config.collectionName, query, optionsQuery);
     return this.findPopulate(docs, optionsPropagate);
@@ -317,26 +315,21 @@ export class Repo
     const optionsPropagate = this.getPropagateOptions(optionsAll);
     const optionsQuery = this.getQueryOptions(optionsAll);
 
-    if (!optionsAll.skipValidation) {
-      var validateResult = await this.schema.validateQuery(query);
-      if (!validateResult.isValid) {
-        throw new RepoErrorValidation(validateResult.errors)
-      }
-    }
+    query = query ? query : {};
+    let errors = await this.validateQuery(query, options);
+    if (errors) throw new RepoErrorValidation(errors);
 
     var docs = await this.dataSource.findOne(this.config.collectionName, query, optionsQuery);
     return this.findPopulate(docs, optionsPropagate);
   }
   
-  async count(query?: QuerySelection, options?: QuerySelectionOptions): Promise<number>
+  async count(query?: QuerySelection, options?: RepoQueryOptions): Promise<number>
   {
     this.initSchema();
 
     query = query ? query : {};
-    const validateResult = await this.schema.validateQuery(query);
-    if (!validateResult.isValid) {
-      throw new RepoErrorValidation(validateResult.errors);
-    }
+    let errors = await this.validateQuery(query, options);
+    if (errors) throw new RepoErrorValidation(errors);
 
     return this.dataSource.count(this.config.collectionName, query, options);
   }
@@ -344,6 +337,8 @@ export class Repo
   async groupCount(groupFields: string[], query?: QuerySelection): Promise<Array<{_id: any, count: number}>>
   {
     this.initSchema();
+
+    query = query ? query : {};
     return this.dataSource.groupCount(this.config.collectionName, groupFields, query);
   }
 
@@ -526,6 +521,22 @@ export class Repo
     var args = Array.prototype.slice.call(arguments); // We use Array.slice() to make a copy of the original args
     args.unshift(this.config.collectionName); // Prepend collection name to arguments
     return this.dataSource.deleteOne.apply(this.dataSource, args);
+  }
+
+  async validateQuery(query?: QuerySelection, options?: RepoQueryOptions)
+  {
+    var errors = null;
+    query = query ? query : {};
+
+    const optionsAll = this.normalizeFindOptions(options);
+    if (!optionsAll.skipValidation) {
+      const validateResult = await this.schema.validateQuery(query);
+      if (!validateResult.isValid) {
+        errors = validateResult.errors;
+      }
+    }
+    
+    return errors;
   }
   
   stripTransients(docs: any)
