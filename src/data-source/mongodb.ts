@@ -26,7 +26,11 @@ export class DataSourceMongodb implements DataSourceInterface
   
   async connect(): Promise<DataSourceInterface>
   {
-    const defaultOptions = {ignoreUndefined: true, useNewUrlParser: true};
+    const defaultOptions = {
+      ignoreUndefined: true, 
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    };
     const url = this.config.url ? this.config.url : '';
     const customOptions = this.config.options ? this.config.options : {};
     const options = Object.assign({}, defaultOptions, customOptions);
