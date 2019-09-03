@@ -42,6 +42,7 @@ export class ModelManager
   repos: {[key: string]: Repo};
   services: {[key: string]: Service};
   repoPopulator: RepoPopulator;
+  logger: any;
   
   constructor(options?: ModelManagerConfig)
   {
@@ -56,6 +57,8 @@ export class ModelManager
     this.config.schemas = this.config.schemas ? this.config.schemas : {};
     this.config.repos = this.config.repos ? this.config.repos : {};
     this.config.services = this.config.services ? this.config.services : {};
+
+    this.logger = console;
 
     this.dataSources = {};
     this.constructors = {};
@@ -75,6 +78,11 @@ export class ModelManager
     if (this.config.services) {
       this.addServices(this.config.services);
     }
+  }
+
+  setLogger(logger)
+  {
+    this.logger = logger;
   }
   
   async loadResources()
@@ -276,6 +284,7 @@ export class ModelManager
     Object.values(this.repos).forEach(async repo => {
       // We inject the main config object into every repo so it can access global config values
       repo.config.model = this.config;
+      repo.setLogger(this.logger);
       repo.setPopulator(this.getRepoPopulator());
       repo.addConstructors(this.constructors);
       repo.addSchemas(this.schemas);
@@ -300,6 +309,7 @@ export class ModelManager
     Object.values(this.services).forEach(async service => {
       // We inject the main config object into every service so it can access global config values
       service.config.model = this.config;
+      service.setLogger(this.logger);
       service.addRepos(this.repos);
       service.addServices(this.services);
       

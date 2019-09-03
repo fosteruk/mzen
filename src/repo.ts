@@ -78,6 +78,7 @@ export class Repo
   constructors: {[key: string]: any};
   services: {[key: string]: Service | any};
   relationPaths: Array<string>;
+  logger: any;
   
   constructor(options?: RepoConfig)
   {
@@ -96,6 +97,8 @@ export class Repo
     this.config.repos = this.config.repos ? this.config.repos : {};
     this.config.constructors = this.config.constructors ? this.config.constructors : {};
     this.config.services = this.config.services ? this.config.services : {};
+
+    this.logger = console;
 
     this.name = this.config.name ? this.config.name : this.constructor.name;
 
@@ -125,6 +128,11 @@ export class Repo
       let aliasPath = docPath ? docPath + '.' + relation.alias : relation.alias;
       this.relationPaths.push(aliasPath);
     });
+  }
+
+  setLogger(logger)
+  {
+    this.logger = logger;
   }
   
   // Init creates indexes

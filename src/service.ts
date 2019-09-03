@@ -15,6 +15,7 @@ export class Service
   name: string;
   repos: {[key: string]: Repo | any};
   services: {[key: string]: Service | any};
+  logger: any;
   
   constructor(options?: ServiceConfig) 
   {
@@ -24,12 +25,19 @@ export class Service
     this.config.repos = this.config.repos ? this.config.repos : {};
     this.config.services = this.config.services ? this.config.services : {};
 
+    this.logger = console; 
+
     this.name = this.config.name ? this.config.name : this.constructor.name;
     this.repos = {};
     this.services = {};
 
     if (this.config.repos) this.addRepos(this.config.repos);
     if (this.config.services) this.addServices(this.config.services);
+  }
+
+  setLogger(logger)
+  {
+    this.logger = logger;
   }
   
   init()
