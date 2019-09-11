@@ -18,7 +18,9 @@ export class RepoErrorValidation extends Error
   
   constructor(errors)
   {
-    super('One or more fields failed validation');
+    const errorPaths = errors ? Object.keys(errors) : [];
+    const errorPathsString = errorPaths.length ? ' (' + errorPaths.join(', ') + ')' : '';
+    super('One or more fields'+ errorPathsString + ' failed validation');
     this.validationErrors = errors;
   }
 }
