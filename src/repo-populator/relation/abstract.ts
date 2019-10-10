@@ -3,7 +3,6 @@ import { RelationConfig } from '../../repo-populator';
 import { ObjectPathAccessor } from 'mzen-schema';
 import clone = require('clone');
 
-
 export abstract class RelationAbstract
 {
   abstract populate(relationRepo: Repo, relationConfig: RelationConfig, docs);

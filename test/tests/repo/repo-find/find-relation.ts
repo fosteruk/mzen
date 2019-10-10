@@ -390,7 +390,6 @@ describe('relation', function(){
           type: 'belongsToOne',
           repo: 'userTimezone',
           key: 'timezoneId',
-          alias: 'userTimezone',
           autoPopulate: false // important - initialy the relation is configured not to populate
         }
       }
