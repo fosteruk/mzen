@@ -1,4 +1,5 @@
 import DataSourceMongodb from './data-source/mongodb';
+import DataSourceMock from './data-source/mock';
 import ResourceLoader from './resource-loader';
 import Repo from './repo';
 import RepoPopulator from './repo-populator';
@@ -154,6 +155,9 @@ export class ModelManager
     switch (options.type) {
       case 'mongodb':
         dataSource = new DataSourceMongodb(options);
+      break;
+      case 'mock':
+        dataSource = new DataSourceMock(options.data ? options.data : {});
       break;
     }
 
