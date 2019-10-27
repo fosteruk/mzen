@@ -70,20 +70,23 @@ export interface RepoQueryOptions extends QuerySelectionOptions
 
 export class Repo
 {
-  config: RepoConfig;
-  name: string;
-  dataSource: any;
-  schema: Schema;
-  populator: RepoPopulator;
-  schemas: {[key: string]: Schema | any};
-  repos: {[key: string]: Repo | any}; // we allow any because the actual object may be of a class that extends Repo
-  constructors: {[key: string]: any};
-  services: {[key: string]: Service | any};
-  relationPaths: Array<string>;
-  logger: any;
+  initialised:boolean;
+  config:RepoConfig;
+  name:string;
+  dataSource:any;
+  schema:Schema;
+  populator:RepoPopulator;
+  schemas:{[key: string]: Schema | any};
+  repos:{[key: string]: Repo | any}; // we allow any because the actual object may be of a class that extends Repo
+  constructors:{[key: string]: any};
+  services:{[key: string]: Service | any};
+  relationPaths:Array<string>;
+  logger:any;
   
   constructor(options?: RepoConfig)
   {
+    this.initialised = false;
+
     this.config = options ? options : {};
     this.config.model = this.config.model ? this.config.model : {}; // The main config is injected here
     this.config.pkey = this.config.pkey ? this.config.pkey : '_id';
@@ -131,12 +134,15 @@ export class Repo
   // Init creates indexes
   async init()
   {
-    var promises = [];
-    if (!this.schema) {
-      this.initSchema();
-      if (this.config.autoIndex) promises.push(this.createIndexes());
+    if (!this.initialised) {
+      var promises = [];
+      if (!this.schema) {
+        this.initSchema();
+        if (this.config.autoIndex) promises.push(this.createIndexes());
+      }
+      await Promise.all(promises);
+      this.initialised = true;
     }
-    return Promise.all(promises);
   }
 
   compileRelationPaths()

@@ -3,21 +3,21 @@ import Repo from './repo';
 
 export interface ServiceConfig
 {
-  model?: ModelManagerConfig;
-  name?: string;
-  repos?: {[key: string]: Repo} | Array<Repo>;
-  services?: {[key: string]: Service} | Array<Service>;
+  model?:ModelManagerConfig;
+  name?:string;
+  repos?:{[key: string]: Repo} | Array<Repo>;
+  services?:{[key: string]: Service} | Array<Service>;
 }
 
 export class Service
 {
-  config: ServiceConfig;
-  name: string;
-  repos: {[key: string]: Repo | any};
-  services: {[key: string]: Service | any};
-  logger: any;
+  config:ServiceConfig;
+  name:string;
+  repos:{[key: string]: Repo | any};
+  services:{[key: string]: Service | any};
+  logger:any;
   
-  constructor(options?: ServiceConfig) 
+  constructor(options?:ServiceConfig) 
   {
     this.config = options ? options : {};
     this.config.model = this.config.model ? this.config.model : {}; // The main config is injected here
@@ -56,7 +56,7 @@ export class Service
     return this.name;
   }
   
-  addRepo(repo: Repo)
+  addRepo(repo:Repo)
   {
     this.repos[repo.getName()] = repo;
   }
@@ -66,14 +66,14 @@ export class Service
     return this.repos[name];
   }
   
-  addRepos(repos: Array<Repo> | {[key:string]: Repo})
+  addRepos(repos:Array<Repo> | {[key:string]: Repo})
   {
     // could be an array of repo objects or a object map
     var reopsArray = Array.isArray(repos) ? repos : Object.values(repos);
     reopsArray.forEach(repo => this.addRepo(repo));
   }
   
-  addService(service: Service)
+  addService(service:Service)
   {
     this.services[service.getName()] = service;
   }
@@ -83,7 +83,7 @@ export class Service
     return (name == this.name) ? this : this.services[name];
   }
   
-  addServices(services: Array<Service> | {[key: string]: Service})
+  addServices(services:Array<Service> | {[key: string]: Service})
   {
     // could be an array of repo objects or a object map
     var servicesArray = Array.isArray(services) ? services : Object.values(services);

@@ -36,17 +36,20 @@ export interface ModelManagerConfig
  */
 export class ModelManager
 {
-  config: ModelManagerConfig;
-  dataSources: {[key: string]: any};
-  constructors: {[key: string]: any};
-  schemas: {[key: string]: Schema};
-  repos: {[key: string]: Repo};
-  services: {[key: string]: Service};
-  repoPopulator: RepoPopulator;
-  logger: any;
+  initialised:boolean;
+  config:ModelManagerConfig;
+  dataSources:{[key: string]: any};
+  constructors:{[key: string]: any};
+  schemas:{[key: string]: Schema};
+  repos:{[key: string]: Repo};
+  services:{[key: string]: Service};
+  repoPopulator:RepoPopulator;
+  logger:any;
   
   constructor(options?: ModelManagerConfig)
   {
+    this.initialised = false;
+
     this.config = options ? options : {};
     this.config.dataSources = this.config.dataSources ? this.config.dataSources : [];
     this.config.modelDirs = this.config.modelDirs ? this.config.modelDirs : [];
@@ -324,11 +327,14 @@ export class ModelManager
   
   async init()
   {
-    await this.loadDataSources();
-    await this.loadResources();
-    await this.initSchemas();
-    await this.initRepos();
-    await this.initServices();
+    if (!this.initialised) {
+      await this.loadDataSources();
+      await this.loadResources();
+      await this.initSchemas();
+      await this.initRepos();
+      await this.initServices();
+      this.initialised = true;
+    }
 
     return this;
   }
