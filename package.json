@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "clone": "^1.0.2",
-    "mongodb": "^3.2.3",
+    "mongodb": "^3.3.3",
     "mzen-schema": "0.0.91"
   },
   "files": [
