@@ -120,16 +120,7 @@ export class Repo
 
     // Compile an array of relation aliases which can be used to strip relations of populated docs before saving
     this.relationPaths = [];
-    Object.keys(this.config.relations).forEach(alias => {
-      let relation = this.config.relations[alias];
-      // set 'alias' in the relation config if not set
-      // - the alias name is usually defined by the relation config as a the config element key but the alias value
-      // - needs to be available within the relation config itself so it can be passed around
-      if (relation.alias == undefined) this.config.relations[alias].alias = alias;
-      let docPath = relation.docPath ? relation.docPath : null;
-      let aliasPath = docPath ? docPath + '.' + relation.alias : relation.alias;
-      this.relationPaths.push(aliasPath);
-    });
+    this.compileRelationPaths();
   }
 
   setLogger(logger)
@@ -146,6 +137,20 @@ export class Repo
       if (this.config.autoIndex) promises.push(this.createIndexes());
     }
     return Promise.all(promises);
+  }
+
+  compileRelationPaths()
+  {
+    Object.keys(this.config.relations).forEach(alias => {
+      let relation = this.config.relations[alias];
+      // set 'alias' in the relation config if not set
+      // - the alias name is usually defined by the relation config as a the config element key but the alias value
+      // - needs to be available within the relation config itself so it can be passed around
+      if (relation.alias == undefined) this.config.relations[alias].alias = alias;
+      let docPath = relation.docPath ? relation.docPath : null;
+      let aliasPath = docPath ? docPath + '.' + relation.alias : relation.alias;
+      this.relationPaths.push(aliasPath);
+    });
   }
   
   initSchema()
@@ -174,7 +179,8 @@ export class Repo
     // This can cause problems because repositories are referred to by name in the model and if we have multiple
     // repositories named 'Repo' we could not be sure which one we are working with
     // For this reason we do not permit a repository to be named 'Repo'
-    if (this.name == 'Repo') throw new Error('Repo name not configured - you must specify a repo name when using the default repo entityConstructor');
+    if (this.name == 'Repo') throw new Error('Repo name not configured - ' 
+      + 'you must specify a repo name when using the default repo constructor');
     return this.name;
   }
 
@@ -183,51 +189,51 @@ export class Repo
     return this.populator ? this.populator : this.populator = new RepoPopulator;
   }
 
-  setPopulator(populator: RepoPopulator)
+  setPopulator(populator:RepoPopulator)
   {
     this.populator = populator;
   }
   
-  addConstructor(value)
+  addConstructor(value:Function)
   {
     this.constructors[value.name] = value;
   }
   
-  getConstructor(constructorName)
+  getConstructor(constructorName:string)
   {
     return this.constructors[constructorName] ? this.constructors[constructorName] : null;
   }
   
-  addConstructors(constructors)
+  addConstructors(constructors:Array<Function> | {[key:string]: Function})
   {
     // could be an array of constructor functions or a object map 
     var constructorsArray = Array.isArray(constructors) ? constructors : Object.values(constructors);
     constructorsArray.forEach(construct => this.addConstructor(construct));
   }
   
-  addSchema(schema: Schema)
+  addSchema(schema:Schema)
   {
     this.schemas[schema.getName()] = schema;
   }
   
-  getSchema(name): Schema
+  getSchema(name:string): Schema
   {
     return this.schemas[name] ? this.schemas[name] : null;
   }
   
-  addSchemas(schemas: Array<Schema> | {[key:string]: Schema})
+  addSchemas(schemas:Array<Schema> | {[key:string]: Schema})
   {
     // could be an array of schema docs functions or a object map
     var schemasArray = Array.isArray(schemas) ? schemas : Object.values(schemas);
     schemasArray.forEach(schema => this.addSchema(schema));
   }
   
-  addRepo(repo: Repo)
+  addRepo(repo:Repo)
   {
     this.repos[repo.getName()] = repo;
   }
   
-  getRepo(name): Repo
+  getRepo(name:string): Repo
   {
     return (name == this.name) ? this : this.repos[name];
   }
@@ -261,19 +267,19 @@ export class Repo
     return this.dataSource.drop(this.config.collectionName);
   }
   
-  reset()
+  async reset()
   {
     // This method drops the collection and re-creates it with indexes if any are defined
-    return this.drop().then(() => {
-      return this.config.autoIndex ? this.createIndexes() : null;
-    });
+    await this.drop();
+    if (this.config.autoIndex) {
+      await this.createIndexes();
+    }
   }
   
   async createIndexes()
   {
     var promises = [];
     for (let indexName in this.config.indexes) {
-      if (!this.config.indexes.hasOwnProperty(indexName)) continue;
       var index = this.config.indexes[indexName];
       if (index.options == undefined) index.options = {};
       if (index.name) {
@@ -301,7 +307,7 @@ export class Repo
     return this.dataSource.dropIndexes(this.config.collectionName);
   }
   
-  async find(query?: QuerySelection, options?: RepoQueryOptions): Promise<any[]>
+  async find(query?:QuerySelection, options?:RepoQueryOptions): Promise<any[]>
   {
     this.initSchema();
 
@@ -317,7 +323,7 @@ export class Repo
     return this.findPopulate(docs, optionsPropagate);
   }
   
-  async findOne(query?: QuerySelection, options?: RepoQueryOptions): Promise<any>
+  async findOne(query?:QuerySelection, options?:RepoQueryOptions): Promise<any>
   {
     this.initSchema();
 
@@ -333,7 +339,7 @@ export class Repo
     return this.findPopulate(docs, optionsPropagate);
   }
   
-  async count(query?: QuerySelection, options?: RepoQueryOptions): Promise<number>
+  async count(query?:QuerySelection, options?:RepoQueryOptions): Promise<number>
   {
     this.initSchema();
 
@@ -344,7 +350,7 @@ export class Repo
     return this.dataSource.count(this.config.collectionName, query, options);
   }
 
-  async groupCount(groupFields: string[], query?: QuerySelection): Promise<Array<{_id: any, count: number}>>
+  async groupCount(groupFields:string[], query?:QuerySelection): Promise<Array<{_id: any, count: number}>>
   {
     this.initSchema();
 
@@ -352,7 +358,7 @@ export class Repo
     return this.dataSource.groupCount(this.config.collectionName, groupFields, query);
   }
 
-  private normalizeFindOptions(options: RepoQueryOptions)
+  private normalizeFindOptions(options:RepoQueryOptions)
   {
     var options = options ? {...options} : {};
     options.skipValidation = (options.skipValidation !== undefined)  ? options.skipValidation : false;
@@ -379,7 +385,7 @@ export class Repo
     };
   }
   
-  private async findPopulate(docs: any, options: any)
+  private async findPopulate(docs:any, options:any)
   {
     if (options.filterPrivate) {
       this.schema.filterPrivate(docs, 'read');
@@ -388,12 +394,12 @@ export class Repo
     return (options.populate === false) ? docs : this.populateAll(docs, options);
   }
   
-  async populateAll(docs: any, options?: RepoQueryOptions)
+  async populateAll(docs: any, options?:RepoQueryOptions)
   {
     return this.getPopulator().populateAll(this, docs, options);
   }
   
-  async populate(relation: RelationConfig | string, docs?: any, options?: RepoQueryOptions)
+  async populate(relation:RelationConfig|string, docs?:any, options?:RepoQueryOptions)
   {
     return this.getPopulator().populate(this, relation, docs, options);
   }
@@ -436,7 +442,7 @@ export class Repo
     return this.dataSource.insertOne.apply(this.dataSource, args);
   }
   
-  async updateMany(criteria: QuerySelection, update: QueryUpdate, options?): Promise<QueryPersistResult>
+  async updateMany(criteria:QuerySelection, update:QueryUpdate, options?): Promise<QueryPersistResult>
   {
     this.initSchema();
     criteria = clone(criteria);
@@ -469,7 +475,7 @@ export class Repo
     return this.dataSource.updateMany(this.config.collectionName, criteria, update, options);
   }
   
-  async updateOne(criteria: QuerySelection, update: QueryUpdate, options?): Promise<QueryPersistResult>
+  async updateOne(criteria:QuerySelection, update:QueryUpdate, options?): Promise<QueryPersistResult>
   {
     this.initSchema();
     criteria = clone(criteria);
@@ -502,7 +508,7 @@ export class Repo
     return this.dataSource.updateOne(this.config.collectionName, criteria, update, options);
   }
   
-  async deleteMany(filter: QuerySelection, options?): Promise<QueryPersistResult>
+  async deleteMany(filter:QuerySelection, options?): Promise<QueryPersistResult>
   {
     this.initSchema();
     options = options ? options : {};
@@ -518,7 +524,7 @@ export class Repo
     return this.dataSource.deleteMany.apply(this.dataSource, args);
   }
   
-  async deleteOne(filter: QuerySelection, options?): Promise<QueryPersistResult>
+  async deleteOne(filter:QuerySelection, options?): Promise<QueryPersistResult>
   {
     this.initSchema();
     options = options ? options : {};
@@ -533,7 +539,7 @@ export class Repo
     return this.dataSource.deleteOne.apply(this.dataSource, args);
   }
 
-  async validateQuery(query?: QuerySelection, options?: RepoQueryOptions)
+  async validateQuery(query?:QuerySelection, options?: RepoQueryOptions)
   {
     var errors = null;
     query = query ? query : {};
@@ -549,7 +555,7 @@ export class Repo
     return errors;
   }
   
-  stripTransients(docs: any)
+  stripTransients(docs:any)
   {
     this.initSchema();
 
