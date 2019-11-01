@@ -459,8 +459,11 @@ export class Repo
     var validateResultUpdate = {};
     criteria = criteria ? criteria : {};
 
-    if (update && update.$set && options && options.filterPrivate ) {
-      this.schema.filterPrivate(update.$set, 'write', 'mapPaths');
+    if (update && update.$set) {
+      this.schema.stripTransients(update.$set, 'mapPaths');
+      if (options && options.filterPrivate) {
+        this.schema.filterPrivate(update.$set, 'write', 'mapPaths');
+      }
     }
 
     promises.push(this.schema.validateQuery(criteria).then((result) => {
@@ -490,8 +493,11 @@ export class Repo
     var validationResults = [];
     criteria = criteria ? criteria : {};
 
-    if (update && update.$set && options && options.filterPrivate ) {
-      this.schema.filterPrivate(update.$set, 'write', 'mapPaths');
+    if (update && update.$set) {
+      this.schema.stripTransients(update.$set, 'mapPaths');
+      if (options && options.filterPrivate) {
+        this.schema.filterPrivate(update.$set, 'write', 'mapPaths');
+      }
     }
 
     promises.push(this.schema.validateQuery(criteria).then((result) => {
@@ -561,9 +567,11 @@ export class Repo
     return errors;
   }
   
-  stripTransients(docs:any)
+  stripTransients(docs:any, mapperType?:string)
   {
     this.initSchema();
+
+    var mapperType = (mapperType == 'mapPaths') ? 'mapPaths' : 'map';
 
     var newdocs = clone(docs); // We will be deleting relations so we need to work on a copy
     var isArray = Array.isArray(newdocs);
@@ -573,7 +581,7 @@ export class Repo
       ObjectPathAccessor.unsetPath('*.' + relationPath, newdocs);
     });
 
-    this.schema.stripTransients(newdocs);
+    this.schema.stripTransients(newdocs, mapperType);
 
     var result = isArray ? newdocs : newdocs.pop();
     return result;
