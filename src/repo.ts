@@ -503,7 +503,6 @@ export class Repo
     promises.push(this.schema.validateQuery(criteria).then((result) => {
       validationResults.push(result);
     }));
-
     if (update && update.$set) {
       promises.push(this.schema.validatePaths(update.$set).then((result) => {
         validationResults.push(result);
