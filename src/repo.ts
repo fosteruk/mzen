@@ -417,7 +417,7 @@ export class Repo
     args[0] = this.stripTransients(docs);
 
     if (options && options.filterPrivate) {
-      this.schema.filterPrivate(args[0], 'write');
+      args[0] = this.schema.filterPrivate(args[0], 'write');
     }
 
     var validateResult = await this.schema.validate(args[0]);
@@ -436,7 +436,7 @@ export class Repo
     args[0] = this.stripTransients(doc);
 
     if (options && options.filterPrivate) {
-      this.schema.filterPrivate(args[0], 'write');
+      args[0] =this.schema.filterPrivate(args[0], 'write');
     }
 
     var validateResult = await this.schema.validate(args[0]);
@@ -460,9 +460,9 @@ export class Repo
     criteria = criteria ? criteria : {};
 
     if (update && update.$set) {
-      this.stripTransients(update.$set, 'mapPaths');
+      update.$set = this.stripTransients(update.$set, 'mapPaths');
       if (options && options.filterPrivate) {
-        this.schema.filterPrivate(update.$set, 'write', 'mapPaths');
+        update.$set = this.schema.filterPrivate(update.$set, 'write', 'mapPaths');
       }
     }
 
@@ -494,9 +494,9 @@ export class Repo
     criteria = criteria ? criteria : {};
 
     if (update && update.$set) {
-      this.stripTransients(update.$set, 'mapPaths');
+      update.$set = this.stripTransients(update.$set, 'mapPaths');
       if (options && options.filterPrivate) {
-        this.schema.filterPrivate(update.$set, 'write', 'mapPaths');
+        update.$set = this.schema.filterPrivate(update.$set, 'write', 'mapPaths');
       }
     }
 
@@ -580,10 +580,9 @@ export class Repo
       ObjectPathAccessor.unsetPath('*.' + relationPath, newdocs);
     });
 
-    this.schema.stripTransients(newdocs, mapperType);
+    newdocs = this.schema.stripTransients(newdocs, mapperType);
 
-    var result = isArray ? newdocs : newdocs.pop();
-    return result;
+    return isArray ? newdocs : newdocs.pop();
   }
 }
 
