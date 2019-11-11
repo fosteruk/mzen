@@ -460,7 +460,7 @@ export class Repo
     criteria = criteria ? criteria : {};
 
     if (update && update.$set) {
-      this.schema.stripTransients(update.$set, 'mapPaths');
+      this.stripTransients(update.$set, 'mapPaths');
       if (options && options.filterPrivate) {
         this.schema.filterPrivate(update.$set, 'write', 'mapPaths');
       }
@@ -494,7 +494,7 @@ export class Repo
     criteria = criteria ? criteria : {};
 
     if (update && update.$set) {
-      this.schema.stripTransients(update.$set, 'mapPaths');
+      this.stripTransients(update.$set, 'mapPaths');
       if (options && options.filterPrivate) {
         this.schema.filterPrivate(update.$set, 'write', 'mapPaths');
       }
