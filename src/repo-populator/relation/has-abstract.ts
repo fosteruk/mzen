@@ -14,6 +14,9 @@ export abstract class RelationHasAbstract extends RelationAbstract
     config.query[config.key] = {$in: relationIds};
     // @ts-ignore - Expected 0 arguments, but got 2 - variable method arguments
     var relatedDocs = await relationRepo.find(config.query, config);
+    if (config.filterPrivate) {
+      relatedDocs = relationRepo.schema.filterPrivate(relatedDocs, 'read');
+    }
     // Group related docs by parent key
     var values = {};
     relatedDocs.forEach(relatedDoc => {

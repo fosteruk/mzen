@@ -394,7 +394,7 @@ export class Repo
   private async findPopulate(docs:any, options:any)
   {
     if (options.filterPrivate) {
-      this.schema.filterPrivate(docs, 'read');
+      docs = this.schema.filterPrivate(docs, 'read');
     }
     docs = docs ? this.schema.applyTransients(docs) : docs;
     return (options.populate === false) ? docs : this.populateAll(docs, options);
