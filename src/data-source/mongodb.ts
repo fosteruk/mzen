@@ -125,19 +125,11 @@ export class DataSourceMongodb implements DataSourceInterface
     };
   }
   
-  async updateMany(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options?: any): Promise<QueryPersistResult>
+  async update(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options?: any): Promise<QueryPersistResult>
   {
     options = options ? options : {};
     var collection = this.getCollection(collectionName);
     var response = await collection.updateMany(querySelect, queryUpdate, options);
-    return { count: response.modifiedCount + response.upsertedCount };
-  }
-  
-  async updateOne(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options: any): Promise<QueryPersistResult>
-  {
-    options = options ? options : {};
-    var collection = this.getCollection(collectionName);
-    var response = await collection.updateOne(querySelect, queryUpdate, options);
     return { count: response.modifiedCount + response.upsertedCount };
   }
   

@@ -98,9 +98,7 @@ export interface DataSourceInterface
   
   insertOne(collectionName: string, doc: any, options?: any): Promise<QueryPersistResultInsertOne>;
   
-  updateMany(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options?: any): Promise<QueryPersistResult>;
-  
-  updateOne(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options?: any): Promise<QueryPersistResult>;
+  update(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options?: any): Promise<QueryPersistResult>;
   
   deleteMany(collectionName: string, query: QuerySelection): Promise<QueryPersistResult>;
   
