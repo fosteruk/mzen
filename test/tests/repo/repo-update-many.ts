@@ -2,7 +2,7 @@ import should = require('should');
 import Repo from '../../../lib/repo';
 import MockDataSource from '../../../lib/data-source/mock';
 
-describe('update()', function(){
+describe('updateMany()', function(){
   it('should return type casted documents', async () => {
     var updateData = {
       $set: {
@@ -20,7 +20,7 @@ describe('update()', function(){
     });
     user.dataSource = new MockDataSource({});
 
-    await user.update({}, updateData, {filterPrivate: true});
+    await user.updateMany({}, updateData, {filterPrivate: true});
     should(user.dataSource.dataUpdate[0]['$set'].number).eql(123);
     should(user.dataSource.dataUpdate[0]['$set'].string).eql('543');
   });
@@ -41,7 +41,7 @@ describe('update()', function(){
     });
     user.dataSource = new MockDataSource({});
 
-    await user.update({}, updateData, {filterPrivate: true});
+    await user.updateMany({}, updateData, {filterPrivate: true});
     should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
     should(user.dataSource.dataUpdate[0]['$set'].cannotInsertThisValue).eql(undefined);
   });
@@ -62,7 +62,7 @@ describe('update()', function(){
     });
     user.dataSource = new MockDataSource({});
 
-    await user.update({}, updateData, {filterPrivate: true});
+    await user.updateMany({}, updateData, {filterPrivate: true});
     should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
     should(user.dataSource.dataUpdate[0]['$set'].cannotInsertThisValue).eql(undefined);
   });
@@ -83,7 +83,7 @@ describe('update()', function(){
     });
     user.dataSource = new MockDataSource({});
 
-    await user.update({}, updateData, {filterPrivate: true});
+    await user.updateMany({}, updateData, {filterPrivate: true});
     should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
     should(user.dataSource.dataUpdate[0]['$set'].canUpdateThisValue).eql('123');
   });
@@ -104,7 +104,7 @@ describe('update()', function(){
     });
     user.dataSource = new MockDataSource({});
 
-    await user.update({}, updateData);
+    await user.updateMany({}, updateData);
     should(user.dataSource.dataUpdate[0]['$set'].name).eql('Kevin');
     should(user.dataSource.dataUpdate[0]['$set'].canUpdateThisValue).eql('123');
   });

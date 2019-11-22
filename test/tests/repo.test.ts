@@ -380,5 +380,6 @@ describe('Repo', function(){
   require('./repo/repo-find-one');
   require('./repo/repo-insert-many');
   require('./repo/repo-insert-one');
-  require('./repo/repo-update');
+  require('./repo/repo-update-many');
+  require('./repo/repo-update-one');
 });

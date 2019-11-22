@@ -448,7 +448,7 @@ export class Repo
     return this.dataSource.insertOne.apply(this.dataSource, args);
   }
   
-  async update(criteria:QuerySelection, update:QueryUpdate, options?): Promise<QueryPersistResult>
+  async updateMany(criteria:QuerySelection, update:QueryUpdate, options?): Promise<QueryPersistResult>
   {
     this.initSchema();
     criteria = clone(criteria);
@@ -481,7 +481,42 @@ export class Repo
     if (!validateResult.isValid) {
       throw new RepoErrorValidation(validateResult.errors);
     }
-    return this.dataSource.update(this.config.collectionName, criteria, update, options);
+    return this.dataSource.updateMany(this.config.collectionName, criteria, update, options);
+  }
+  
+  async updateOne(criteria:QuerySelection, update:QueryUpdate, options?): Promise<QueryPersistResult>
+  {
+    this.initSchema();
+    criteria = clone(criteria);
+    update = clone(update);
+    var promises = [];
+    var validationResults = [];
+    criteria = criteria ? criteria : {};
+
+    if (update && update.$set) {
+      update.$set = this.stripTransients(update.$set, 'mapPaths');
+      if (options && options.filterPrivate) {
+        update.$set = this.schema.filterPrivate(update.$set, 'write', 'mapPaths');
+      }
+    }
+
+    promises.push(this.schema.validateQuery(criteria).then((result) => {
+      validationResults.push(result);
+    }));
+    if (update && update.$set) {
+      promises.push(this.schema.validatePaths(update.$set).then((result) => {
+        validationResults.push(result);
+      }));
+    }
+
+    await Promise.all(promises);
+    var validateResult = Schema.mergeValidationResults(validationResults);
+
+    if (!validateResult.isValid) {
+      throw new RepoErrorValidation(validateResult.errors);
+    }
+
+    return this.dataSource.updateOne(this.config.collectionName, criteria, update, options);
   }
   
   async deleteMany(filter:QuerySelection, options?): Promise<QueryPersistResult>

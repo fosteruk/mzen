@@ -111,12 +111,21 @@ export class DataSourceMock implements DataSourceInterface
     };
   }
   
-  async update(_collectionName: string, _querySelect: QuerySelection, queryUpdate: QueryUpdate, _options?: any): Promise<QueryPersistResult>
+  async updateMany(_collectionName: string, _querySelect: QuerySelection, queryUpdate: QueryUpdate, _options?: any): Promise<QueryPersistResult>
   {
     this.queryCount++;
     this.dataUpdate = this.dataUpdate.concat(queryUpdate);
     return {
       count: 10
+    };
+  }
+  
+  async updateOne(_collectionName: string, _querySelect: QuerySelection, queryUpdate: QueryUpdate, _options: any): Promise<QueryPersistResult>
+  {
+    this.queryCount++;
+    this.dataUpdate = this.dataUpdate.concat(queryUpdate);
+    return {
+      count: 1
     };
   }
   
