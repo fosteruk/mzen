@@ -447,17 +447,19 @@ export class Repo
     args.unshift(this.config.collectionName); // Prepend collection name to arguments
     return this.dataSource.insertOne.apply(this.dataSource, args);
   }
-  
-  async updateMany(criteria:QuerySelection, update:QueryUpdate, options?): Promise<QueryPersistResult>
+
+  async _updatePrepare(filter:QuerySelection, update:QueryUpdate, options?): Promise<{
+    f:QuerySelection, u:QueryUpdate, o?
+  }>
   {
     this.initSchema();
-    criteria = clone(criteria);
+    filter = clone(filter);
     update = clone(update);
     var promises = [];
     var validateResult = {} as SchemaValidationResult;
     var validateResultQuery = {};
     var validateResultUpdate = {};
-    criteria = criteria ? criteria : {};
+    filter = filter ? filter : {};
 
     if (update && update.$set) {
       update.$set = this.stripTransients(update.$set, 'mapPaths');
@@ -466,10 +468,9 @@ export class Repo
       }
     }
 
-    promises.push(this.schema.validateQuery(criteria).then((result) => {
+    promises.push(this.schema.validateQuery(filter).then((result) => {
       validateResultQuery = result;
     }));
-
     if (update && update.$set) {
       promises.push(this.schema.validatePaths(update.$set).then((result) => {
         validateResultUpdate = result;
@@ -481,45 +482,27 @@ export class Repo
     if (!validateResult.isValid) {
       throw new RepoErrorValidation(validateResult.errors);
     }
-    return this.dataSource.updateMany(this.config.collectionName, criteria, update, options);
+
+    return {
+      f: filter,
+      u: update,
+      o: options
+    };
   }
   
-  async updateOne(criteria:QuerySelection, update:QueryUpdate, options?): Promise<QueryPersistResult>
+  async updateMany(filter:QuerySelection, update:QueryUpdate, options?): Promise<QueryPersistResult>
   {
-    this.initSchema();
-    criteria = clone(criteria);
-    update = clone(update);
-    var promises = [];
-    var validationResults = [];
-    criteria = criteria ? criteria : {};
-
-    if (update && update.$set) {
-      update.$set = this.stripTransients(update.$set, 'mapPaths');
-      if (options && options.filterPrivate) {
-        update.$set = this.schema.filterPrivate(update.$set, 'write', 'mapPaths');
-      }
-    }
-
-    promises.push(this.schema.validateQuery(criteria).then((result) => {
-      validationResults.push(result);
-    }));
-    if (update && update.$set) {
-      promises.push(this.schema.validatePaths(update.$set).then((result) => {
-        validationResults.push(result);
-      }));
-    }
-
-    await Promise.all(promises);
-    var validateResult = Schema.mergeValidationResults(validationResults);
-
-    if (!validateResult.isValid) {
-      throw new RepoErrorValidation(validateResult.errors);
-    }
-
-    return this.dataSource.updateOne(this.config.collectionName, criteria, update, options);
+    const { f, u, o } = await this._updatePrepare(filter, update, options); 
+    return this.dataSource.updateMany(this.config.collectionName, f, u, o);
   }
   
-  async deleteMany(filter:QuerySelection, options?): Promise<QueryPersistResult>
+  async updateOne(filter:QuerySelection, update:QueryUpdate, options?): Promise<QueryPersistResult>
+  {
+    const { f, u, o } = await this._updatePrepare(filter, update, options); 
+    return this.dataSource.updateOne(this.config.collectionName, f, u, o);
+  }
+
+  async _deletePrepare(filter:QuerySelection, options?): Promise<{f:QuerySelection, o?}>
   {
     this.initSchema();
     options = options ? options : {};
@@ -530,24 +513,22 @@ export class Repo
       error.validationErrors = validateResult.errors;
       throw error;
     }
-    var args = Array.prototype.slice.call(arguments); // We use Array.slice() to make a copy of the original args
-    args.unshift(this.config.collectionName); // Prepend collection name to arguments
-    return this.dataSource.deleteMany.apply(this.dataSource, args);
+    return {
+      f: filter,
+      o: options
+    };
+  }
+  
+  async deleteMany(filter:QuerySelection, options?): Promise<QueryPersistResult>
+  {
+    const { f, o } = await this._deletePrepare(filter, options);
+    return this.dataSource.deleteMany(this.config.collectionName, f, o);
   }
   
   async deleteOne(filter:QuerySelection, options?): Promise<QueryPersistResult>
   {
-    this.initSchema();
-    options = options ? options : {};
-    filter = filter ? filter : {};
-    var validateResult = await this.schema.validateQuery(filter);
-    if (!validateResult.isValid) {
-      throw new RepoErrorValidation(validateResult.errors);
-    }
-
-    var args = Array.prototype.slice.call(arguments); // We use Array.slice() to make a copy of the original args
-    args.unshift(this.config.collectionName); // Prepend collection name to arguments
-    return this.dataSource.deleteOne.apply(this.dataSource, args);
+    const { f, o } = await this._deletePrepare(filter, options);
+    return this.dataSource.deleteOne.apply(this.dataSource, f, o);
   }
 
   async validateQuery(query?:QuerySelection, options?: RepoQueryOptions)
