@@ -1,6 +1,6 @@
 {
   "name": "mzen",
-  "version": "0.1.137",
+  "version": "0.1.138",
   "description": "mZen",
   "main": "./lib/index",
   "types": "./lib/index.d.ts",
