@@ -128,4 +128,49 @@ describe('RelationBelongsToOne', function(){
     should(docs[0].some.unknown.path.detail.more.createdByUser.name).eql('Kevin Foster');
     should(docs[1].some.unknown.path.detail.more.createdByUser.name).eql('Tom Murphy');
   });
+  it('should populate multiple doc paths with the same alias', async () => {
+    var data = {
+      business: [
+        {_id: '1', name: 'Google'},
+        {_id: '2', name: 'Amazon'},
+        {_id: '3', name: 'Microsoft'},
+        {_id: '4', name: 'DigitalOcean'},
+      ],
+      user: [
+        {
+          _id: '1', 
+          name: 'Kevin Foster', 
+          businessCustomer: [
+            {businessId: '1'},
+            {businessId: '2'},
+          ],
+          businessSupplier: [
+            {businessId: '3'},
+            {businessId: '4'},
+          ]
+        }
+      ]
+    };
+
+    var business = new Repo({
+      name: 'business'
+    });
+    business.dataSource = new MockDataSource(data);
+
+    var repoPopulator = new RelationBelongsToOne;
+    var docsA = await repoPopulator.populate(business, {
+      alias: 'business',
+      docPath: 'businessCustomer.*',
+      key: 'businessId'
+    }, data.user);
+
+    var docsB = await repoPopulator.populate(business, {
+      alias: 'business',
+      docPath: 'businessSupplier.*',
+      key: 'businessId'
+    }, data.user);
+  
+    should(docsA[0].businessCustomer[0].business.name).eql('Google');
+    should(docsB[0].businessSupplier[0].business.name).eql('Microsoft');
+  });
 });

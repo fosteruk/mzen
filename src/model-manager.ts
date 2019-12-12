@@ -9,7 +9,7 @@ import Schema from 'mzen-schema';
 export interface ModelManagerConfigDataSource
 {
   name?: string;
-  type?: string;
+  type?: 'mongodb'|'mock'|string;
   [key: string]: any;
 }
 

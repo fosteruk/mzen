@@ -59,6 +59,7 @@ export class RepoPopulator
 
   async populateAll(repo: Repo, docs: any, options?: RepoQueryOptions)
   {
+    options = options ? options : {};
     const flattenedRelations = this.getFlattenedRelations(repo, options);
     options.populate = false; // Dont populate recursively - we already flattened the relations
 
@@ -77,6 +78,7 @@ export class RepoPopulator
 
   async populate(repo: Repo, relation: RelationConfig | string, docs?: any, options?: RepoQueryOptions)
   {
+    options = options ? options : {};
     // If relation is passed as string relation name, lookup the relation config
     const relationConfig: RelationConfig = (typeof relation == 'string') ? repo.config.relations[relation] : relation;
 
@@ -123,6 +125,7 @@ export class RepoPopulator
   
   private getFlattenedRelationsRecursive(repo: Repo, options: any, flatRelations?: Array<any>, basePath?: string)
   {
+    options = options ? options : {};
     flatRelations = flatRelations ? flatRelations : [];
     basePath = basePath ? basePath : null;
 
@@ -135,6 +138,11 @@ export class RepoPopulator
       let autoPopulate = relation.autoPopulate != undefined ? relation.autoPopulate : false;
       let queryPopulate = options.populate != undefined ? options.populate : true;
 
+      let docPath = relation.docPath;
+      let pathRelative = docPath 
+        ? docPath + '.' + relation.alias 
+        : relation.alias;
+
       // Append base path
       relation.docPath = (relation.docPath)
                          ? (basePath ? basePath + '.' + relation.docPath : relation.docPath)
@@ -145,21 +153,21 @@ export class RepoPopulator
                                 ? (basePath ? basePath + '.' + relation.docPathRelated : relation.docPathRelated)
                                 : basePath;
 
-      let path = relation.docPath ? relation.docPath + '.' + relation.alias : relation.alias;
+      let fullPath = relation.docPath ? relation.docPath + '.' + relation.alias : relation.alias;
 
       if (
         !queryPopulate || // query said dont populate any relations
-        (queryPopulate[path] !== undefined && !queryPopulate[path]) || // query said dont populate this path
-        (queryPopulate[path] === undefined && !autoPopulate) // query didnt specificaly enable population and relation auto population is disabled
+        (queryPopulate[fullPath] !== undefined && !queryPopulate[fullPath]) || // query said dont populate this path
+        (queryPopulate[fullPath] === undefined && !autoPopulate) // query didnt specificaly enable population and relation auto population is disabled
       ) {
         // relation should not populate - continue to next relation
         continue;
       }
 
       let flatRelation = {
-        id: repo.name + '.' + relation.alias,
+        id: repo.name + '.' + pathRelative,
         depth,
-        path,
+        path: fullPath,
         relation,
         recursionCount: 0
       };
@@ -183,7 +191,7 @@ export class RepoPopulator
 
       // Recurse into this relation only if populate is true or is populate relation path is true
       let newbasePathParts = [...basePathParts];
-      newbasePathParts.push(relation.alias);
+      newbasePathParts.push(pathRelative);
       if (relation.type == 'hasMany' || relation.type == 'belongsToMany') {
         newbasePathParts.push('*');
       }
