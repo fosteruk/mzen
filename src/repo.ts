@@ -528,7 +528,7 @@ export class Repo
   async deleteOne(filter:QuerySelection, options?): Promise<QueryPersistResult>
   {
     const { f, o } = await this._deletePrepare(filter, options);
-    return this.dataSource.deleteOne.apply(this.config.collectionName, f, o);
+    return this.dataSource.deleteOne(this.config.collectionName, f, o);
   }
 
   async validateQuery(query?:QuerySelection, options?: RepoQueryOptions)
