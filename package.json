@@ -1,7 +1,8 @@
 {
   "name": "mzen",
+  "private": true,
   "version": "0.1.142",
-  "description": "mZen",
+  "description": "mzen",
   "main": "./lib/index",
   "types": "./lib/index.d.ts",
   "scripts": {
