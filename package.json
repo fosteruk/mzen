@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "clone": "^1.0.2",
-    "mongo-parse": "^2.1.0",
     "mongodb": "^3.3.3",
     "mzen-schema": "github:fosteruk/mzen-schema#master"
   },

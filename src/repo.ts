@@ -11,7 +11,6 @@ import {
 import Schema, { SchemaValidationResult, SchemaSpec, ObjectPathAccessor } from 'mzen-schema';
 import Service from './service';
 import { RepoPopulator, RelationConfig } from './repo-populator';
-import * as mongoParse from 'mongo-parse';
 
 export class RepoErrorValidation extends Error
 {
@@ -532,7 +531,6 @@ export class Repo
     return this.dataSource.deleteOne(this.config.collectionName, f, o);
   }
 
-  /*
   async validateQuery(query?:QuerySelection, options?: RepoQueryOptions)
   {
     var errors = null;
@@ -546,48 +544,6 @@ export class Repo
       }
     }
     
-    return errors;
-  }
-  */
-
-  async validateQuery(query?:QuerySelection, options?: RepoQueryOptions)
-  {
-    var errors = null;
-    query = query ? query : {};
-
-    const optionsAll = this.normalizeFindOptions(options);
-    if (!optionsAll.skipValidation) {
-      this.schema.init();
-
-      var meta = meta ? meta : {errors: {}};
-      var config = config ?  config : {};
-      // This is a query - we are expecting fields which are not defined
-      // - We dont want those to trigger an error so disabled strict validation
-      config.strict = false;
-  
-      mongoParse.parse(query).mapValues((field, value) => {
-        if (field !== undefined) {
-          var paths = {};
-          paths[field] = value;
-          this.schema.schemaMapper.mapPaths(paths, async (opts) => {
-            let { spec, specParent, fieldName, container, path } = opts;
-            value = await this.schema.validateField({
-              spec,
-              specParent,
-              fieldName,
-              value: container ? container[fieldName] : undefined,
-              path,
-              config,
-              meta
-            });
-          }, {skipTransients: true});
-        }
-        return value;
-      });
-
-      errors = meta.errors.length ? meta.errors : null;
-    }
-  
     return errors;
   }
   
