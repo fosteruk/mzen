@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "clone": "^1.0.2",
-    "mongodb": "^3.3.3",
+    "mongodb": "^3.5.2",
     "mzen-schema": "github:fosteruk/mzen-schema#master"
   },
   "files": [
