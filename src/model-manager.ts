@@ -14,7 +14,7 @@ export interface ModelManagerConfigDataSource
 
 export interface ModelManagerConfig
 {
-  dataSources?: Array<{[key: string]: ModelManagerConfigDataSource}>;
+  dataSources?: Array<ModelManagerConfigDataSource>;
   constructors?: {[key: string]: any} | Array<any>;
   schemas?: {[key: string]: Schema} | Array<Schema>;
   repos?: {[key: string]: Repo} | Array<Repo>;
