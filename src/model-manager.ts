@@ -1,6 +1,5 @@
 import DataSourceMongodb from './data-source/mongodb';
 import DataSourceMock from './data-source/mock';
-import ResourceLoader from './resource-loader';
 import Repo from './repo';
 import RepoPopulator from './repo-populator';
 import Service from './service';
@@ -16,11 +15,6 @@ export interface ModelManagerConfigDataSource
 export interface ModelManagerConfig
 {
   dataSources?: Array<{[key: string]: ModelManagerConfigDataSource}>;
-  modelDirs?: Array<string>;
-  schemasDirName?: string;
-  constructorsDirName?: string;
-  reposDirName?: string;
-  servicesDirName?: string;
   constructors?: {[key: string]: any} | Array<any>;
   schemas?: {[key: string]: Schema} | Array<Schema>;
   repos?: {[key: string]: Repo} | Array<Repo>;
@@ -37,6 +31,9 @@ export interface ModelManagerConfig
 export class ModelManager
 {
   initialised:boolean;
+  initialisers: {
+    [key: string]: any[]
+  };
   config:ModelManagerConfig;
   dataSources:{[key: string]: any};
   constructors:{[key: string]: any};
@@ -48,22 +45,19 @@ export class ModelManager
   
   constructor(options?: ModelManagerConfig)
   {
-    this.initialised = false;
-
     this.config = options ? options : {};
-    this.config.dataSources = this.config.dataSources ? this.config.dataSources : [];
-    this.config.modelDirs = this.config.modelDirs ? this.config.modelDirs : [];
-    this.config.schemasDirName = this.config.schemasDirName ? this.config.schemasDirName  : 'schema';
-    this.config.constructorsDirName = this.config.constructorsDirName ? this.config.constructorsDirName  : 'constructor';
-    this.config.reposDirName = this.config.reposDirName ? this.config.reposDirName : 'repo';
-    this.config.servicesDirName = this.config.servicesDirName ? this.config.servicesDirName : 'service';
-    this.config.constructors = this.config.constructors ? this.config.constructors : {};
+    this.config.dataSources = this.config.dataSources 
+      ? this.config.dataSources : [];
+    this.config.constructors = this.config.constructors 
+      ? this.config.constructors : {};
     this.config.schemas = this.config.schemas ? this.config.schemas : {};
     this.config.repos = this.config.repos ? this.config.repos : {};
     this.config.services = this.config.services ? this.config.services : {};
 
     this.logger = console;
 
+    this.initialised = false;
+    this.initialisers = {};
     this.dataSources = {};
     this.constructors = {};
     this.schemas = {};
@@ -88,68 +82,24 @@ export class ModelManager
   {
     this.logger = logger;
   }
-  
-  async loadResources()
+
+  addInitialiser(initialiser, stage?:string)
   {
-    const loader = new ResourceLoader({
-      dirPaths: this.config.modelDirs
-    });
-    
-    // Load Entity Constructors
-    // First load any constructors specified in the constructors.js file of the model directory
-    const constructorsCollection = loader.getResources({fileNamesLimit: ['constructors.js']});
-    for (let resourcePath in constructorsCollection) {
-      this.addConstructors(constructorsCollection[resourcePath]);
+    stage = stage ? stage : 'default';
+    if (this.initialisers[stage] === undefined) {
+      this.initialisers[stage] = [];
     }
-    // Load any constructors specified in the constructor directory of the model directory
-    const constructors = loader.getResources({subdir: this.config.constructorsDirName});
-    for (let resourcePath in constructors) {
-      this.addConstructor(constructors[resourcePath]);
-    }
+    this.initialisers[stage].push(initialiser);
+  }
 
-    // Load Schemas
-    // First load any schemas specified in the schemas.js file of the model directory
-    const schemasCollection = loader.getResources({fileNamesLimit: ['schemas.js']});
-    for (let resourcePath in schemasCollection) {
-      this.addSchemas(schemasCollection[resourcePath]);
+  async runInitialisers(stage?:string)
+  {
+    stage = stage ? stage : 'default';
+    if (this.initialisers[stage]) {
+      this.initialisers[stage].forEach(async initFunction => {
+        await Promise.resolve(initFunction(this));
+      });
     }
-    // Load any schemas specified in the schema directory of the model directory
-    const schemas = loader.getResources({subdir: this.config.schemasDirName});
-    for (let resourcePath in schemas) {
-      const config = loader.getResourceConfig(resourcePath);
-      const schema = new schemas[resourcePath](null, config);
-      this.addSchema(schema);
-    }
-
-    // Load Repos
-    // First load any repos specified in the repos.js file of the model directory
-    const reposCollection = loader.getResources({fileNamesLimit: ['repos.js']});
-    for (let resourcePath in reposCollection) {
-      this.addRepos(reposCollection[resourcePath]);
-    }
-    // Load any repos specified in the repo directory of the model directory
-    const repos = loader.getResources({subdir: this.config.reposDirName});
-    for (let resourcePath in repos) {
-      const config = loader.getResourceConfig(resourcePath);
-      const repo = new repos[resourcePath](config);
-      this.addRepo(repo);
-    }
-
-    // Load services
-    // First load any services specified in the services.js file of the model directory
-    const servicesCollection = loader.getResources({fileNamesLimit: ['services.js']});
-    for (let resourcePath in servicesCollection) {
-      this.addServices(servicesCollection[resourcePath]);
-    }
-    // Load any services specified in the service directory of the model directory
-    const services = loader.getResources({subdir: this.config.servicesDirName});
-    for (let resourcePath in services) {
-      const config = loader.getResourceConfig(resourcePath);
-      const service = new services[resourcePath](config);
-      this.addService(service);
-    }
-
-    return this;
   }
   
   initDataSourceFromConfig(options)
@@ -328,11 +278,13 @@ export class ModelManager
   async init()
   {
     if (!this.initialised) {
+      await this.runInitialisers();
+      await this.runInitialisers('00-init');
       await this.loadDataSources();
-      await this.loadResources();
       await this.initSchemas();
       await this.initRepos();
       await this.initServices();
+      await this.runInitialisers('99-final');
       this.initialised = true;
     }
 
