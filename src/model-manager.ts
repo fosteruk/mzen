@@ -92,6 +92,13 @@ export class ModelManager
     this.initialisers[stage].push(initialiser);
   }
 
+  addInitialisers(initialisers, stage?:string)
+  {
+    initialisers.forEach(initialiser => {
+      this.addInitialiser(initialiser, stage);
+    });
+  }
+
   async runInitialisers(stage?:string)
   {
     stage = stage ? stage : 'default';
