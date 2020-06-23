@@ -126,22 +126,23 @@ export class ModelManager
   
   async initDataSource(name: string, dataSource)
   {
-    const waitMs = 1500;
-    const maxAttemps = 3;
-    let attemps = 0;
+    const waitMs = 500;
+    const maxAttempts = 3;
+    let attempt = 0;
     const attemptConnect = async () => {
-      attemps++;
+      attempt++;
       try {
         await dataSource.connect();
         this.addDataSource(name, dataSource);
       } catch (error) {
-        if (attemps <= maxAttemps) {
+        if (attempt < maxAttempts) {
           await (
             new Promise(
-              resolve => 
+              resolve => (
                 setTimeout(
-                () => resolve(attemptConnect()), 
-                waitMs
+                  () => resolve(attemptConnect()), 
+                  waitMs
+                )
               )
             )
           )
