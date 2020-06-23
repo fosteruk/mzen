@@ -109,7 +109,7 @@ export class ModelManager
     }
   }
   
-  initDataSourceFromConfig(options)
+  async initDataSourceFromConfig(options)
   {
     var dataSource = null;
     switch (options.type) {
@@ -121,16 +121,38 @@ export class ModelManager
       break;
     }
 
-    return this.initDataSource(options.name, dataSource);
+    return await this.initDataSource(options.name, dataSource);
   }
   
-  initDataSource(name: string, dataSource)
+  async initDataSource(name: string, dataSource)
   {
-    return dataSource.connect()
-          .then((dataSource) => {
-            this.addDataSource(name, dataSource);
-            return dataSource;
-          });
+    const waitMs = 1500;
+    const maxAttemps = 3;
+    let attemps = 0;
+    const attemptConnect = async () => {
+      attemps++;
+      try {
+        await dataSource.connect();
+        this.addDataSource(name, dataSource);
+      } catch (error) {
+        if (attemps <= maxAttemps) {
+          await (
+            new Promise(
+              resolve => 
+                setTimeout(
+                () => resolve(attemptConnect()), 
+                waitMs
+              )
+            )
+          )
+        } else {
+          throw error;
+        }
+      }
+    }
+    await attemptConnect();
+
+    return dataSource;
   }
 
   getRepoPopulator(): RepoPopulator
