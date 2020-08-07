@@ -24,7 +24,7 @@ export class DataSourceMongodb implements DataSourceInterface
     this.db = null;
   }
   
-  async connect(): Promise<DataSourceInterface>
+  async connect():Promise<DataSourceInterface>
   {
     const defaultOptions = {
       ignoreUndefined: true, 
@@ -40,7 +40,7 @@ export class DataSourceMongodb implements DataSourceInterface
     return this;
   }
   
-  find(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<any[]>
+  find(collectionName:string, query?:QuerySelection, options?:QuerySelectionOptions):Promise<any[]>
   {
     query = query ? query : {};
     options = options ? options : {};
@@ -48,7 +48,7 @@ export class DataSourceMongodb implements DataSourceInterface
     return collection.find(query, this._findOptionsNormalize(options)).toArray();
   }
   
-  findOne(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<any>
+  findOne(collectionName:string, query?:QuerySelection, options?:QuerySelectionOptions):Promise<any>
   {
     query = query ? query : {};
     options = options ? options : {};
@@ -56,7 +56,7 @@ export class DataSourceMongodb implements DataSourceInterface
     return collection.findOne(query, this._findOptionsNormalize(options));
   }
   
-  count(collectionName: string, query?: QuerySelection, options?: QuerySelectionOptions): Promise<number>
+  count(collectionName:string, query?:QuerySelection, options?:QuerySelectionOptions):Promise<number>
   {
     query = query ? query : {};
     options = options ? options : {};
@@ -64,10 +64,9 @@ export class DataSourceMongodb implements DataSourceInterface
     return collection.countDocuments(query, this._findOptionsNormalize(options));
   }
 
-  async groupCount(collectionName: string, groupFields: string[], query?: QuerySelection): Promise<Array<{_id: any, count: number}>>
+  async groupCount(collectionName:string, groupFields:string[], query?:QuerySelection):Promise<Array<{_id:any, count:number}>>
   {
     query = query ? query : {};
-
     var collection = this.getCollection(collectionName);
 
     /*
@@ -84,14 +83,12 @@ export class DataSourceMongodb implements DataSourceInterface
       {_id: {width: 3, height: 5}, count: 2}
     ];
     */
-
+    var pipline = [];
+    if (query) pipline.push({$match: query});
     var aggregateId = {};
     groupFields.forEach(field => {
       aggregateId[field] = '$' + field;
     });
-
-    var pipline = [];
-    if (query) pipline.push({$match: query});
     pipline.push({
       $group: {
         _id: aggregateId, 
@@ -102,8 +99,47 @@ export class DataSourceMongodb implements DataSourceInterface
 
     return await collection.aggregate(pipline).toArray();
   }
+
+  async findGroup(collectionName:string, groupFields:string[], query?:QuerySelection):Promise<any[]>
+  {
+    query = query ? query : {};
+    var collection = this.getCollection(collectionName);
+
+    /*
+    var groupFields = ['userId'];
+    var docs = [
+      {_id: 1, userId: 1, created: new ISODate("2020-01-01T00:00:00Z")},
+      {_id: 2, userId: 1, created: new ISODate("2020-01-01T00:00:00Z")},
+      {_id: 3, userId: 2, created: new ISODate("2020-01-01T00:00:00Z")},
+      {_id: 4, userId: 2, created: new ISODate("2020-01-01T00:00:00Z")},
+      {_id: 5, userId: 2, created: new ISODate("2020-01-01T00:00:00Z")},
+    ];
+    var result = [
+      {_id: 1, userId: 1, created: new ISODate("2020-01-01T00:00:00Z")},
+      {_id: 3, userId: 2, created: new ISODate("2020-01-01T00:00:00Z")}
+    ];
+    */
+
+    var pipline = [];
+    if (query) pipline.push({$match: query});
+    var aggregateId = {};
+    groupFields.forEach(field => {
+      aggregateId[field] = '$' + field;
+    });
+    pipline.push({
+      $group: {
+        _id: aggregateId, 
+        data: {$first: '$$ROOT'}
+      }
+    });
+    pipline.push({
+      $replaceRoot: {newRoot: '$data'}
+    });
+
+    return await collection.aggregate(pipline).toArray();
+  }
   
-  async insertMany(collectionName: string, objects: any[], options?: any): Promise<QueryPersistResultInsertMany>
+  async insertMany(collectionName:string, objects:any[], options?:any):Promise<QueryPersistResultInsertMany>
   {
     options = options ? options : {};
     var collection = this.getCollection(collectionName);
@@ -114,7 +150,7 @@ export class DataSourceMongodb implements DataSourceInterface
     };
   }
   
-  async insertOne(collectionName: string, object: any, options?: any): Promise<QueryPersistResultInsertOne>
+  async insertOne(collectionName:string, object:any, options?:any):Promise<QueryPersistResultInsertOne>
   {
     options = options ? options : {};
     var collection = this.getCollection(collectionName);
@@ -125,7 +161,7 @@ export class DataSourceMongodb implements DataSourceInterface
     };
   }
   
-  async updateMany(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options?: any): Promise<QueryPersistResult>
+  async updateMany(collectionName:string, querySelect:QuerySelection, queryUpdate:QueryUpdate, options?:any):Promise<QueryPersistResult>
   {
     options = options ? options : {};
     var collection = this.getCollection(collectionName);
@@ -133,7 +169,7 @@ export class DataSourceMongodb implements DataSourceInterface
     return { count: response.modifiedCount + response.upsertedCount };
   }
   
-  async updateOne(collectionName: string, querySelect: QuerySelection, queryUpdate: QueryUpdate, options: any): Promise<QueryPersistResult>
+  async updateOne(collectionName:string, querySelect:QuerySelection, queryUpdate:QueryUpdate, options:any):Promise<QueryPersistResult>
   {
     options = options ? options : {};
     var collection = this.getCollection(collectionName);
@@ -141,21 +177,21 @@ export class DataSourceMongodb implements DataSourceInterface
     return { count: response.modifiedCount + response.upsertedCount };
   }
   
-  async deleteMany(collectionName: string, query: QuerySelection): Promise<QueryPersistResult>
+  async deleteMany(collectionName:string, query:QuerySelection):Promise<QueryPersistResult>
   {
     var collection = this.getCollection(collectionName);
     var response = await collection.deleteMany(query);
     return { count: response.deletedCount };
   }
   
-  async deleteOne(collectionName: string, query: QuerySelection): Promise<QueryPersistResult>
+  async deleteOne(collectionName:string, query:QuerySelection):Promise<QueryPersistResult>
   {
     var collection = this.getCollection(collectionName);
     var response = await collection.deleteOne(query);
     return { count: response.deletedCount };
   }
   
-  drop(collectionName: string): Promise<any>
+  drop(collectionName:string):Promise<any>
   {
     return this.getCollection(collectionName).drop().catch(error => {
       // Ignore error code 26 'ns not found' 
@@ -164,25 +200,25 @@ export class DataSourceMongodb implements DataSourceInterface
     });
   }
   
-  createIndex(collectionName: string, indexSpec: IndexSpec | string, options?: IndexOptions): Promise<any>
+  createIndex(collectionName:string, indexSpec:IndexSpec|string, options?:IndexOptions):Promise<any>
   {
     var collection = this.getCollection(collectionName);
     return collection.createIndex(indexSpec, options);
   }
   
-  dropIndex(collectionName: string, indexName: string): Promise<any>
+  dropIndex(collectionName:string, indexName:string):Promise<any>
   {
     var collection = this.getCollection(collectionName);
     return collection.dropIndex(indexName);
   }
   
-  dropIndexes(collectionName: string): Promise<any>
+  dropIndexes(collectionName:string):Promise<any>
   {
     var collection = this.getCollection(collectionName);
     return collection.dropIndexes.apply(collection);
   }
   
-  async close(): Promise<any>
+  async close():Promise<any>
   {
     if (this.client) {
       await this.client.close(true);
@@ -201,7 +237,7 @@ export class DataSourceMongodb implements DataSourceInterface
     return options;
   }
   
-  private getCollection(collectionName?: string, options?)
+  private getCollection(collectionName?:string, options?)
   {
     return this.db.collection(collectionName, options);
   }

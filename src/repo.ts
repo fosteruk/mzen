@@ -364,6 +364,14 @@ export class Repo
     return this.dataSource.groupCount(this.config.collectionName, groupFields, query);
   }
 
+  async findGroup(groupFields:string[], query?:QuerySelection): Promise<any[]>
+  {
+    this.initSchema();
+
+    query = query ? query : {};
+    return this.dataSource.findGroup(this.config.collectionName, groupFields, query);
+  }
+
   private normalizeFindOptions(options:RepoQueryOptions)
   {
     var options = options ? {...options} : {};
