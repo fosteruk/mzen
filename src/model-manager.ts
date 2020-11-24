@@ -108,20 +108,20 @@ export class ModelManager
     if (this.initialisers[stage]) {
       for (var initFunction of this.initialisers[stage]) {
         var shutdownHandler = await Promise.resolve(initFunction(this));
-        if (typeof shutdownHandler == 'function') {
-          this.addShutdownHandler(shutdownHandler, stage);
-        }
+        this.addShutdownHandler(shutdownHandler, stage);
       }
     }
   }
 
   addShutdownHandler(handler, stage?:string)
   {
-    stage = stage ? stage : 'default';
-    if (this.shutdownHandlers[stage] === undefined) {
-      this.shutdownHandlers[stage] = [];
+    if (handler) {
+      stage = stage ? stage : 'default';
+      if (this.shutdownHandlers[stage] == undefined) {
+        this.shutdownHandlers[stage] = [];
+      }
+      this.shutdownHandlers[stage].unshift(handler);
     }
-    this.shutdownHandlers[stage].unshift(handler);
   }
 
   addShutdownHandlers(handlers, stage?:string)
@@ -134,10 +134,7 @@ export class ModelManager
   async runShutdownHandlers(stage?:string)
   {
     stage = stage ? stage : 'default';
-    if (
-      this.shutdownHandlers[stage]
-      && this.shutdownHandlers[stage].length
-    ) {
+    if (this.shutdownHandlers[stage]) {
       for (var handler of this.shutdownHandlers[stage]) {
         await Promise.resolve(handler());
       }
