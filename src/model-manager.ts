@@ -34,6 +34,9 @@ export class ModelManager
   initialisers: {
     [key: string]: any[]
   };
+  shutdownHandlers: {
+    [key: string]: any[]
+  };
   config:ModelManagerConfig;
   dataSources:{[key: string]: any};
   constructors:{[key: string]: any};
@@ -103,9 +106,41 @@ export class ModelManager
   {
     stage = stage ? stage : 'default';
     if (this.initialisers[stage]) {
-      this.initialisers[stage].forEach(async initFunction => {
-        await Promise.resolve(initFunction(this));
-      });
+      for (var initFunction of this.initialisers[stage]) {
+        var shutdownHandler = await Promise.resolve(initFunction(this));
+        if (typeof shutdownHandler == 'function') {
+          this.addShutdownHandler(shutdownHandler, stage);
+        }
+      }
+    }
+  }
+
+  addShutdownHandler(handler, stage?:string)
+  {
+    stage = stage ? stage : 'default';
+    if (this.shutdownHandlers[stage] === undefined) {
+      this.shutdownHandlers[stage] = [];
+    }
+    this.shutdownHandlers[stage].unshift(handler);
+  }
+
+  addShutdownHandlers(handlers, stage?:string)
+  {
+    handlers.forEach(handler => {
+      this.addShutdownHandler(handler, stage);
+    });
+  }
+
+  async runShutdownHandlers(stage?:string)
+  {
+    stage = stage ? stage : 'default';
+    if (
+      this.shutdownHandlers[stage]
+      && this.shutdownHandlers[stage].length
+    ) {
+      for (var handler of this.shutdownHandlers[stage]) {
+        await Promise.resolve(handler());
+      }
     }
   }
   
@@ -323,11 +358,17 @@ export class ModelManager
   
   async shutdown()
   {
+    // Should down should be in reverse order of init
+    await this.runShutdownHandlers('99-final');
+
     var promises = [];
     Object.values(this.dataSources).forEach(async dataSource => {
       promises.push(dataSource.close());
     });
     await Promise.all(promises);
+
+    await this.runShutdownHandlers('00-init');
+    await this.runShutdownHandlers();
     
     return this;
   }
