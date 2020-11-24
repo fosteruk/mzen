@@ -61,6 +61,7 @@ export class ModelManager
 
     this.initialised = false;
     this.initialisers = {};
+    this.shutdownHandlers = {};
     this.dataSources = {};
     this.constructors = {};
     this.schemas = {};
